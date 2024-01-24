@@ -25,7 +25,7 @@ func handleConnection(conn net.Conn) {
 
 func main() {
 	// Erstatt med den faktiske server-IPen og velg riktig port
-	serverIP := "10.100.23.129" // Erstatt med serverens IP
+	serverIP := "10.100.23.186" // Erstatt med serverens IP
 	sendPort := "33546"         // Bruk "33546" for \0-terminerte meldinger, "34933" for fast størrelse
 
 	sendAddr, err := net.ResolveTCPAddr("tcp", serverIP+":"+sendPort)
