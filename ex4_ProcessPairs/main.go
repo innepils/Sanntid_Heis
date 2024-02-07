@@ -94,12 +94,5 @@ func backupProcess() {
 }
 
 func main() {
-	// if len(os.Args) > 1 && os.Args[1] == "primary" {
-	// 	startBackupProcess()
-	// 	primaryProcess()
-	// } else {
-	// 	backupProcess()
-	// }
 	backupProcess()
-
 }
