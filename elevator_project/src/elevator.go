@@ -5,7 +5,7 @@ import (
 	"elevator_io"
 	"timer"
 )
-
+// SK: Elevator states
 type ElevatorBehaviour int
 
 const (
@@ -14,13 +14,17 @@ const (
 	EB_Moving
 )
 
+// SK: 
 type ClearRequestVariant int
 
 const (
+	/* GIVEN: Assume everyone waiting for the elevator gets on the elevator, even if 
+    they will be traveling in the "wrong" direction for a while */
 	CV_all ClearRequestVariant = iota
 	CV_InDirn
 )
 
+// Struct contain
 type Elevator struct {
 	Floor int
 	Dirn Dirn
