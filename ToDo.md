@@ -9,11 +9,3 @@ Droppe ut og begynne i git-barnehagen
 ### Simon:
 Slutte å rote til git så vi trenger studass-hjelp
 
-### Test
-Her skriver jeg en test. 
-
-### Test 2
-Her er test nummer 2
-
-### Test Adrian
-Detter er en teststets
