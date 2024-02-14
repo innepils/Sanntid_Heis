@@ -1,10 +1,9 @@
-package main
+package elevator
 
 import (
 	"fmt"
-	"elevator_io"
-	"timer"
 )
+
 // SK: Elevator states
 type ElevatorBehaviour int
 
@@ -14,21 +13,21 @@ const (
 	EB_Moving
 )
 
-// SK: 
+// SK:
 type ClearRequestVariant int
 
 const (
-	/* GIVEN: Assume everyone waiting for the elevator gets on the elevator, even if 
-    they will be traveling in the "wrong" direction for a while */
+	/* GIVEN: Assume everyone waiting for the elevator gets on the elevator, even if
+	   they will be traveling in the "wrong" direction for a while */
 	CV_all ClearRequestVariant = iota
 	CV_InDirn
 )
 
 // Struct contain
 type Elevator struct {
-	Floor int
-	Dirn Dirn
-	Request [N_FLOORS][N_BUTTONS]int
+	Floor     int
+	Dirn      Dirn
+	Request   [N_FLOORS][N_BUTTONS]int
 	Behaviour ElevatorBehaviour
 
 	Config struct {
@@ -52,47 +51,47 @@ func ebToString(eb ElevatorBehaviour) string {
 
 // Prints the state of the elevator
 func (es *Elevator) Print() {
-    fmt.Println("  +--------------------+")
-    fmt.Printf(
-        "  |floor = %-2d          |\n"+
-            "  |dirn  = %-12.12s|\n"+
-            "  |behav = %-12.12s|\n",
-        es.Floor,
-        elevator_io_types.DirnToString(es.Dirn), // Assuming DirnToString function exists
-        ebToString(es.Behaviour),
-    )
-    fmt.Println("  +--------------------+")
-    fmt.Println("  |  | up  | dn  | cab |")
-    for f := N_FLOORS - 1; f >= 0; f-- {
-        fmt.Printf("  | %d", f)
-        for btn := 0; btn < N_BUTTONS; btn++ {
-            if (f == N_FLOORS-1 && btn == B_HallUp) ||
-                (f == 0 && btn == B_HallDown) {
-                fmt.Print("|     ")
-            } else {
-                if es.Requests[f][btn] != 0 {
-                    fmt.Print("|  #  ")
-                } else {
-                    fmt.Print("|  -  ")
-                }
-            }
-        }
-        fmt.Println("|")
-    }
-    fmt.Println("  +--------------------+")
+	fmt.Println("  +--------------------+")
+	fmt.Printf(
+		"  |floor = %-2d          |\n"+
+			"  |dirn  = %-12.12s|\n"+
+			"  |behav = %-12.12s|\n",
+		es.Floor,
+		elevator_io_types.DirnToString(es.Dirn), // Assuming DirnToString function exists
+		ebToString(es.Behaviour),
+	)
+	fmt.Println("  +--------------------+")
+	fmt.Println("  |  | up  | dn  | cab |")
+	for f := N_FLOORS - 1; f >= 0; f-- {
+		fmt.Printf("  | %d", f)
+		for btn := 0; btn < N_BUTTONS; btn++ {
+			if (f == N_FLOORS-1 && btn == B_HallUp) ||
+				(f == 0 && btn == B_HallDown) {
+				fmt.Print("|     ")
+			} else {
+				if es.Requests[f][btn] != 0 {
+					fmt.Print("|  #  ")
+				} else {
+					fmt.Print("|  -  ")
+				}
+			}
+		}
+		fmt.Println("|")
+	}
+	fmt.Println("  +--------------------+")
 }
 
 func NewUninitializedElevator() Elevator {
-    return Elevator{
-        Floor: -1,
-        Dirn:  D_Stop,
-        Behaviour: EB_Idle,
-        Config: struct {
-            ClearRequestVariant ClearRequestVariant
-            DoorOpenDurationSec   float64
-        }{
-            ClearRequestVariant: CV_all,
-            DoorOpenDurationSec:   3.0,
-        },
-    }
+	return Elevator{
+		Floor:     -1,
+		Dirn:      D_Stop,
+		Behaviour: EB_Idle,
+		Config: struct {
+			ClearRequestVariant ClearRequestVariant
+			DoorOpenDurationSec float64
+		}{
+			ClearRequestVariant: CV_all,
+			DoorOpenDurationSec: 3.0,
+		},
+	}
 }

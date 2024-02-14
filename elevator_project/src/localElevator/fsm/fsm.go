@@ -1,9 +1,9 @@
-package main
+package fsm
 
 import (
 	"fmt"
 	"elevator"
-	"elevator_io"
+	"elevio"
 	"requests"
 	"timer"
 )
