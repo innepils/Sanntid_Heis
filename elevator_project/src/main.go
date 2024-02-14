@@ -1,21 +1,19 @@
 package main
 
 import (
+	"elevio"
 	"fmt"
-	"time"
-
-	"con_load"
-	"elevator_io_device"
 	"fsm"
-	"timer"
+	"time"
 )
 
 const (
-	N_FLOORS   = 4
-	N_BUTTONS  = 3
+	N_FLOORS  = 4
+	N_BUTTONS = 3
 )
 
 func main() {
+	
 	fmt.Println("Started!")
 
 	inputPollRate_ms := 25
