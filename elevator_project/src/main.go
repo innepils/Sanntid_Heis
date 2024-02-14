@@ -57,6 +57,3 @@ func main() {
 		}
 	}
 }
-
-// Dette er en viktig kommentar
-// test
