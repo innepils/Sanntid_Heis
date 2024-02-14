@@ -1,4 +1,4 @@
-package requests
+package main
 
 // Assuming the Elevator struct and constants like N_FLOORS, N_BUTTONS, Dirn, ElevatorBehaviour,
 // Button, CV_All, CV_InDirn are defined elsewhere in Go.

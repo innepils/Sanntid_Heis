@@ -1,4 +1,4 @@
-package elevator_io_types
+package main
 
 const (
 	N_FLOORS  = 4
