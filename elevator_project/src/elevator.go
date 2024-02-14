@@ -77,11 +77,10 @@ func NewUninitializedElevator() Elevator {
         Behaviour: EB_Idle,
         Config: struct {
             ClearRequestVariant ClearRequestVariant
-            DoorOpenDurationS   float64
+            DoorOpenDurationSec   float64
         }{
             ClearRequestVariant: CV_All,
-            DoorOpenDurationS:   3.0,
+            DoorOpenDurationSec:   3.0,
         },
     }
 }
-
