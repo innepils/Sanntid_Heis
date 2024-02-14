@@ -50,40 +50,40 @@ func (c Config) GetValue(key string, varPtr interface{}, fmtStr string) error {
 	return err
 }
 
-// Example usage of the above functions:
+// // Example usage of the above functions:
 
-// Assuming you have an enum-like type and a matching function to convert strings to this type's values.
-type MyEnumType int
+// // Assuming you have an enum-like type and a matching function to convert strings to this type's values.
+// type MyEnumType int
 
-const (
-	EnumValue1 MyEnumType = iota
-	EnumValue2
-)
+// const (
+// 	EnumValue1 MyEnumType = iota
+// 	EnumValue2
+// )
 
-// MatchStringToMyEnumType matches string values to MyEnumType constants.
-func MatchStringToMyEnumType(val string) (MyEnumType, bool) {
-	switch strings.ToLower(val) {
-	case "enumvalue1":
-		return EnumValue1, true
-	case "enumvalue2":
-		return EnumValue2, true
-	default:
-		return 0, false
-	}
-}
+// // MatchStringToMyEnumType matches string values to MyEnumType constants.
+// func MatchStringToMyEnumType(val string) (MyEnumType, bool) {
+// 	switch strings.ToLower(val) {
+// 	case "enumvalue1":
+// 		return EnumValue1, true
+// 	case "enumvalue2":
+// 		return EnumValue2, true
+// 	default:
+// 		return 0, false
+// 	}
+// }
 
-// SetEnumValue reads a string from the config and uses a match function to set an enum variable.
-func SetEnumValue(c Config, key string, enumVar *MyEnumType, matchFunc func(string) (MyEnumType, bool)) error {
-	valStr, ok := c[key]
-	if !ok {
-		return fmt.Errorf("key %s not found", key)
-	}
+// // SetEnumValue reads a string from the config and uses a match function to set an enum variable.
+// func SetEnumValue(c Config, key string, enumVar *MyEnumType, matchFunc func(string) (MyEnumType, bool)) error {
+// 	valStr, ok := c[key]
+// 	if !ok {
+// 		return fmt.Errorf("key %s not found", key)
+// 	}
 
-	enumVal, matched := matchFunc(valStr)
-	if !matched {
-		return fmt.Errorf("value %s for key %s is not a valid enum value", valStr, key)
-	}
+// 	enumVal, matched := matchFunc(valStr)
+// 	if !matched {
+// 		return fmt.Errorf("value %s for key %s is not a valid enum value", valStr, key)
+// 	}
 
-	*enumVar = enumVal
-	return nil
-}
+// 	*enumVar = enumVal
+// 	return nil
+// }
