@@ -2,57 +2,62 @@ package main
 
 import (
 	"fmt"
+	"time"
+
+	"con_load"
+	"elevator_io_device"
+	"fsm"
+	"timer"
+)
+
+const (
+	N_FLOORS   = 4
+	N_BUTTONS  = 3
 )
 
 func main() {
+	fmt.Println("Started!")
 
-	numFloors := 4
+	inputPollRate_ms := 25
+	con_load.Load("elevator.con",
+		con_load.Val("inputPollRate_ms", &inputPollRate_ms))
 
-	elevio.Init("localhost:15657", numFloors)
+	input := elevator_io_device.GetInputDevice()
 
-	var d elevio.MotorDirection = elevio.MD_Up
-	//elevio.SetMotorDirection(d)
-
-	drv_buttons := make(chan elevio.ButtonEvent)
-	drv_floors := make(chan int)
-	drv_obstr := make(chan bool)
-	drv_stop := make(chan bool)
-
-	go elevio.PollButtons(drv_buttons)
-	go elevio.PollFloorSensor(drv_floors)
-	go elevio.PollObstructionSwitch(drv_obstr)
-	go elevio.PollStopButton(drv_stop)
+	if input.FloorSensor() == -1 {
+		fsm.OnInitBetweenFloors()
+	}
 
 	for {
-		select {
-		case a := <-drv_buttons:
-			fmt.Printf("%+v\n", a)
-			elevio.SetButtonLamp(a.Button, a.Floor, true)
-
-		case a := <-drv_floors:
-			fmt.Printf("%+v\n", a)
-			if a == numFloors-1 {
-				d = elevio.MD_Down
-			} else if a == 0 {
-				d = elevio.MD_Up
-			}
-			elevio.SetMotorDirection(d)
-
-		case a := <-drv_obstr:
-			fmt.Printf("%+v\n", a)
-			if a {
-				elevio.SetMotorDirection(elevio.MD_Stop)
-			} else {
-				elevio.SetMotorDirection(d)
-			}
-
-		case a := <-drv_stop:
-			fmt.Printf("%+v\n", a)
-			for f := 0; f < numFloors; f++ {
-				for b := elevio.ButtonType(0); b < 3; b++ {
-					elevio.SetButtonLamp(b, f, false)
+		// Request button
+		prev := make([][]int, N_FLOORS)
+		for i := range prev {
+			prev[i] = make([]int, N_BUTTONS)
+		}
+		for f := 0; f < N_FLOORS; f++ {
+			for b := 0; b < N_BUTTONS; b++ {
+				v := input.RequestButton(f, b)
+				if v != 0 && v != prev[f][b] {
+					fsm.OnRequestButtonPress(f, b)
 				}
+				prev[f][b] = v
 			}
 		}
+
+		// Floor sensor
+		prevFloor := -1
+		f := input.FloorSensor()
+		if f != -1 && f != prevFloor {
+			fsm.OnFloorArrival(f)
+		}
+		prevFloor = f
+
+		// Timer
+		if timer.TimedOut() {
+			timer.Stop()
+			fsm.OnDoorTimeout()
+		}
+
+		time.Sleep(time.Duration(inputPollRate_ms) * time.Millisecond)
 	}
 }
