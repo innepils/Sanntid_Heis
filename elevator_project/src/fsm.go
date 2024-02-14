@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"elevator"
-	"elevatorio"
+	"elevator_io"
 	"requests"
 	"timer"
 )
