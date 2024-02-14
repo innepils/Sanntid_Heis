@@ -10,3 +10,4 @@ Oversette:
 ### Simon:
 Slutte å rote til git så vi trenger studass-hjelp
 
+GIT FUNKER IKKE
