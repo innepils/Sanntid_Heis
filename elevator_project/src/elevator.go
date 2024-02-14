@@ -31,7 +31,7 @@ type Elevator struct {
 	}
 }
 
-func (eb ElevatorBehaviour) String() string {
+func ebToString(eb ElevatorBehaviour) string {
 	switch eb {
 	case EB_Idle:
 		return "EB_Idle"
@@ -44,30 +44,36 @@ func (eb ElevatorBehaviour) String() string {
 	}
 }
 
-func (es Elevator) String() string {
-    var b strings.Builder
-    b.WriteString("  +--------------------+\n")
-    b.WriteString(fmt.Sprintf(
+// Prints the state of the elevator
+func (es *Elevator) Print() {
+    fmt.Println("  +--------------------+")
+    fmt.Printf(
         "  |floor = %-2d          |\n"+
-            "  |dirn  = %-12s|\n"+
-            "  |behav = %-12s|\n",
-        es.Floor, elevio.DirnToString(es.Dirn), es.Behaviour.String(),
-    ))
-    b.WriteString("  +--------------------+\n")
-    b.WriteString("  |  | up  | dn  | cab |\n")
+            "  |dirn  = %-12.12s|\n"+
+            "  |behav = %-12.12s|\n",
+        es.Floor,
+        elevator_io_types.DirnToString(es.Dirn), // Assuming DirnToString function exists
+        ebToString(es.Behaviour),
+    )
+    fmt.Println("  +--------------------+")
+    fmt.Println("  |  | up  | dn  | cab |")
     for f := N_FLOORS - 1; f >= 0; f-- {
-        b.WriteString(fmt.Sprintf("  | %d", f))
+        fmt.Printf("  | %d", f)
         for btn := 0; btn < N_BUTTONS; btn++ {
-            if (f == N_FLOORS-1 && btn == B_HallUp) || (f == 0 && btn == B_HallDown) {
-                b.WriteString("|     ")
+            if (f == N_FLOORS-1 && btn == B_HallUp) ||
+                (f == 0 && btn == B_HallDown) {
+                fmt.Print("|     ")
             } else {
-                b.WriteString(es.Requests[f][btn] ? "|  #  " : "|  -  ")
+                if es.Requests[f][btn] != 0 {
+                    fmt.Print("|  #  ")
+                } else {
+                    fmt.Print("|  -  ")
+                }
             }
         }
-        b.WriteString("|\n")
+        fmt.Println("|")
     }
-    b.WriteString("  +--------------------+\n")
-    return b.String()
+    fmt.Println("  +--------------------+")
 }
 
 func NewUninitializedElevator() Elevator {
@@ -79,7 +85,7 @@ func NewUninitializedElevator() Elevator {
             ClearRequestVariant ClearRequestVariant
             DoorOpenDurationSec   float64
         }{
-            ClearRequestVariant: CV_All,
+            ClearRequestVariant: CV_all,
             DoorOpenDurationSec:   3.0,
         },
     }
