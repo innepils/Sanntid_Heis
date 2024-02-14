@@ -2,6 +2,8 @@ package elevator
 
 import (
 	"fmt"
+	"elevator_io"
+	"timer"
 )
 
 type ElevatorBehaviour int
@@ -52,7 +54,7 @@ func (es *Elevator) Print() {
             "  |dirn  = %-12.12s|\n"+
             "  |behav = %-12.12s|\n",
         es.Floor,
-        elevator_io_types.DirnToString(es.Dirn), // Assuming DirnToString function exists
+        elevator_io.DirnToString(es.Dirn), // Assuming DirnToString function exists
         ebToString(es.Behaviour),
     )
     fmt.Println("  +--------------------+")
