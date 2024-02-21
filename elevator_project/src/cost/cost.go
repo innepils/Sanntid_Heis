@@ -1,9 +1,10 @@
 package cost
 
 import (
-    "os/exec"
-    "fmt"
-    "encoding/json"
+	"encoding/json"
+	"fmt"
+	"os/exec"
+    
 )
 
 type HRAElevState struct {
@@ -30,14 +31,14 @@ func Cost(hall_requests [][2]bool, elevator Elevator, extern_elevators map[strin
 				CabRequests: elevator.CabRequests,
 			},
 		},
-        extern_elevators,
+		extern_elevators,
 	}
 
-    jsonBytes, err := json.Marshal(input)
-    if err != nil {
-        fmt.Println("json.Marshal error: ", err)
-        return
-    }
+	jsonBytes, err := json.Marshal(input)
+	if err != nil {
+		fmt.Println("json.Marshal error: ", err)
+		return
+	}
 
 	ret, err := exec.Command("../hall_request_assigner/hall_request_assigner", "-i", string(jsonBytes)).CombinedOutput()
 	if err != nil {
@@ -53,9 +54,9 @@ func Cost(hall_requests [][2]bool, elevator Elevator, extern_elevators map[strin
 		return
 	}
 
-    for _, value := range *output {
-        return value
-      }
+	for _, value := range *output {
+		return value
+	}
 
 	return
 }
