@@ -1,4 +1,4 @@
-package requests
+package Requests
 
 import (
 	"driver/elevator"
@@ -27,7 +27,7 @@ func Requests_above(e elevator.Elevator) bool {
 func Requests_below(e elevator.Elevator) bool {
 	for f := 0; f < e.Floor; f++ {
 		for btn := 0; btn < elevator_io_types.N_BUTTONS; btn++ {
-			if e.Request[f][btn] {
+			if e.Requests[f][btn] {
 				return true
 			}
 		}
@@ -50,11 +50,11 @@ func Requests_chooseDirection(e elevator.Elevator) DirnBehaviourPair {
 		return DirnBehaviourPair{
 			Dirn: elevator_io_types.D_Up,
 			Behaviour: func() elevator.ElevatorBehaviour {
-				if requests_above(e) {
+				if Requests_above(e) {
 					return elevator.EB_Moving
-				} else if requests_here(e) {
+				} else if Requests_here(e) {
 					return elevator.EB_DoorOpen
-				} else if requests_below(e) {
+				} else if Requests_below(e) {
 					return elevator.EB_Moving
 				} else {
 					return elevator.EB_Idle
@@ -65,11 +65,11 @@ func Requests_chooseDirection(e elevator.Elevator) DirnBehaviourPair {
 		return DirnBehaviourPair{
 			Dirn: elevator_io_types.D_Down,
 			Behaviour: func() elevator.ElevatorBehaviour {
-				if requests_below(e) {
+				if Requests_below(e) {
 					return elevator.EB_Moving
-				} else if requests_here(e) {
+				} else if Requests_here(e) {
 					return elevator.EB_DoorOpen
-				} else if requests_above(e) {
+				} else if Requests_above(e) {
 					return elevator.EB_Moving
 				} else {
 					return elevator.EB_Idle
@@ -80,11 +80,11 @@ func Requests_chooseDirection(e elevator.Elevator) DirnBehaviourPair {
 		return DirnBehaviourPair{
 			Dirn: elevator_io_types.D_Stop,
 			Behaviour: func() elevator.ElevatorBehaviour {
-				if requests_here(e) {
+				if Requests_here(e) {
 					return elevator.EB_DoorOpen
-				} else if requests_above(e) {
-					return EB_Moving
-				} else if requests_below(e) {
+				} else if Requests_above(e) {
+					return elevator.EB_Moving
+				} else if Requests_below(e) {
 					return elevator.EB_Moving
 				} else {
 					return elevator.EB_Idle
@@ -99,9 +99,9 @@ func Requests_chooseDirection(e elevator.Elevator) DirnBehaviourPair {
 func Requests_shouldStop(e elevator.Elevator) bool {
 	switch e.Dirn {
 	case elevator_io_types.D_Down:
-		return e.Requests[e.Floor][elevator_io_types.B_HallDown] || e.Requests[e.Floor][elevator_io_types.B_Cab] || !requests_below(e)
+		return e.Requests[e.Floor][elevator_io_types.B_HallDown] || e.Requests[e.Floor][elevator_io_types.B_Cab] || !Requests_below(e)
 	case elevator_io_types.D_Up:
-		return e.Requests[e.Floor][elevator_io_types.B_HallUp] || e.Requests[e.Floor][elevator_io_types.B_Cab] || !requests_above(e)
+		return e.Requests[e.Floor][elevator_io_types.B_HallUp] || e.Requests[e.Floor][elevator_io_types.B_Cab] || !Requests_above(e)
 	case elevator_io_types.D_Stop:
 		fallthrough
 	default:
@@ -115,7 +115,7 @@ func Requests_shouldClearImmediately(e elevator.Elevator, btnFloor int, btnType 
 		return e.Floor == btnFloor
 	case elevator.CV_InDirn:
 		return e.Floor == btnFloor &&
-			((e.Dirn == elevator_io_types.D_Up && btnType == elevator_io_types.B_HallUp) || (e.Dirn == elevator_io_types.D_Down && btnType == elevator_io_types.B_HallDown) || e.Dirn == D_Stop || btnType == B_Cab)
+			((e.Dirn == elevator_io_types.D_Up && btnType == elevator_io_types.B_HallUp) || (e.Dirn == elevator_io_types.D_Down && btnType == elevator_io_types.B_HallDown) || e.Dirn == elevator_io_types.D_Stop || btnType == elevator_io_types.B_Cab)
 	default:
 		return false
 	}
@@ -131,12 +131,12 @@ func Requests_clearAtCurrentFloor(e elevator.Elevator) elevator.Elevator {
 		e.Requests[e.Floor][elevator_io_types.B_Cab] = false
 		switch e.Dirn {
 		case elevator_io_types.D_Up:
-			if !requests_above(e) && !e.Requests[e.Floor][elevator_io_types.B_HallUp] {
+			if !Requests_above(e) && !e.Requests[e.Floor][elevator_io_types.B_HallUp] {
 				e.Requests[e.Floor][elevator_io_types.B_HallDown] = false
 			}
 			e.Requests[e.Floor][elevator_io_types.B_HallUp] = false
 		case elevator_io_types.D_Down:
-			if !requests_below(e) && !e.Requests[e.Floor][elevator_io_types.B_HallDown] {
+			if !Requests_below(e) && !e.Requests[e.Floor][elevator_io_types.B_HallDown] {
 				e.Requests[e.Floor][elevator_io_types.B_HallUp] = false
 			}
 			e.Requests[e.Floor][elevator_io_types.B_HallDown] = false

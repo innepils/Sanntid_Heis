@@ -15,17 +15,17 @@ func getWallTime() time.Time {
 }
 
 // SK: timerStart starts the timer with the specified duration in seconds
-func timerStart(duration float64) {
+func TimerStart(duration float64) {
 	timerEndTime = getWallTime().Add(time.Duration(duration * float64(time.Second)))
 	timerActive = true
 }
 
 // SK: timerStop stops the timer
-func timerStop() {
+func TimerStop() {
 	timerActive = false
 }
 
 // SK: timerTimedOut checks if the timer has timed out
-func timerTimedOut() bool {
+func TimerTimedOut() bool {
 	return timerActive && getWallTime().After(timerEndTime)
 }

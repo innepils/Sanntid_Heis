@@ -1,8 +1,9 @@
 package main
 
 import (
+	"driver/elevator_io"
+	"driver/fsm"
 	"fmt"
-	"fsm"
 	"time"
 )
 
@@ -16,10 +17,10 @@ func main() {
 	fmt.Println("Started!")
 
 	inputPollRate_ms := 25
-	con_load.Load("elevator.con",
-		con_load.Val("inputPollRate_ms", &inputPollRate_ms))
+	//con_load.LoadConfig("elevator.con",
+	//con_load.Val("inputPollRate_ms", &inputPollRate_ms))
 
-	input := elevator_io_device.GetInputDevice()
+	input := elevator_io.GetInputDevice()
 
 	if input.FloorSensor() == -1 {
 		fsm.OnInitBetweenFloors()
