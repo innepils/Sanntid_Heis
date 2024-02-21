@@ -1,4 +1,4 @@
-package main
+package con_load
 
 import (
 	"bufio"
