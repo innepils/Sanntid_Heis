@@ -1,6 +1,7 @@
 package elevator
 
 import (
+	"driver/elevator_io_types"
 	"fmt"
 )
 
@@ -26,8 +27,8 @@ const (
 // Struct contain
 type Elevator struct {
 	Floor     int
-	Dirn      Dirn
-	Request   [N_FLOORS][N_BUTTONS]int
+	Dirn      elevator_io_types.Dirn
+	Request   [elevator_io_types.N_FLOORS][elevator_io_types.N_BUTTONS]int
 	Behaviour ElevatorBehaviour
 
 	Config struct {
@@ -62,11 +63,11 @@ func (es *Elevator) Print() {
 	)
 	fmt.Println("  +--------------------+")
 	fmt.Println("  |  | up  | dn  | cab |")
-	for f := N_FLOORS - 1; f >= 0; f-- {
+	for f := elevator_io_types.N_FLOORS - 1; f >= 0; f-- {
 		fmt.Printf("  | %d", f)
-		for btn := 0; btn < N_BUTTONS; btn++ {
-			if (f == N_FLOORS-1 && btn == B_HallUp) ||
-				(f == 0 && btn == B_HallDown) {
+		for btn := 0; btn < elevator_io_types.N_BUTTONS; btn++ {
+			if (f == elevator_io_types.N_FLOORS-1 && btn == elevator_io_types.B_HallUp) ||
+				(f == 0 && btn == elevator_io_types.B_HallDown) {
 				fmt.Print("|     ")
 			} else {
 				if es.Requests[f][btn] != 0 {
@@ -84,7 +85,7 @@ func (es *Elevator) Print() {
 func NewUninitializedElevator() Elevator {
 	return Elevator{
 		Floor:     -1,
-		Dirn:      D_Stop,
+		Dirn:      elevator_io_types.D_Stop,
 		Behaviour: EB_Idle,
 		Config: struct {
 			ClearRequestVariant ClearRequestVariant

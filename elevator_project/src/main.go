@@ -1,7 +1,6 @@
 package main
 
 import (
-	"elevio"
 	"fmt"
 	"fsm"
 	"time"
@@ -13,7 +12,7 @@ const (
 )
 
 func main() {
-	
+
 	fmt.Println("Started!")
 
 	inputPollRate_ms := 25
