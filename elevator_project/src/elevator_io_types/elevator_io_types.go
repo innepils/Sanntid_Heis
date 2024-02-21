@@ -22,21 +22,21 @@ const (
 )
 
 type ElevInputDevice struct {
-	FloorSensor   func() int
+	FloorSensor   func() bool
 	RequestButton func(int, Button) int
-	StopButton    func() int
-	Obstruction   func() int
+	StopButton    func() bool
+	Obstruction   func() bool
 }
 
 type ElevOutputDevice struct {
 	FloorIndicator     func(int)
 	RequestButtonLight func(int, Button, int)
-	DoorLight          func(int)
-	StopButtonLight    func(int)
+	DoorLight          func(bool)
+	StopButtonLight    func(bool)
 	MotorDirection     func(Dirn)
 }
 
-func elevio_dirn_toString(d Dirn) string {
+func Elevio_dirn_toString(d Dirn) string {
 	switch d {
 	case D_Down:
 		return "Down"
@@ -49,7 +49,7 @@ func elevio_dirn_toString(d Dirn) string {
 	}
 }
 
-func elevio_button_toString(b Button) string {
+func Elevio_button_toString(b Button) string {
 	switch b {
 	case B_HallUp:
 		return "HallUp"

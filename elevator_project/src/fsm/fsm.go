@@ -1,28 +1,30 @@
 package fsm
 
 import (
+	"driver/elevator"
+	"driver/elevator_io_types"
+	Requests "driver/requests"
+	"driver/timer"
 	"fmt"
-	"elevator"
-	"elevio"
-	"requests"
-	"timer"
 )
 
 // AT: Synes dette (package.Datatype) er en bra lesbar syntax, men usikker på hvordan det egt funker
-//     og det må være LIK syntax på alle modulene.
+//
+//	og det må være LIK syntax på alle modulene.
 var (
-	elevator     elevator.Elevator
-	outputDevice elevatorio.OutputDevice
+	localElevator elevator.Elevator
+	outputDevice  elevator_io_types.ElevOutputDevice
 )
 
 func init() {
 	// AT: F.eks het denne egentlig elevator = elevator_unintialized().
-	elevator = elevator.Uninitialized()
+	localElevator = elevator.UninitializedElevator()
 
 	// AT: Tror denne henger sammen med con_load-modulen)
-	elevator.LoadConfiguration("elevator.con")
+	localElevator.LoadConfiguration("elevator.con")
 
-	outputDevice = elevatorio.GetOutputDevice()
+	// AT(21.feb): GetOuputDevice eksisterir elevator_io.c men ikke go-filen vi fikk
+	outputDevice = elevator_io.GetOutputDevice()
 }
 
 func setAllLights(es *elevator.Elevator) {
@@ -34,8 +36,8 @@ func setAllLights(es *elevator.Elevator) {
 }
 
 func FsmOnInitBetweenFloors() {
-	outputDevice.MotorDirection(elevatorio.Down)
-	elevator.Dirn = elevatorio.Down
+	outputDevice.MotorDirection(elevator_io_types.D_Down)
+	elevator.Dirn = elevator_io_types.D_Down
 	elevator.Behaviour = elevator.Moving
 }
 
@@ -45,42 +47,42 @@ func FsmOnRequestButtonPress(btnFloor int, btnType elevator.ButtonType) {
 	elevator.Print()
 
 	switch elevator.Behaviour {
-	
+
 	case elevator.DoorOpen:
-		if requests.ShouldClearImmediately(elevator, btnFloor, btnType) {
-			timer.Start(elevator.Config.DoorOpenDurationS)
+		if Requests.Requests_shouldClearImmediately(elevator, btnFloor, btnType) {
+			timer.TimerStart(elevator.Config.DoorOpenDurationS)
 		} else {
 			elevator.Requests[btnFloor][btnType] = true
 		} // AT: Go trenger visst ikke "breaks" i switch cases
-	
+
 	case elevator.Moving:
 		elevator.Requests[btnFloor][btnType] = true
 
 	case elevator.Idle:
 		elevator.Requests[btnFloor][btnType] = true
 		// AT: Her har chat smeltet sammen Idles "innvendige" fsm. Tror det bør endres..
-		//     Vet heller ikker hvor "updateElevatorState" kommer fra
 		if elevator.Behaviour == elevator.Idle {
-			pair := requests.ChooseDirection(elevator)
+			pair := Requests.Requests_chooseDirection(localElevator)
 			elevator.Dirn = pair.Dirn
 			elevator.Behaviour = pair.Behaviour
 			updateElevatorState(pair)
 		}
 	}
 
-	setAllLights(&elevator)
+	setAllLights(&localElevator)
 	fmt.Println("\nNew state:")
 	elevator.Print()
 }
 
 // AT: Dette var det som var "inne" i IDLE-staten i fsm-en her oppe^.
-// 	   Så funksjonen der oppe kan vel erstattes med dette.
-func updateElevatorState(pair requests.DirnBehaviourPair) {
+//
+//	Så funksjonen der oppe kan vel erstattes med dette.
+func updateElevatorState(pair Requests.DirnBehaviourPair) {
 	switch pair.Behaviour {
 	case elevator.DoorOpen:
 		outputDevice.DoorLight(true)
-		timer.Start(elevator.Config.DoorOpenDurationS)
-		elevator = requests.ClearAtCurrentFloor(elevator)
+		timer.TimerStart(elevator.Config.DoorOpenDurationS)
+		elevator = Requests.Requests_clearAtCurrentFloor(elevator)
 	case elevator.Moving:
 		outputDevice.MotorDirection(elevator.Dirn)
 	case elevator.Idle:
@@ -98,11 +100,11 @@ func FsmOnFloorArrival(newFloor int) {
 
 	// AT: Dette var en enkel switch case i C. Virkemåten er identisk men
 	// 	   switch-casen fører til bedre kodkvalitet/mer lesbart.
-	if elevator.Behaviour == elevator.Moving && requests.ShouldStop(elevator) {
-		outputDevice.MotorDirection(elevatorio.Stop)
+	if elevator.Behaviour == elevator.Moving && Requests.Requests_shouldStop(elevator) {
+		outputDevice.MotorDirection(elevator_io_types.D_Stop)
 		outputDevice.DoorLight(true)
-		elevator = requests.ClearAtCurrentFloor(elevator)
-		timer.Start(elevator.Config.DoorOpenDurationS)
+		elevator = Requests.Requests_clearAtCurrentFloor(elevator)
+		timer.TimerStart(elevator.Config.DoorOpenDurationS)
 		setAllLights(&elevator)
 		elevator.Behaviour = elevator.DoorOpen
 	}
@@ -119,7 +121,7 @@ func FsmOnDoorTimeout() {
 	//     Men her brukes altså BARE den ytre switch-casen (som en if)
 	//     hvor den indre er "updateElevatorState" igjen.
 	if elevator.Behaviour == elevator.DoorOpen {
-		pair := requests.ChooseDirection(elevator)
+		pair := Requests.Requests_chooseDirection(elevator)
 		elevator.Dirn = pair.Dirn
 		elevator.Behaviour = pair.Behaviour
 		updateElevatorState(pair)

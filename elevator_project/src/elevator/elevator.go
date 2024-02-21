@@ -28,7 +28,7 @@ const (
 type Elevator struct {
 	Floor     int
 	Dirn      elevator_io_types.Dirn
-	Request   [elevator_io_types.N_FLOORS][elevator_io_types.N_BUTTONS]int
+	Requests  [elevator_io_types.N_FLOORS][elevator_io_types.N_BUTTONS]bool
 	Behaviour ElevatorBehaviour
 
 	Config struct {
@@ -58,7 +58,7 @@ func (es *Elevator) Print() {
 			"  |dirn  = %-12.12s|\n"+
 			"  |behav = %-12.12s|\n",
 		es.Floor,
-		elevator_io_types.DirnToString(es.Dirn), // Assuming DirnToString function exists
+		elevator_io_types.Elevio_dirn_toString(es.Dirn), // Assuming DirnToString function exists
 		ebToString(es.Behaviour),
 	)
 	fmt.Println("  +--------------------+")
@@ -66,11 +66,11 @@ func (es *Elevator) Print() {
 	for f := elevator_io_types.N_FLOORS - 1; f >= 0; f-- {
 		fmt.Printf("  | %d", f)
 		for btn := 0; btn < elevator_io_types.N_BUTTONS; btn++ {
-			if (f == elevator_io_types.N_FLOORS-1 && btn == elevator_io_types.B_HallUp) ||
+			if ((f == elevator_io_types.N_FLOORS-1) && (btn == elevator_io_types.B_HallUp)) ||
 				(f == 0 && btn == elevator_io_types.B_HallDown) {
 				fmt.Print("|     ")
 			} else {
-				if es.Requests[f][btn] != 0 {
+				if es.Requests[f][btn] != false {
 					fmt.Print("|  #  ")
 				} else {
 					fmt.Print("|  -  ")
@@ -82,7 +82,7 @@ func (es *Elevator) Print() {
 	fmt.Println("  +--------------------+")
 }
 
-func NewUninitializedElevator() Elevator {
+func UninitializedElevator() Elevator {
 	return Elevator{
 		Floor:     -1,
 		Dirn:      elevator_io_types.D_Stop,
