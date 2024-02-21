@@ -30,7 +30,7 @@ type ElevInputDevice struct {
 
 type ElevOutputDevice struct {
 	FloorIndicator     func(int)
-	RequestButtonLight func(int, Button, int)
+	RequestButtonLight func(int, Button, bool)
 	DoorLight          func(bool)
 	StopButtonLight    func(bool)
 	MotorDirection     func(Dirn)

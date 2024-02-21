@@ -66,8 +66,9 @@ func (es *Elevator) Print() {
 	for f := elevator_io_types.N_FLOORS - 1; f >= 0; f-- {
 		fmt.Printf("  | %d", f)
 		for btn := 0; btn < elevator_io_types.N_BUTTONS; btn++ {
-			if ((f == elevator_io_types.N_FLOORS-1) && (btn == elevator_io_types.B_HallUp)) ||
-				(f == 0 && btn == elevator_io_types.B_HallDown) {
+			btnType := elevator_io_types.Button(btn)
+			if ((f == elevator_io_types.N_FLOORS-1) && (btnType == elevator_io_types.B_HallUp)) ||
+				(f == 0 && btnType == elevator_io_types.B_HallDown) {
 				fmt.Print("|     ")
 			} else {
 				if es.Requests[f][btn] != false {

@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"net"
 	"strconv"
-	"time"
 )
 
-sendPort = "20007"
+const sendPort int = 20007
 
-
-func UDPlistener(){
+func UDPlistener() {
 	//serverIP := "10.100.23.129"
 	sendAddr, err := net.ResolveUDPAddr("udp", ":"+strconv.Itoa(sendPort))
 	if err != nil {
@@ -37,7 +35,6 @@ func UDPlistener(){
 	}
 }
 
-
-func UDPsend(){
+func UDPsend() {
 
 }

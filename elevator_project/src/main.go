@@ -2,60 +2,58 @@ package main
 
 import (
 	"driver/elevator_io"
-	"driver/fsm"
 	"fmt"
-	"time"
-)
-
-const (
-	N_FLOORS  = 4
-	N_BUTTONS = 3
 )
 
 func main() {
 
-	fmt.Println("Started!")
+	numFloors := 4
 
-	inputPollRate_ms := 25
-	//con_load.LoadConfig("elevator.con",
-	//con_load.Val("inputPollRate_ms", &inputPollRate_ms))
+	elevator_io.Init("localhost:20007", numFloors)
 
-	input := elevator_io.GetInputDevice()
+	var d elevator_io.MotorDirection = elevator_io.MD_Up
+	//elevator_io.SetMotorDirection(d)
 
-	if input.FloorSensor() == -1 {
-		fsm.OnInitBetweenFloors()
-	}
+	drv_buttons := make(chan elevator_io.ButtonEvent)
+	drv_floors := make(chan int)
+	drv_obstr := make(chan bool)
+	drv_stop := make(chan bool)
+
+	go elevator_io.PollButtons(drv_buttons)
+	go elevator_io.PollFloorSensor(drv_floors)
+	go elevator_io.PollObstructionSwitch(drv_obstr)
+	go elevator_io.PollStopButton(drv_stop)
 
 	for {
-		// Request button
-		prev := make([][]int, N_FLOORS)
-		for i := range prev {
-			prev[i] = make([]int, N_BUTTONS)
-		}
-		for f := 0; f < N_FLOORS; f++ {
-			for b := 0; b < N_BUTTONS; b++ {
-				v := input.RequestButton(f, b)
-				if v != 0 && v != prev[f][b] {
-					fsm.OnRequestButtonPress(f, b)
+		select {
+		case a := <-drv_buttons:
+			fmt.Printf("%+v\n", a)
+			elevator_io.SetButtonLamp(a.Button, a.Floor, true)
+
+		case a := <-drv_floors:
+			fmt.Printf("%+v\n", a)
+			if a == numFloors-1 {
+				d = elevator_io.MD_Down
+			} else if a == 0 {
+				d = elevator_io.MD_Up
+			}
+			elevator_io.SetMotorDirection(d)
+
+		case a := <-drv_obstr:
+			fmt.Printf("%+v\n", a)
+			if a {
+				elevator_io.SetMotorDirection(elevator_io.MD_Stop)
+			} else {
+				elevator_io.SetMotorDirection(d)
+			}
+
+		case a := <-drv_stop:
+			fmt.Printf("%+v\n", a)
+			for f := 0; f < numFloors; f++ {
+				for b := elevator_io.ButtonType(0); b < 3; b++ {
+					elevator_io.SetButtonLamp(b, f, false)
 				}
-				prev[f][b] = v
 			}
 		}
-
-		// Floor sensor
-		prevFloor := -1
-		f := input.FloorSensor()
-		if f != -1 && f != prevFloor {
-			fsm.OnFloorArrival(f)
-		}
-		prevFloor = f
-
-		// Timer
-		if timer.TimedOut() {
-			timer.Stop()
-			fsm.OnDoorTimeout()
-		}
-
-		time.Sleep(time.Duration(inputPollRate_ms) * time.Millisecond)
 	}
 }
