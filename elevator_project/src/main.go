@@ -20,7 +20,6 @@ func main() {
 	flag.StringVar(&id, "ID", "", "ID of this peer")
 	var port string
 	flag.StringVar(&port, "Port", "", "port of this peer")
-
 	flag.Parse()
 
 	// if no ID is given, use local IP address
