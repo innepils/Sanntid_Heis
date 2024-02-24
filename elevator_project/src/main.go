@@ -9,6 +9,7 @@ import (
 	"driver/fsm"
 	"driver/network/bcast"
 	"driver/network/conn"
+	"driver/network/localip"
 	"driver/network/peers"
 	"flag"
 	"fmt"
