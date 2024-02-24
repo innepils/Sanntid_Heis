@@ -24,13 +24,13 @@ func main() {
 	var id string
 	var port string
 
-	flag.StringVar(%port, "Port", "", "port of this peer")
 	flag.StringVar(&id, "ID", "", "ID of this peer")
+	flag.StringVar(&port, "Port", "", "port of this peer")
 	flag.Parse()
 
 	// if no ID is given, use local IP address
 	// (legger også til process ID 'os.Getpid()', ikke helt sikker på hvorfor enda)
-	if id == ""{
+	if id == "" {
 		localIP, err := localip.LocalIP()
 		if err != nil {
 			fmt.Println(err)
