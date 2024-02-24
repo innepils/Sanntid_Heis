@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
-    
 )
 
 type HRAElevState struct {
@@ -37,26 +36,27 @@ func Cost(hall_requests [][2]bool, elevator Elevator, extern_elevators map[strin
 	jsonBytes, err := json.Marshal(input)
 	if err != nil {
 		fmt.Println("json.Marshal error: ", err)
-		return
+		//die?
 	}
 
 	ret, err := exec.Command("../hall_request_assigner/hall_request_assigner", "-i", string(jsonBytes)).CombinedOutput()
 	if err != nil {
 		fmt.Println("exec.Command error: ", err)
 		fmt.Println(string(ret))
-		return
+		//die?
 	}
 
 	output := new(map[string][][2]bool)
 	err = json.Unmarshal(ret, &output)
 	if err != nil {
 		fmt.Println("json.Unmarshal error: ", err)
-		return
+		//die?
 	}
 
 	for _, value := range *output {
 		return value
 	}
 
-	return
+	fmt.Println("Cost function terminated without output.")
+	//die?
 }
