@@ -13,6 +13,7 @@ Slutte å lure Linus trill rundt med bomkjøp av aksjer
 
 ### Linus:
 Teste og verifisere at cost_fnc fungerer som den skal
+ die?
 
 ### Simon:
 Slutte å rote til git så vi trenger studass-hjelp
