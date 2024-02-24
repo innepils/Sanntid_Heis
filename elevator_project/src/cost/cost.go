@@ -51,7 +51,7 @@ func Cost(hall_requests [][2]bool, elevator Elevator, extern_elevators map[strin
 	err = json.Unmarshal(ret, &output)
 	if err != nil {
 		fmt.Println("json.Unmarshal error: ", err)
-		return
+		return 
 	}
 
 	for _, value := range *output {

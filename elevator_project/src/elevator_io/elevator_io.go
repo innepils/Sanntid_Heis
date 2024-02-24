@@ -18,16 +18,16 @@ type MotorDirection int
 
 const (
 	MD_Up   MotorDirection = 1
-	MD_Down                = -1
-	MD_Stop                = 0
+	MD_Down MotorDirection = -1
+	MD_Stop MotorDirection = 0
 )
 
 type ButtonType int
 
 const (
 	BT_HallUp   ButtonType = 0
-	BT_HallDown            = 1
-	BT_Cab                 = 2
+	BT_HallDown ButtonType = 1
+	BT_Cab      ButtonType = 2
 )
 
 type ButtonEvent struct {
@@ -44,6 +44,7 @@ func Init(addr string, numFloors int) {
 	_mtx = sync.Mutex{}
 	var err error
 	_conn, err = net.Dial("tcp", addr)
+
 	if err != nil {
 		panic(err.Error())
 	}
@@ -77,7 +78,7 @@ func PollButtons(receiver chan<- ButtonEvent) {
 		for f := 0; f < _numFloors; f++ {
 			for b := ButtonType(0); b < 3; b++ {
 				v := GetButton(b, f)
-				if v != prev[f][b] && v != false {
+				if v != prev[f][b] && !v { // changed "!v" from "v = false"
 					receiver <- ButtonEvent{f, ButtonType(b)}
 				}
 				prev[f][b] = v

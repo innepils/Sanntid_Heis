@@ -9,7 +9,7 @@ func main() {
 
 	numFloors := 4
 
-	elevator_io.Init("localhost:20007", numFloors)
+	elevator_io.Init("localhost:15657", numFloors)
 
 	var d elevator_io.MotorDirection = elevator_io.MD_Up
 	//elevator_io.SetMotorDirection(d)
