@@ -33,11 +33,6 @@ func main() {
 		id = fmt.Sprintf("peer-%s-%d", localIP, os.Getpid())
 	}
 
-	// if no port is given
-	// if port == "" {
-
-	// }
-
 	// Initialize local elevator
 	elevator_io.Init("localhost:"+port, elevator_io_types.N_FLOORS)
 
