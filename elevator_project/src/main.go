@@ -1,17 +1,20 @@
 package main
 
 import (
+	"driver/cost"
+	"driver/elevator"
 	"driver/elevator_io"
+	"driver/elevator_io_types"
 	"fmt"
 )
 
 func main() {
-
+	
 	numFloors := 4
 
 	elevator_io.Init("localhost:20007", numFloors)
 
-	var d elevator_io.MotorDirection = elevator_io.MD_Up
+	//var d elevator_io.MotorDirection = elevator_io.MD_Up
 	//elevator_io.SetMotorDirection(d)
 
 	drv_buttons := make(chan elevator_io.ButtonEvent)
@@ -24,36 +27,4 @@ func main() {
 	go elevator_io.PollObstructionSwitch(drv_obstr)
 	go elevator_io.PollStopButton(drv_stop)
 
-	for {
-		select {
-		case a := <-drv_buttons:
-			fmt.Printf("%+v\n", a)
-			elevator_io.SetButtonLamp(a.Button, a.Floor, true)
-
-		case a := <-drv_floors:
-			fmt.Printf("%+v\n", a)
-			if a == numFloors-1 {
-				d = elevator_io.MD_Down
-			} else if a == 0 {
-				d = elevator_io.MD_Up
-			}
-			elevator_io.SetMotorDirection(d)
-
-		case a := <-drv_obstr:
-			fmt.Printf("%+v\n", a)
-			if a {
-				elevator_io.SetMotorDirection(elevator_io.MD_Stop)
-			} else {
-				elevator_io.SetMotorDirection(d)
-			}
-
-		case a := <-drv_stop:
-			fmt.Printf("%+v\n", a)
-			for f := 0; f < numFloors; f++ {
-				for b := elevator_io.ButtonType(0); b < 3; b++ {
-					elevator_io.SetButtonLamp(b, f, false)
-				}
-			}
-		}
-	}
 }
