@@ -1,9 +1,12 @@
 package cost
 
 import (
+	"driver/elevator"
+	"driver/elevator_io_types"
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"strings"
 )
 
 type HRAElevState struct {
@@ -18,20 +21,25 @@ type HRAInput struct {
 	States       map[string]HRAElevState `json:"states"`
 }
 
-func Cost(hall_requests [][2]bool, elevator Elevator, extern_elevators map[string]HRAElevState) [][2]bool { //REMEMBER TO CHANGE TYPES HERE
+func Cost(hall_requests [][2]bool, localelevator elevator.Elevator, extern_elevators map[string]HRAElevState) [][2]bool { //REMEMBER TO CHANGE TYPES HERE
 
 	input := HRAInput{
 		HallRequests: hall_requests,
 		States: map[string]HRAElevState{
-			"self": HRAElevState{
-				Behavior:    elevator.Behaviour,
-				Floor:       elevator.Floor,
-				Direction:   elevator.Direction,
-				CabRequests: elevator.CabRequests,
+			"aaa_self": HRAElevState{
+				Behavior:    strings.ToLower(elevator.EBToString(localelevator.Behaviour)[3:]),
+				Floor:       localelevator.Floor,
+				Direction:   strings.ToLower(elevator_io_types.Elevio_dirn_toString(localelevator.Dirn)),
+				CabRequests: elevator.GetCabRequests(localelevator),
 			},
 		},
-		extern_elevators,
 	}
+
+	for key, value := range extern_elevators {
+		input.States[key] = value
+	}
+
+	fmt.Println(input)
 
 	jsonBytes, err := json.Marshal(input)
 	if err != nil {
@@ -39,7 +47,7 @@ func Cost(hall_requests [][2]bool, elevator Elevator, extern_elevators map[strin
 		//die?
 	}
 
-	ret, err := exec.Command("../hall_request_assigner/hall_request_assigner", "-i", string(jsonBytes)).CombinedOutput()
+	ret, err := exec.Command("./hall_request_assigner/hall_request_assigner.exe", "-i", string(jsonBytes)).CombinedOutput()
 	if err != nil {
 		fmt.Println("exec.Command error: ", err)
 		fmt.Println(string(ret))
@@ -59,4 +67,5 @@ func Cost(hall_requests [][2]bool, elevator Elevator, extern_elevators map[strin
 
 	fmt.Println("Cost function terminated without output.")
 	//die?
+	return [][2]bool{{false, false}, {false, false}}
 }

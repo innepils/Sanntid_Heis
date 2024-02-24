@@ -100,7 +100,7 @@ Elevator requests_clearAtCurrentFloor(Elevator e){
             e.requests[e.floor][btn] = 0;
         }
         break;
-        
+        D_Up:
     case CV_InDirn:
         e.requests[e.floor][B_Cab] = 0;
         switch(e.dirn){

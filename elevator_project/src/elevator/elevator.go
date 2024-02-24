@@ -37,7 +37,7 @@ type Elevator struct {
 	}
 }
 
-func ebToString(eb ElevatorBehaviour) string {
+func EBToString(eb ElevatorBehaviour) string {
 	switch eb {
 	case EB_Idle:
 		return "EB_Idle"
@@ -59,7 +59,7 @@ func (es *Elevator) Print() {
 			"  |behav = %-12.12s|\n",
 		es.Floor,
 		elevator_io_types.Elevio_dirn_toString(es.Dirn), // Assuming DirnToString function exists
-		ebToString(es.Behaviour),
+		EBToString(es.Behaviour),
 	)
 	fmt.Println("  +--------------------+")
 	fmt.Println("  |  | up  | dn  | cab |")
@@ -98,4 +98,16 @@ func UninitializedElevator() Elevator {
 			DoorOpenDurationSec: 3.0,
 		},
 	}
+}
+
+func GetCabRequests(elevator Elevator) []bool {
+	// Create a new slice to store the last column elements
+	cabRequests := make([]bool, len(elevator.Requests))
+
+	// Loop through each row and access the last element
+	for i, row := range elevator.Requests {
+		cabRequests[i] = row[len(row)-1]
+	}
+
+	return cabRequests
 }

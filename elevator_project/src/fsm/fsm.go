@@ -1,7 +1,7 @@
 package fsm
 
 import (
-	"driver/con_load"
+	// "driver/con_load"
 	"driver/elevator"
 	"driver/elevator_io_types"
 	Requests "driver/requests"
@@ -20,10 +20,8 @@ var (
 func Init() {
 	// AT: F.eks het denne egentlig elevator = elevator_unintialized().
 	localElevator = elevator.UninitializedElevator()
-
 	// AT: Tror denne henger sammen med con_load-modulen)
-	con_load.LoadConfig("elevator.con")
-
+	// con_load.LoadConfig("config.go")
 	// AT(21.feb): GetOuputDevice eksisterir elevator_io.c men ikke go-filen vi fikk
 	// outputDevice = elevator_io.GetOutputDevice()
 }
