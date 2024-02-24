@@ -2,7 +2,7 @@ package main
 
 import (
 	"driver/elevator_io"
-
+	"driver/fsm"
 	"fmt"
 )
 
@@ -11,6 +11,8 @@ func main() {
 	numFloors := 4
 	// comment
 	elevator_io.Init("localhost:15657", numFloors)
+
+	fsm.Init()
 
 	var d elevator_io.MotorDirection = elevator_io.MD_Up
 	//elevator_io.SetMotorDirection(d)

@@ -17,7 +17,7 @@ var (
 	outputDevice  elevator_io_types.ElevOutputDevice
 )
 
-func init() {
+func Init() {
 	// AT: F.eks het denne egentlig elevator = elevator_unintialized().
 	localElevator = elevator.UninitializedElevator()
 
@@ -28,7 +28,7 @@ func init() {
 	// outputDevice = elevator_io.GetOutputDevice()
 }
 
-func setAllLights(es *elevator.Elevator) {
+func SetAllLights(es *elevator.Elevator) {
 	for floor := 0; floor < elevator_io_types.N_FLOORS; floor++ {
 		for btn := 0; btn < elevator_io_types.N_BUTTONS; btn++ {
 			btnType := elevator_io_types.Button(btn)
@@ -67,11 +67,11 @@ func FsmOnRequestButtonPress(btnFloor int, btnType elevator_io_types.Button) {
 			pair := Requests.Requests_chooseDirection(localElevator)
 			localElevator.Dirn = pair.Dirn
 			localElevator.Behaviour = pair.Behaviour
-			updateElevatorState(pair)
+			UpdateElevatorState(pair)
 		}
 	}
 
-	setAllLights(&localElevator)
+	SetAllLights(&localElevator)
 	fmt.Println("\nNew state:")
 	localElevator.Print()
 }
@@ -79,7 +79,7 @@ func FsmOnRequestButtonPress(btnFloor int, btnType elevator_io_types.Button) {
 // AT: Dette var det som var "inne" i IDLE-staten i fsm-en her oppe^.
 //
 //	Så funksjonen der oppe kan vel erstattes med dette.
-func updateElevatorState(pair Requests.DirnBehaviourPair) {
+func UpdateElevatorState(pair Requests.DirnBehaviourPair) {
 	switch pair.Behaviour {
 	case elevator.EB_DoorOpen:
 		outputDevice.DoorLight(true)
@@ -107,7 +107,7 @@ func FsmOnFloorArrival(newFloor int) {
 		outputDevice.DoorLight(true)
 		localElevator = Requests.Requests_clearAtCurrentFloor(localElevator)
 		timer.TimerStart(localElevator.Config.DoorOpenDurationSec)
-		setAllLights(&localElevator)
+		SetAllLights(&localElevator)
 		localElevator.Behaviour = elevator.EB_DoorOpen
 	}
 
@@ -126,7 +126,7 @@ func FsmOnDoorTimeout() {
 		pair := Requests.Requests_chooseDirection(localElevator)
 		localElevator.Dirn = pair.Dirn
 		localElevator.Behaviour = pair.Behaviour
-		updateElevatorState(pair)
+		UpdateElevatorState(pair)
 	}
 
 	fmt.Println("\nNew state:")
