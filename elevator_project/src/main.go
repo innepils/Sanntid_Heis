@@ -9,7 +9,7 @@ import (
 func main() {
 
 	numFloors := 4
-
+	// comment
 	elevator_io.Init("localhost:15657", numFloors)
 
 	var d elevator_io.MotorDirection = elevator_io.MD_Up
