@@ -9,3 +9,4 @@
 
 # Power Loss
 -> The elevators current-order and cab-button-states should at "all" times be saved to a local file. This ensures that when the nodes dies (due to power loss), that it can retrieve this information to ensure service guarantee.
+
