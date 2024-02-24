@@ -1,7 +1,7 @@
 package fsm
 
 import (
-	"driver/con_load"
+	// "driver/con_load"
 	"driver/elevator"
 	"driver/elevator_io_types"
 	Requests "driver/requests"
