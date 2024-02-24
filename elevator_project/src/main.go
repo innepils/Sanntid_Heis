@@ -15,13 +15,21 @@ import (
 )
 
 func main() {
-	// Initialize elevator node. The ID can be anything, and should be passed on in the
-	// command line using 'go run main.go -id=our_id'
 
+	/* Initialize elevator ID and port
+	This section sets the elevators ID (anything) and port (of the running node/PC),
+	which should be passed on in the command line using 
+	'go run main.go -id=any_id -port=port'
+	*/
 	var id string
+	var port string
+
 	flag.StringVar(&id, "ID", "", "ID of this peer")
+	flag.StringVar(%port, "Port", "", "port of this peer")
 	flag.Parse()
 
+	// if no ID is given, use local IP address
+	// (legger også til process ID 'os.Getpid()', ikke helt sikker på hvorfor enda)
 	if id == "" {
 		localIP, err := localip.LocalIP()
 		if err != nil {
@@ -31,12 +39,23 @@ func main() {
 		id = fmt.Sprintf("peer-%s-%d", localIP, os.Getpid())
 	}
 
-	elevator_io.Init("localhost:15657", elevator_io_types.N_FLOORS)
+	// if no port is given
+	// if port == "" {
+		
+	// }
+
+	// Initialize local elevator
+	elevator_io.Init("localhost:" + port, elevator_io_types.N_FLOORS)
 
 	// GOROUTINES network
+	
 
-	// Channel for recieving updates on the id's of alive peers
+	// Channel for recieving updates on the ID's of alive peers
 	peerUpdateCh:= make(chan peers.PeerUpdate)
+	
+	/* Channel for enabling/disabling the transmitter after start.
+	Can be used to signal that the node is "unavailable". */
+	peerTxEnable := make(chan bool)
 
 	// Channels for sending and recieving
 	
