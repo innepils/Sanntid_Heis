@@ -9,12 +9,35 @@ import (
 	"fmt"
 )
 
+//*****************************************************************************
+// 						*****	Status	*****
+
+//	SetAllLights er foreløpig ikke implementert. Denne skal (forsøke) skru 
+//  på alle lys pr ordre. Men vi må passe på at dette er for den synkroniserte 
+//	ordre-matrisen.
+
+//	Mangler muligens channels for ordre-håndtering?
+//  	Vi må se litt mer på hvordan det skal implementeres
+
+//  Door-obstruction-casen er ikke ferdig. Må implementere timer osv først.
+
+//  Usikker på hva printen i starten av de forkjsellige casene gjør (utenom for button)
+
+//  Også litt usikker på hvor btn_floor og btn_type skal komme fra. 
+//  	Mulig det er en parameter av Button?
+
+//			Ellers good, ser ryddigere ut, og skjønner virkemmåten nå.
+
+//*****************************************************************************
+
+
 // One single function for the Final State Machine, to be run as a goroutine from main
-func Fsm(ch_arrivalFloor chan,
-		 ch_buttonPressed,
-		 ch_doorTimedOut,
-		 ch_doorObstruction 
+func Fsm(ch_arrivalFloor chan int,
+		 ch_buttonPressed chan elevator.button, //Usikker på denne elevator.button
+		 ch_doorTimedOut chan bool,
+		 ch_doorObstruction chan bool 
 		) {
+			
 		// Do initializing
 			localElevator := elevator.UninitializedElevator()
 			
@@ -26,9 +49,9 @@ func Fsm(ch_arrivalFloor chan,
 				fmt.Printf("\n\n%s(%d, %s)\n", functionName, btn_floor, elevio_button_toString(btn_type))
 				elevator_print(localElevator)
 
-				switch elevator.behaviour {
+				switch localElevator.behaviour {
 					case elevator.EB_DoorOpen:
-						if Requests_shouldClearImmediately(elevator, btn_floor, btn_type) {
+						if Requests_shouldClearImmediately(localElevator, btn_floor, btn_type) {
 							TimerStart(localElevator.config.doorOpenDuration_s)
 						} else {
 							localElevator.Requests[btn_floor][btn_type] = 1
@@ -45,12 +68,12 @@ func Fsm(ch_arrivalFloor chan,
 
 						switch pair.behaviour {
 							case elevator.EB_DoorOpen:
-								outputDevice.doorLight(1)
+								SetDoorOpenLamp(true)
 								TimerStart(localElevator.config.doorOpenDuration_s)
-								elevator = Requests_clearAtCurrentFloor(elevator)
+								localElevator = Requests_clearAtCurrentFloor(localElevator)
 
 							case elevator.EB_Moving:
-								outputDevice.motorDirection(localElevator.dirn)
+								SetMotorDirection(localElevator.dirn)
 
 							case elevator.EB_Idle:
 								// No action needed
@@ -65,16 +88,16 @@ func Fsm(ch_arrivalFloor chan,
 				elevator_print(localElevator)
 				
 				localElevator.floor = newFloor
-				outputDevice.floorIndicator(localElevator.floor)
+				SetFloorIndicator(localElevator.floor)	
 				
 				switch localElevator.behaviour {
 					case elevator.EB_Moving:
 						if requests_shouldStop(localElevator) {
-							outputDevice.motorDirection(D_Stop)
-							outputDevice.doorLight(1)
+							SetMotorDirection(D_Stop)
+							SetDoorOpenLamp(true)
 							localElevator = Requests_clearAtCurrentFloor(localElevator)
 							TimerStart(localElevator.config.doorOpenDuration_s)
-							//setAllLights(localElevator) // DANGER?
+							//setAllLights(localElevator)
 							localElevator.behaviour = elevator.EB_DoorOpen
 						}
 					case elevator.EB_DoorOpen:
@@ -100,11 +123,12 @@ func Fsm(ch_arrivalFloor chan,
 							case elevator.EB_DoorOpen:
 								TimerStart(localElevator.config.doorOpenDuration_s)
 								localElevator = requests_clearAtCurrentFloor(localElevator)
-								//setAllLights(elevator)	// DANGER?
+								
+								//setAllLights(elevator
 
 							case elevator.EB_Moving, elevator.EB_Idle:
-								outputDevice.doorLight(0)
-								outputDevice.motorDirection(localElevator.dirn)
+								SetDoorOpenLamp(false)
+								SetMotorDirection(localElevator.dirn)
 							}
 					}
 
@@ -125,16 +149,16 @@ func Fsm(ch_arrivalFloor chan,
 
 				// For every channel/event, check what state (behaviour) the elevator has
 				// Events are:
-					// New Floor / Arrival at floor
-					// Button is pressed
-					// Door-timeout
+					// New Floor / Arrival at floor. DONE
+					// Button is pressed			 DONE
+					// Door-timeout					 DONE
 					// Obstruction
 					// Stop-button (or is it included in the button-channel?)
 					// New-order is confirmed?
 
 				
-			}//Select
-		}//for
+			}// select
+		}// for
 		
 
 
