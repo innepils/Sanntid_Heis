@@ -48,20 +48,20 @@ func main() {
 	/* Channel for enabling/disabling the transmitter after start.
 	Can be used to signal that the node is "unavailable". */
 	// peerTxEnable := make(chan bool)
-
+	
 	// Channels for sending and recieving
 
-	/* Fra utdelt
+	ch_buttonPressed := make(chan elevator_io.ButtonEvent)
+	ch_arrivalFloor := make(chan int)
+	ch_doorTimedOut := make(chan bool)
+	ch_doorObstruction := make(chan bool)
+	ch_stopButton := make(chan bool)
 
-	ch_buttons := make(chan elevator_io.ButtonEvent)
-	ch_floors := make(chan int)
-	ch_obstr := make(chan bool)
-	ch_stop := make(chan bool)
-
-	go elevator_io.PollButtons(ch_buttons)
-	go elevator_io.PollFloorSensor(ch_floors)
-	go elevator_io.PollObstructionSwitch(ch_obstr)
-	go elevator_io.PollStopButton(ch_stop)
-	*/
+	go elevator_io.PollButtons(ch_buttonPressed)
+	go elevator_io.PollFloorSensor(ch_arrivalFloor)
+	go elevator_io.PollFloorSensor(ch_doorTimedOut)
+	go elevator_io.PollObstructionSwitch(ch_doorObstruction)
+	go elevator_io.PollStopButton(ch_stopButton)
+	
 
 }
