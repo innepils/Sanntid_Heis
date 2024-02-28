@@ -9,6 +9,9 @@ import (
 	"os"
 )
 
+type ElevatorMessage struct {
+}
+
 func main() {
 
 	/* Initialize elevator ID and port
