@@ -1,5 +1,6 @@
 package elevator_io_types
 
+// Kan nok flyttes til config (bare at vi da må endre overalt ellers fra "elevator_io_types" til "config")
 const (
 	N_FLOORS  = 4
 	N_BUTTONS = 3
@@ -21,6 +22,7 @@ const (
 	B_Cab      Button = 2
 )
 
+// Kan kanskje fjernes
 type ElevInputDevice struct {
 	FloorSensor   func() bool
 	RequestButton func(int, Button) int
@@ -28,6 +30,7 @@ type ElevInputDevice struct {
 	Obstruction   func() bool
 }
 
+// Kan kanskje fjernes
 type ElevOutputDevice struct {
 	FloorIndicator     func(int)
 	RequestButtonLight func(int, Button, bool)

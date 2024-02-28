@@ -1,39 +1,30 @@
 package main
 
 import (
-	"driver/cost"
-	"driver/elevator"
 	"driver/elevator_io"
 	"driver/elevator_io_types"
-	"driver/elevator_io_types"
-	"driver/fsm"
-	"driver/network/bcast"
-	"driver/network/conn"
-	"driver/network/peers"
+	"driver/network/localip"
 	"flag"
 	"fmt"
 	"os"
-	"time"
-
 )
 
 func main() {
 
 	/* Initialize elevator ID and port
 	This section sets the elevators ID (anything) and port (of the running node/PC),
-	which should be passed on in the command line using 
+	which should be passed on in the command line using
 	'go run main.go -id=any_id -port=port'
 	*/
 	var id string
-	var port string
-
-	flag.StringVar(%port, "Port", "", "port of this peer")
 	flag.StringVar(&id, "ID", "", "ID of this peer")
+	var port string
+	flag.StringVar(&port, "Port", "", "port of this peer")
 	flag.Parse()
 
 	// if no ID is given, use local IP address
 	// (legger også til process ID 'os.Getpid()', ikke helt sikker på hvorfor enda)
-	if id == ""{
+	if id == "" {
 		localIP, err := localip.LocalIP()
 		if err != nil {
 			fmt.Println(err)
@@ -42,26 +33,19 @@ func main() {
 		id = fmt.Sprintf("peer-%s-%d", localIP, os.Getpid())
 	}
 
-	// if no port is given
-	// if port == "" {
-		
-	// }
-
 	// Initialize local elevator
-	elevator_io.Init("localhost:" + port, elevator_io_types.N_FLOORS)
+	elevator_io.Init("localhost:"+port, elevator_io_types.N_FLOORS)
 
 	// GOROUTINES network
-	
 
 	// Channel for recieving updates on the ID's of alive peers
-	peerUpdateCh:= make(chan peers.PeerUpdate)
-	
+	// peerUpdateCh := make(chan peers.PeerUpdate)
+
 	/* Channel for enabling/disabling the transmitter after start.
 	Can be used to signal that the node is "unavailable". */
-	peerTxEnable := make(chan bool)
+	// peerTxEnable := make(chan bool)
 
 	// Channels for sending and recieving
-	
 
 	/* Fra utdelt
 

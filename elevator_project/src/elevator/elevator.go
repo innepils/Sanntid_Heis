@@ -88,6 +88,8 @@ func UninitializedElevator() Elevator {
 		Floor:     -1,
 		Dirn:      elevator_io_types.D_Stop,
 		Behaviour: EB_Idle,
+		
+		// Dette ser merkelig ut
 		Config: struct {
 			ClearRequestVariant ClearRequestVariant
 			DoorOpenDurationSec float64
