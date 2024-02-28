@@ -11,12 +11,14 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 )
 
 type ElevatorMessage struct {
 	ID           string
 	HallRequests bool
 	state        int
+	Iter         int
 }
 
 func main() {
@@ -44,7 +46,8 @@ func main() {
 	backup.BackupProcess(id) //this halts the progression of the program while it is the backup
 	fmt.Println("Primary started.")
 	// Initialize local elevator
-	elevator_io.Init(localip.LocalIP+config.GlobalPort, elevator_io_types.N_FLOORS)
+	localIPstring, _ := localip.LocalIP()
+	elevator_io.Init(localIPstring+string(config.GlobalPort), elevator_io_types.N_FLOORS)
 
 	// GOROUTINES network
 
@@ -62,7 +65,18 @@ func main() {
 	msgTx := make(chan ElevatorMessage)
 	msgRx := make(chan ElevatorMessage)
 
-	go bcast.Transmitter(config.GlobalPort)
+	go bcast.Transmitter(config.GlobalPort, msgTx)
+	go bcast.Reciever(config.GlobalPort, msgRx)
+
+	// example message
+	go func() {
+		testMsg := ElevatorMessage{"nice ID", true, 0, 1}
+		for {
+			ElevatorMessage.Iter++
+			msgTx <- testMsg
+			time.Sleep(1 * time.Second)
+		}
+	}()
 
 	// Channels for sending and recieving
 
