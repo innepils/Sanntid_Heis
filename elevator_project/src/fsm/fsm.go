@@ -12,21 +12,10 @@ import (
 //*****************************************************************************
 // 						*****	Status	*****
 
-//	SetAllLights er foreløpig ikke implementert. Denne skal (forsøke) skru 
-//  på alle lys pr ordre. Men vi må passe på at dette er for den synkroniserte 
-//	ordre-matrisen.
-
 //	Mangler muligens channels for ordre-håndtering?
 //  	Vi må se litt mer på hvordan det skal implementeres
 
-//  Door-obstruction-casen er ikke ferdig. Må implementere timer osv først.
-
 //  Usikker på hva printen i starten av de forkjsellige casene gjør (utenom for button)
-
-//  Også litt usikker på hvor btn_floor og btn_type skal komme fra. 
-//  	Mulig det er en parameter av Button?
-
-//			Ellers good, ser ryddigere ut, og skjønner virkemmåten nå.
 
 //*****************************************************************************
 
@@ -35,69 +24,70 @@ import (
 func Fsm(ch_arrivalFloor chan int,
 		 ch_buttonPressed chan elevator.button, //Usikker på denne elevator.button
 		 ch_doorTimedOut chan bool,
-		 ch_doorObstruction chan bool 
+		 ch_doorObstruction chan bool, 
+		 ch_stopButton chan bool,
 		) {
 			
 		// Do initializing
-			localElevator := elevator.UninitializedElevator()
+		localElevator := elevator.UninitializedElevator()
+		doorTimer := time.NewTimer(time.Duration(localElevator.config.doorOpenDuration_s) * time.Second);
+		
 			
 		// "For-Select" to supervise the different channels/events that changes the FSM
 		for {
 			select {
-			case button <- ch_buttonPressed:
+			case buttonPressed <- ch_buttonPressed:
 
-				fmt.Printf("\n\n%s(%d, %s)\n", functionName, btn_floor, elevio_button_toString(btn_type))
-				elevator_print(localElevator)
+				fmt.Printf("\n\n%s(%d, %s)\n", functionName, buttonPressed.btn_floor, elevio_button_toString(buttonPressed.btn_type))
+				elevator.elevator_print(localElevator)
 
 				switch localElevator.behaviour {
 					case elevator.EB_DoorOpen:
-						if Requests_shouldClearImmediately(localElevator, btn_floor, btn_type) {
-							TimerStart(localElevator.config.doorOpenDuration_s)
+						if requests.Requests_shouldClearImmediately(localElevator, buttonPressed.btn_floor, buttonPressed.btn_type) {
+							doorTimer.Reset(time.Duration(localElevator.config.DoorOpenDuration) * time.Second)
 						} else {
-							localElevator.Requests[btn_floor][btn_type] = 1
+							localElevator.Requests[buttonPressed.btn_floor][buttonPressed.btn_type] = 1
 						}
 
 					case elevator.EB_Moving:
-						localElevator.Requests[btn_floor][btn_type] = 1
+						localElevator.Requests[buttonPressed.btn_floor][buttonPressed.btn_type] = 1
 
 					case elevator.EB_Idle:
-						localElevator.Requests[btn_floor][btn_type] = 1
-						pair := Requests_chooseDirection(localElevator)
+						localElevator.Requests[buttonPressed.btn_floor][buttonPressed.btn_type] = 1
+						pair := requests.Requests_chooseDirection(localElevator)
 						localElevator.dirn = pair.dirn
 						localElevator.behaviour = pair.behaviour
 
 						switch pair.behaviour {
 							case elevator.EB_DoorOpen:
-								SetDoorOpenLamp(true)
-								TimerStart(localElevator.config.doorOpenDuration_s)
+								elevator_io.SetDoorOpenLamp(true)
+								doorTimer.Reset(time.Duration(localElevator.config.DoorOpenDuration) * time.Second)
 								localElevator = Requests_clearAtCurrentFloor(localElevator)
 
 							case elevator.EB_Moving:
-								SetMotorDirection(localElevator.dirn)
+								elevator_io.SetMotorDirection(localElevator.dirn)
 
 							case elevator.EB_Idle:
 								// No action needed
 							}
-					// setAllLights(localElevator) // "Denne skal PRØVE å sette på lys, mens dette må vel tas hånd om senere, etter UDP-greier"
    			 	}//switch e.behaviour
 
 
 			case newFloor <- ch_arrivalFloor:
 				
 				fmt.Printf("\n\n%s(%d)\n", functionName, newFloor)
-				elevator_print(localElevator)
+				elevator.elevator_print(localElevator)
 				
 				localElevator.floor = newFloor
-				SetFloorIndicator(localElevator.floor)	
+				elevator_io.SetFloorIndicator(localElevator.floor)	
 				
 				switch localElevator.behaviour {
 					case elevator.EB_Moving:
-						if requests_shouldStop(localElevator) {
-							SetMotorDirection(D_Stop)
-							SetDoorOpenLamp(true)
-							localElevator = Requests_clearAtCurrentFloor(localElevator)
-							TimerStart(localElevator.config.doorOpenDuration_s)
-							//setAllLights(localElevator)
+						if request.Requests_shouldStop(localElevator) {
+							elevator_io.SetMotorDirection(D_Stop)
+							elevator_io.SetDoorOpenLamp(true)
+							localElevator = requests.Requests_clearAtCurrentFloor(localElevator)
+							doorTimer.Reset(time.Duration(localElevator.config.DoorOpenDuration) * time.Second)
 							localElevator.behaviour = elevator.EB_DoorOpen
 						}
 					case elevator.EB_DoorOpen:
@@ -107,61 +97,72 @@ func Fsm(ch_arrivalFloor chan int,
 
 				}
 			
-			
-			case: <- ch_doorTimedOut:
+				// This channel automatically "transmits" when the timer times out. 
+			case: <- ch_doorTimer.C:
 
 				fmt.Printf("\n\n%s()\n", functionName)
-				elevator_print(localElevator)
+				elevator.elevator_print(localElevator)
 				
 				switch localElevator.behaviour {
 					case elevator.EB_DoorOpen:
-						pair := requests_chooseDirection(localElevator)
+						pair := request.Requests_chooseDirection(localElevator)
 						localElevator.dirn = pair.dirn
 						localElevator.behaviour = pair.behaviour
 						
 						switch localElevator.behaviour {
 							case elevator.EB_DoorOpen:
-								TimerStart(localElevator.config.doorOpenDuration_s)
-								localElevator = requests_clearAtCurrentFloor(localElevator)
+								doorTimer.Reset(time.Duration(localElevator.config.DoorOpenDuration) * time.Second)
+								localElevator = request.Requests_clearAtCurrentFloor(localElevator)
 								
-								//setAllLights(elevator
-
 							case elevator.EB_Moving, elevator.EB_Idle:
-								SetDoorOpenLamp(false)
-								SetMotorDirection(localElevator.dirn)
+								elevator_io.SetDoorOpenLamp(false)
+								elevator_io.SetMotorDirection(localElevator.dirn)
 							}
 					}
 
 			case: <- ch_doorObstruction:
 
 				fmt.Printf("\n\n%s()\n", functionName)
-				elevator_print(localElevator)
+				elevator.elevator_print(localElevator)
 
 				switch localElevator.behaviour {
 					case elevator.EB_DoorOpen:
-						// RESET DOOR TIMER.
+						doorTimer.Reset(time.Duration(localElevator.config.DoorOpenDuration) * time.Second)
 					case elevator.EB_Moving, elevator.EB_Idle:
+						// Do nothing, print message?
+				}
+
+			// Loops as long as something (true) is received on the stopbutton-channel.
+			case: <- ch_stopButton:
+
+				fmt.Printf("\n\n%s()\n", functionName)
+				elevator.elevator_print(localElevator)
+
+				switch localElevator.behaviour {
+					case elevator.EB_DoorOpen:
+						doorTimer.Reset(time.Duration(localElevator.config.DoorOpenDuration) * time.Second)
+						elevator.io.SetDoorOpenLamp(true)
+						
+					case elevator.EB_Moving:
+						elevator_io.SetMotorDirection(elevator.D_Stop)
+						localElevator.behaviour = elevator.EB_Idle  // Might be wrong if Idle also means at a floor
+						
+					case elevator.EB_Idle:
 						// Do nothing
 				}
 
-			case: // 
+				stopButtonPressed := true
+				for stopButtonPressed; {
+					select {
+						case stopButtonPressed:
+							stopButtonPressed = false;	//Might not be needed if the opposite of a signal on the channel is "false"
+							stopButtonPressed = <- ch_stopButton:	
+					}
+				}
 
-
-				// For every channel/event, check what state (behaviour) the elevator has
-				// Events are:
-					// New Floor / Arrival at floor. DONE
-					// Button is pressed			 DONE
-					// Door-timeout					 DONE
-					// Obstruction
-					// Stop-button (or is it included in the button-channel?)
-					// New-order is confirmed?
-
-				
 			}// select
 		}// for
-		
-
 
 	fmt.Println("\nNew state:")
-	elevator_print(localElevator)
+	elevator.elevator_print(localElevator)
 }
