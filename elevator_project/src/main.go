@@ -57,6 +57,7 @@ func main() {
 
 	/* Channel for enabling/disabling the transmitter after start.
 	Can be used to signal that the node is "unavailable". */
+<<<<<<< HEAD
 	peerTxEnable := make(chan bool)
 	go peers.Transmitter(config.GlobalPort, id, peerTxEnable)
 	go peers.Reciever(config.GlobalPort, peerUpdateCh)
@@ -65,7 +66,21 @@ func main() {
 	msgTx := make(chan ElevatorMessage)
 	msgRx := make(chan ElevatorMessage)
 
-	go bcast.Transmitter(config.GlobalPort)
+	go bcast.Transmitter(config.GlobalPort, msgTx)
+	go bcast.Reciever(config.GlobalPort, msgRx)
+
+	// example message
+	go func() {
+		testMsg := ElevatorMessage{"nice ID", true, 0, 1}
+		for {
+			ElevatorMessage.Iter++
+			msgTx <- testMsg
+			time.Sleep(1 * time.Second)
+		}
+	}()
+=======
+	// peerTxEnable := make(chan bool)
+>>>>>>> 19f38f73683b4398df925abae2aa9e9d24c26681
 
 	// Channels for sending and recieving
 
