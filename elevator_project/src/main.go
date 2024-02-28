@@ -1,6 +1,7 @@
 package main
 
 import (
+	"driver/backup"
 	"driver/elevator_io"
 	"driver/elevator_io_types"
 	"driver/network/localip"
@@ -33,6 +34,8 @@ func main() {
 		id = fmt.Sprintf("peer-%s-%d", localIP, os.Getpid())
 	}
 
+	backup.BackupProcess(id) //this halts the progression of the program while it is the backup
+	fmt.Println("Primary started.")
 	// Initialize local elevator
 	elevator_io.Init("localhost:"+port, elevator_io_types.N_FLOORS)
 
