@@ -2,6 +2,7 @@ package main
 
 import (
 	"driver/backup"
+	"driver/config"
 	"driver/elevator_io"
 	"driver/elevator_io_types"
 	"driver/network/bcast"
