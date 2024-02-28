@@ -10,3 +10,6 @@
 # Power Loss
 -> The elevators current-order and cab-button-states should at "all" times be saved to a local file. This ensures that when the nodes dies (due to power loss), that it can retrieve this information to ensure service guarantee.
 
+# Channels need(?) Thoughts from Linus
+-> ch_newLocalOrders, for sending orders from the assigner/cost to the local elev. Old orders should be cleared.
+-> 
