@@ -4,9 +4,12 @@ import (
 	"driver/config"
 	"driver/elevator_io"
 	"driver/elevator_io_types"
+	"driver/network/bcast"
 	"driver/network/localip"
+	"driver/network/peers"
 	"flag"
 	"fmt"
+	"os"
 )
 
 type ElevatorMessage struct {
@@ -42,12 +45,21 @@ func main() {
 
 	// GOROUTINES network
 
-	// Channel for recieving updates on the ID's of alive peers
-	// peerUpdateCh := make(chan peers.PeerUpdate)
+	// We make a channel for receiving updates on the id's of the peers that are
+	//  alive on the network
+	peerUpdateCh := make(chan peers.PeerUpdate)
 
 	/* Channel for enabling/disabling the transmitter after start.
 	Can be used to signal that the node is "unavailable". */
-	// peerTxEnable := make(chan bool)
+	peerTxEnable := make(chan bool)
+	go peers.Transmitter(config.GlobalPort, id, peerTxEnable)
+	go peers.Reciever(config.GlobalPort, peerUpdateCh)
+
+	// Channels for sending and recieving
+	msgTx := make(chan ElevatorMessage)
+	msgRx := make(chan ElevatorMessage)
+
+	go bcast.Transmitter(config.GlobalPort)
 
 	// Channels for sending and recieving
 
