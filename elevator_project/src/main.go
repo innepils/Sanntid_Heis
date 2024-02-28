@@ -7,8 +7,13 @@ import (
 	"driver/network/localip"
 	"flag"
 	"fmt"
-	"os"
 )
+
+type ElevatorMessage struct {
+	ID           string
+	HallRequests bool
+	state        int
+}
 
 func main() {
 
@@ -19,12 +24,9 @@ func main() {
 	*/
 	var id string
 	flag.StringVar(&id, "ID", "", "ID of this peer")
-	var port string
-	flag.StringVar(&port, "Port", "", "port of this peer")
 	flag.Parse()
 
 	// if no ID is given, use local IP address
-	// (legger også til process ID 'os.Getpid()', ikke helt sikker på hvorfor enda)
 	if id == "" {
 		localIP, err := localip.LocalIP()
 		if err != nil {
@@ -32,12 +34,13 @@ func main() {
 			localIP = "DISCONNECTED"
 		}
 		id = fmt.Sprintf("peer-%s-%d", localIP, os.Getpid())
+
 	}
 
 	backup.BackupProcess(id) //this halts the progression of the program while it is the backup
 	fmt.Println("Primary started.")
 	// Initialize local elevator
-	elevator_io.Init("localhost:"+port, elevator_io_types.N_FLOORS)
+	elevator_io.Init(localip.LocalIP+config.GlobalPort, elevator_io_types.N_FLOORS)
 
 	// GOROUTINES network
 
