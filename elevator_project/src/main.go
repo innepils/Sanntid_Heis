@@ -6,10 +6,12 @@ import (
 	"driver/network/localip"
 	"flag"
 	"fmt"
-	"os"
 )
 
 type ElevatorMessage struct {
+	ID           string
+	HallRequests bool
+	state        int
 }
 
 func main() {
@@ -26,14 +28,13 @@ func main() {
 	flag.Parse()
 
 	// if no ID is given, use local IP address
-	// (legger også til process ID 'os.Getpid()', ikke helt sikker på hvorfor enda)
 	if id == "" {
 		localIP, err := localip.LocalIP()
 		if err != nil {
 			fmt.Println(err)
 			localIP = "DISCONNECTED"
 		}
-		id = fmt.Sprintf("peer-%s-%d", localIP, os.Getpid())
+		id = fmt.Sprintf("peer-%s", localIP)
 	}
 
 	// Initialize local elevator
