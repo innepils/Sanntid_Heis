@@ -1,6 +1,7 @@
 package main
 
 import (
+	"driver/config"
 	"driver/elevator_io"
 	"driver/elevator_io_types"
 	"driver/network/localip"
@@ -23,8 +24,6 @@ func main() {
 	*/
 	var id string
 	flag.StringVar(&id, "ID", "", "ID of this peer")
-	var port string
-	flag.StringVar(&port, "Port", "", "port of this peer")
 	flag.Parse()
 
 	// if no ID is given, use local IP address
@@ -34,11 +33,12 @@ func main() {
 			fmt.Println(err)
 			localIP = "DISCONNECTED"
 		}
-		id = fmt.Sprintf("peer-%s", localIP)
+		id = fmt.Sprintf("peer-%s-%d", localIP, os.Getpid())
+
 	}
 
 	// Initialize local elevator
-	elevator_io.Init("localhost:"+port, elevator_io_types.N_FLOORS)
+	elevator_io.Init(localip.LocalIP+config.GlobalPort, elevator_io_types.N_FLOORS)
 
 	// GOROUTINES network
 
