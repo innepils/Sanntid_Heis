@@ -1,14 +1,8 @@
 package timer
 
-import (
-	"time"
-)
-
 //func DoorTimer(ch_doorTimedOut chan<- bool){
-	
+
 //}
-
-
 
 //AT: usikker på om denne er aktuell etter oversetting til go.
 

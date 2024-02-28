@@ -51,7 +51,7 @@ func EBToString(eb ElevatorBehaviour) string {
 }
 
 // Prints the state of the elevator
-func (es *Elevator) Print() {
+func (es *Elevator) Elevator_print() {
 	fmt.Println("  +--------------------+")
 	fmt.Printf(
 		"  |floor = %-2d          |\n"+
@@ -88,26 +88,20 @@ func UninitializedElevator() Elevator {
 		Floor:     -1,
 		Dirn:      elevator_io_types.D_Stop,
 		Behaviour: EB_Idle,
-		
-		// Dette ser merkelig ut
-		Config: struct {
-			ClearRequestVariant ClearRequestVariant
-			DoorOpenDurationSec float64
-		}{
-			ClearRequestVariant: CV_all,
-			DoorOpenDurationSec: 3.0,
-		},
 	}
 }
 
+/*
 func GetCabRequests(elevator Elevator) []bool {
 	// Create a new slice to store the last column elements
 	cabRequests := make([]bool, len(elevator.Requests))
 
 	// Loop through each row and access the last element
 	for i, row := range elevator.Requests {
-		cabRequests[i] = row[len(row)-1]
+		cabRequests = false;
+		stopButtonPressed[i] = row[len(row)-1]
 	}
 
 	return cabRequests
 }
+*/
