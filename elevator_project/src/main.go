@@ -1,7 +1,7 @@
 package main
 
 import (
-	"driver/config"
+	"driver/backup"
 	"driver/elevator_io"
 	"driver/elevator_io_types"
 	"driver/network/bcast"
@@ -40,6 +40,8 @@ func main() {
 
 	}
 
+	backup.BackupProcess(id) //this halts the progression of the program while it is the backup
+	fmt.Println("Primary started.")
 	// Initialize local elevator
 	elevator_io.Init(localip.LocalIP+config.GlobalPort, elevator_io_types.N_FLOORS)
 
