@@ -2,7 +2,6 @@ package cost
 
 import (
 	"driver/elevator"
-	"driver/elevator_io_types"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -27,9 +26,9 @@ func Cost(hall_requests [][2]bool, localelevator elevator.Elevator, extern_eleva
 		HallRequests: hall_requests,
 		States: map[string]HRAElevState{
 			"aaa_self": HRAElevState{
-				Behavior:    strings.ToLower(elevator.EBToString(localelevator.Behaviour)[3:]),
+				Behavior:    strings.ToLower(elevator.ElevBehaviourToString(localelevator.Behaviour)[3:]),
 				Floor:       localelevator.Floor,
-				Direction:   strings.ToLower(elevator_io_types.Elevio_dirn_toString(localelevator.Dirn)),
+				Direction:   strings.ToLower(elevator.ElevDirnToString(localelevator.Dirn)),
 				CabRequests: elevator.GetCabRequests(localelevator),
 			},
 		},
