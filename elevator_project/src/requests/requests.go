@@ -114,30 +114,30 @@ func Requests_clearAtCurrentFloor(e elevator.Elevator, ch_completedOrders chan e
 	case config.CV_all:
 		for btn := 0; btn < config.N_BUTTONS; btn++ {
 			e.Requests[e.Floor][btn] = false
-			ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.ButtonType(btn)}
+			//ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.ButtonType(btn)}
 		}
 
 	case config.CV_InDirn:
 
 		e.Requests[e.Floor][elevator_io.BT_Cab] = false
-		ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_Cab}
+		//ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_Cab}
 
 		switch e.Dirn {
 
 		case elevator_io.MD_Up:
 			if !Requests_above(e) && !e.Requests[e.Floor][elevator_io.BT_HallUp] {
 				e.Requests[e.Floor][elevator_io.BT_HallDown] = false
-				ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
+				//ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
 			}
 			e.Requests[e.Floor][elevator_io.BT_HallUp] = false
-			ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallUp}
+			//ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallUp}
 
 		case elevator_io.MD_Down:
 			if !Requests_below(e) && !e.Requests[e.Floor][elevator_io.BT_HallDown] {
 				e.Requests[e.Floor][elevator_io.BT_HallUp] = false
 			}
 			e.Requests[e.Floor][elevator_io.BT_HallDown] = false
-			ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
+			//ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
 
 		case elevator_io.MD_Stop:
 			fallthrough
@@ -146,8 +146,8 @@ func Requests_clearAtCurrentFloor(e elevator.Elevator, ch_completedOrders chan e
 		default:
 			e.Requests[e.Floor][elevator_io.BT_HallUp] = false
 			e.Requests[e.Floor][elevator_io.BT_HallDown] = false
-			ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallUp}
-			ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
+			//ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallUp}
+			//ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
 		}
 	}
 	return e
