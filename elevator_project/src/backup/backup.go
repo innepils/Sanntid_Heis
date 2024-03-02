@@ -1,8 +1,10 @@
 package backup
 
 import (
+	"encoding/gob"
 	"fmt"
 	"net"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -14,6 +16,43 @@ const (
 	baseStatusMsg  = "heartbeat"
 	heartbeatSleep = 1000
 )
+
+func SaveToFile(filename string, status [4]bool) {
+	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	// Encode the array using a gob encoder
+	encoder := gob.NewEncoder(file)
+	err = encoder.Encode(status)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func LoadFromFile(filename string) [4]bool {
+	var data [4]bool
+
+	// Open the file for reading
+	file, err := os.Open(filename)
+	if err != nil {
+		return data
+	}
+	defer file.Close()
+
+	// Decode the data using a gob decoder
+	decoder := gob.NewDecoder(file)
+	err = decoder.Decode(&data)
+	if err != nil {
+		return data
+	}
+
+	return data
+}
 
 func StartBackupProcess() {
 	exec.Command("gnome-terminal", "--", "go", "run", "main.go").Run()
