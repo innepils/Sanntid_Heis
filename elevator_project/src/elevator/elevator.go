@@ -108,6 +108,7 @@ func (es *Elevator) Elevator_print() {
 		fmt.Println("|")
 	}
 	fmt.Println("  +--------------------+")
+	fmt.Println("\n")
 }
 
 func UninitializedElevator() Elevator {

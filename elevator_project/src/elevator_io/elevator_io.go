@@ -64,10 +64,7 @@ func SetFloorIndicator(floor int) {
 }
 
 func SetDoorOpenLamp(value bool) {
-	write([4]byte{4, toByte(value), 0,
-		// Kan nok flyttes til config (bare at vi da må endre overalt ellers fra "elevator_io_types" til "config")
-		
-		 0})
+	write([4]byte{4, toByte(value), 0, 0})
 }
 
 func SetStopLamp(value bool) {

@@ -5,6 +5,7 @@ import (
 	"driver/elevator"
 	"driver/elevator_io"
 	"driver/requests"
+	"fmt"
 	"time"
 )
 
@@ -12,28 +13,37 @@ import (
 // 						*****	Status	*****
 //	Mangler muligens channels for ordre-håndtering?
 //  	Vi må se litt mer på hvordan det skal implementeres
-
-//  Usikker på hva printen i starten av de forkjsellige casene gjør (utenom for button)
-//  Denne://fmt.Printf("\n\n%s(%d, %s)\n", functionName, buttonPressed.btn_floor, elevio_button_toString(buttonPressed.btn_type)) //functionName should be a string, not sure why this is implemented
 //*****************************************************************************
 
 // One single function for the Final State Machine, to be run as a goroutine from main
 func Fsm(ch_arrivalFloor chan int,
-	ch_buttonPressed chan elevator_io.ButtonEvent, //Usikker på denne elevator.button
+	ch_buttonPressed chan elevator_io.ButtonEvent,
 	ch_doorObstruction chan bool,
 	ch_stopButton chan bool,
 ) {
 
-	// Do initializing
+	// Initializing
 	localElevator := elevator.UninitializedElevator()
 	doorTimer := time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
+	elevator_io.SetMotorDirection(elevator_io.MD_Down)
+
+	// Run the elevator to the bottom floor
+	for {
+		newFloor := <-ch_arrivalFloor
+
+		if newFloor != 0 {
+			elevator_io.SetMotorDirection(elevator_io.MD_Down)
+		} else {
+			elevator_io.SetMotorDirection(elevator_io.MD_Stop)
+			localElevator.Floor = newFloor
+			break
+		}
+	}
 
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
 		select {
 		case buttonPressed := <-ch_buttonPressed:
-
-			localElevator.Elevator_print()
 
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
@@ -60,6 +70,7 @@ func Fsm(ch_arrivalFloor chan int,
 
 				case elevator.EB_Moving:
 					elevator_io.SetMotorDirection(elevator_io.MotorDirection(localElevator.Dirn))
+					fmt.Printf("DirectionSet: %s\n", elevator.ElevDirnToString(elevator_io.MotorDirection(localElevator.Dirn)))
 
 				case elevator.EB_Idle:
 					// No action needed
@@ -68,7 +79,6 @@ func Fsm(ch_arrivalFloor chan int,
 
 		case newFloor := <-ch_arrivalFloor:
 
-			//fmt.Printf("\n\n%s(%d)\n", functionName, newFloor)
 			localElevator.Elevator_print()
 
 			localElevator.Floor = newFloor
@@ -135,7 +145,7 @@ func Fsm(ch_arrivalFloor chan int,
 
 			case elevator.EB_Moving:
 				elevator_io.SetMotorDirection(elevator_io.MD_Stop)
-				localElevator.Behaviour = elevator.EB_Idle // Might be wrong if Idle also means at a floor
+				localElevator.Behaviour = elevator.EB_Idle
 
 			case elevator.EB_Idle:
 				// Do nothing
@@ -148,10 +158,17 @@ func Fsm(ch_arrivalFloor chan int,
 
 			}
 
+			switch localElevator.Behaviour {
+			case elevator.EB_DoorOpen:
+				doorTimer.Reset(time.Duration(localElevator.Config.DoorOpenDurationSec) * time.Second)
+			case elevator.EB_Idle:
+				elevator_io.SetMotorDirection(localElevator.Dirn)
+				localElevator.Behaviour = elevator.EB_Moving
+
+			}
 		} // select
+
+		localElevator.Elevator_print()
+
 	} // for
-
-	//fmt.Println("\nNew state:")
-	//localElevator.Elevator_print()
-
 }

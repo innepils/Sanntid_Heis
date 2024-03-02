@@ -1,6 +1,7 @@
 package main
 
 import (
+	"driver/config"
 	"driver/elevator_io"
 	"driver/fsm"
 )
@@ -70,20 +71,23 @@ func main() {
 				}
 			}()
 	*/
+
+	elevator_io.Init("localhost:15657", config.N_FLOORS)
 	// Channels for sending and recieving
 
 	ch_buttonPressed := make(chan elevator_io.ButtonEvent)
 	ch_arrivalFloor := make(chan int)
-	//ch_doorTimedOut := make(chan bool)
 	ch_doorObstruction := make(chan bool)
 	ch_stopButton := make(chan bool)
 
 	go elevator_io.PollButtons(ch_buttonPressed)
 	go elevator_io.PollFloorSensor(ch_arrivalFloor)
-	//go elevator_io.PollFloorSensor(ch_doorTimedOut)
 	go elevator_io.PollObstructionSwitch(ch_doorObstruction)
 	go elevator_io.PollStopButton(ch_stopButton)
 
 	go fsm.Fsm(ch_arrivalFloor, ch_buttonPressed, ch_doorObstruction, ch_stopButton)
 
+	for {
+		//this is comment
+	}
 }

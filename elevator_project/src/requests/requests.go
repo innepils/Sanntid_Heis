@@ -48,50 +48,39 @@ func Requests_here(e elevator.Elevator) bool {
 func Requests_chooseDirection(e elevator.Elevator) DirnBehaviourPair {
 	switch e.Dirn {
 	case elevator_io.MD_Up:
-		return DirnBehaviourPair{
-			Dirn: elevator_io.MD_Up,
-			Behaviour: func() elevator.ElevatorBehaviour {
-				if Requests_above(e) {
-					return elevator.EB_Moving
-				} else if Requests_here(e) {
-					return elevator.EB_DoorOpen
-				} else if Requests_below(e) {
-					return elevator.EB_Moving
-				} else {
-					return elevator.EB_Idle
-				}
-			}(),
+		if Requests_above(e) {
+			return DirnBehaviourPair{elevator_io.MD_Up, elevator.EB_Moving}
+		} else if Requests_here(e) {
+			return DirnBehaviourPair{elevator_io.MD_Down, elevator.EB_DoorOpen}
+		} else if Requests_below(e) {
+			return DirnBehaviourPair{elevator_io.MD_Down, elevator.EB_Moving}
+		} else {
+			return DirnBehaviourPair{elevator_io.MD_Stop, elevator.EB_Idle}
 		}
+
 	case elevator_io.MD_Down:
-		return DirnBehaviourPair{
-			Dirn: elevator_io.MD_Down,
-			Behaviour: func() elevator.ElevatorBehaviour {
-				if Requests_below(e) {
-					return elevator.EB_Moving
-				} else if Requests_here(e) {
-					return elevator.EB_DoorOpen
-				} else if Requests_above(e) {
-					return elevator.EB_Moving
-				} else {
-					return elevator.EB_Idle
-				}
-			}(),
+		if Requests_below(e) {
+			return DirnBehaviourPair{elevator_io.MD_Down, elevator.EB_Moving}
+		} else if Requests_here(e) {
+			return DirnBehaviourPair{elevator_io.MD_Up, elevator.EB_DoorOpen}
+		} else if Requests_above(e) {
+			return DirnBehaviourPair{elevator_io.MD_Up, elevator.EB_Moving}
+		} else {
+			return DirnBehaviourPair{elevator_io.MD_Stop, elevator.EB_Idle}
 		}
+
 	case elevator_io.MD_Stop:
-		return DirnBehaviourPair{
-			Dirn: elevator_io.MD_Stop,
-			Behaviour: func() elevator.ElevatorBehaviour {
-				if Requests_here(e) {
-					return elevator.EB_DoorOpen
-				} else if Requests_above(e) {
-					return elevator.EB_Moving
-				} else if Requests_below(e) {
-					return elevator.EB_Moving
-				} else {
-					return elevator.EB_Idle
-				}
-			}(),
+
+		if Requests_here(e) {
+			return DirnBehaviourPair{elevator_io.MD_Stop, elevator.EB_DoorOpen}
+		} else if Requests_above(e) {
+			return DirnBehaviourPair{elevator_io.MD_Up, elevator.EB_Moving}
+		} else if Requests_below(e) {
+			return DirnBehaviourPair{elevator_io.MD_Down, elevator.EB_Moving}
+		} else {
+			return DirnBehaviourPair{elevator_io.MD_Stop, elevator.EB_Idle}
 		}
+
 	default:
 		return DirnBehaviourPair{Dirn: elevator_io.MD_Stop, Behaviour: elevator.EB_Idle}
 	}
