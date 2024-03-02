@@ -1,8 +1,9 @@
 package main
 
 import (
+	"driver/backup"
 	"driver/elevator_io"
-	"driver/fsm"
+	"fmt"
 )
 
 type ElevatorMessage struct {
@@ -13,6 +14,14 @@ type ElevatorMessage struct {
 }
 
 func main() {
+	var boolArray [4]bool
+	boolArray[0] = true
+	boolArray[1] = false
+	boolArray[2] = true
+	boolArray[3] = false
+	backup.SaveToFile("status.txt", boolArray)
+	fromFile := backup.LoadFromFile("status.txt")
+	fmt.Println(fromFile)
 
 	/* Initialize elevator ID and port
 	This section sets the elevators ID (anything) and port (of the running node/PC),
@@ -84,6 +93,6 @@ func main() {
 	go elevator_io.PollObstructionSwitch(ch_doorObstruction)
 	go elevator_io.PollStopButton(ch_stopButton)
 
-	go fsm.Fsm(ch_arrivalFloor, ch_buttonPressed, ch_doorObstruction, ch_stopButton)
+	//go fsm.Fsm(ch_arrivalFloor, ch_buttonPressed, ch_doorObstruction, ch_stopButton)
 
 }
