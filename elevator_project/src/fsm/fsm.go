@@ -69,7 +69,7 @@ func Fsm(ch_arrivalFloor chan int,
 					localElevator = requests.Requests_clearAtCurrentFloor(localElevator)
 
 				case elevator.EB_Moving:
-					elevator_io.SetMotorDirection(elevator_io.MotorDirection(localElevator.Dirn))
+					elevator_io.SetMotorDirection(localElevator.Dirn)
 					fmt.Printf("DirectionSet: %s\n", elevator.ElevDirnToString(elevator_io.MotorDirection(localElevator.Dirn)))
 
 				case elevator.EB_Idle:
@@ -100,25 +100,21 @@ func Fsm(ch_arrivalFloor chan int,
 
 			}
 
-			// This channel automatically "transmits" when the timer times out.
+		// This channel automatically "transmits" when the timer times out.
 		case <-doorTimer.C:
 
 			localElevator.Elevator_print()
 
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
+				elevator_io.SetDoorOpenLamp(false)
 				pair := requests.Requests_chooseDirection(localElevator)
 				localElevator.Dirn = pair.Dirn
 				localElevator.Behaviour = pair.Behaviour
-
+				
 				switch localElevator.Behaviour {
-				case elevator.EB_DoorOpen:
-					doorTimer.Reset(time.Duration(localElevator.Config.DoorOpenDurationSec) * time.Second)
-					localElevator = requests.Requests_clearAtCurrentFloor(localElevator)
-
-				case elevator.EB_Moving, elevator.EB_Idle:
-					elevator_io.SetDoorOpenLamp(false)
-					elevator_io.SetMotorDirection(elevator_io.MotorDirection(localElevator.Dirn))
+				case elevator.EB_Moving:
+					elevator_io.SetMotorDirection(localElevator.Dirn)
 				}
 			}
 
@@ -130,10 +126,10 @@ func Fsm(ch_arrivalFloor chan int,
 			case elevator.EB_DoorOpen:
 				doorTimer.Reset(time.Duration(localElevator.Config.DoorOpenDurationSec) * time.Second)
 			case elevator.EB_Moving, elevator.EB_Idle:
-				// Do nothing, print message?
+				// Do nothing
 			}
 
-		// Loops as long as something (true) is received on the stopbutton-channel.
+		
 		case <-ch_stopButton:
 
 			localElevator.Elevator_print()
@@ -150,10 +146,11 @@ func Fsm(ch_arrivalFloor chan int,
 			case elevator.EB_Idle:
 				// Do nothing
 			}
-
-			stopButtonPressed := true
+			
+			// Loops as long as something (true) is received on the stopbutton-channel.
+				stopButtonPressed := true
 			for stopButtonPressed {
-				stopButtonPressed = false //Might not be needed if the opposite of a signal on the channel is "false"
+				stopButtonPressed = false
 				stopButtonPressed = <-ch_stopButton
 
 			}

@@ -6,9 +6,6 @@ import (
 	"driver/elevator_io"
 )
 
-// Assuming the Elevator struct and constants like N_FLOORS, N_BUTTONS, Dirn, ElevatorBehaviour,
-// Button, CV_All, CV_InDirn are defined elsewhere in Go.
-
 type DirnBehaviourPair struct {
 	Dirn      elevator_io.MotorDirection
 	Behaviour elevator.ElevatorBehaviour
