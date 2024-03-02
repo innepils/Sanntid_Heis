@@ -1,10 +1,10 @@
 package main
 
 import (
+	"driver/backup"
 	"driver/config"
 	"driver/elevator_io"
-	"fmt"
-	"driver/backup"
+	"driver/fsm"
 )
 
 type ElevatorMessage struct {
@@ -15,14 +15,13 @@ type ElevatorMessage struct {
 }
 
 func main() {
+
 	var boolArray [4]bool
 	boolArray[0] = true
 	boolArray[1] = false
 	boolArray[2] = true
 	boolArray[3] = false
-	backup.SaveToFile("status.txt", boolArray)
-	fromFile := backup.LoadFromFile("status.txt")
-	fmt.Println(fromFile)
+	backup.SaveBackupToFile("status.txt", boolArray)
 
 	/* Initialize elevator ID and port
 	This section sets the elevators ID (anything) and port (of the running node/PC),
@@ -88,12 +87,7 @@ func main() {
 	ch_doorObstruction := make(chan bool)
 	ch_stopButton := make(chan bool)
 
-	//this should send the loaded file with cab requests to the button pressed channel, it is NOT verified wether this works or not.
-	for i, element := range fromFile {
-		if element {
-			ch_buttonPressed <- elevator_io.ButtonEvent{BtnFloor: i, BtnType: elevator_io.BT_Cab}
-		}
-	}
+	go backup.LoadBackupFromFile("status.txt", ch_buttonPressed)
 
 	go elevator_io.PollButtons(ch_buttonPressed)
 	go elevator_io.PollFloorSensor(ch_arrivalFloor)

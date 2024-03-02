@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"driver/elevator_io"
 	"encoding/gob"
 	"fmt"
 	"net"
@@ -17,7 +18,7 @@ const (
 	heartbeatSleep = 1000
 )
 
-func SaveToFile(filename string, status [4]bool) {
+func SaveBackupToFile(filename string, status [4]bool) {
 	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return
@@ -34,13 +35,13 @@ func SaveToFile(filename string, status [4]bool) {
 	return
 }
 
-func LoadFromFile(filename string) [4]bool {
+func LoadBackupFromFile(filename string, ch_buttonPressed chan elevator_io.ButtonEvent) {
 	var data [4]bool
 
 	// Open the file for reading
 	file, err := os.Open(filename)
 	if err != nil {
-		return data
+		return
 	}
 	defer file.Close()
 
@@ -48,10 +49,16 @@ func LoadFromFile(filename string) [4]bool {
 	decoder := gob.NewDecoder(file)
 	err = decoder.Decode(&data)
 	if err != nil {
-		return data
+		return
 	}
 
-	return data
+	for i, element := range data {
+		if element {
+			ch_buttonPressed <- elevator_io.ButtonEvent{BtnFloor: i, BtnType: elevator_io.BT_Cab}
+		}
+	}
+
+	return
 }
 
 func StartBackupProcess() {
