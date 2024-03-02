@@ -80,12 +80,18 @@ func main() {
 			}()
 	*/
 	// Channels for sending and recieving
-
 	ch_buttonPressed := make(chan elevator_io.ButtonEvent)
 	ch_arrivalFloor := make(chan int)
 	//ch_doorTimedOut := make(chan bool)
 	ch_doorObstruction := make(chan bool)
 	ch_stopButton := make(chan bool)
+
+	//this should send the loaded file with cab requests to the button pressed channel, it is NOT verified wether this works or not.
+	for i, element := range fromFile {
+		if element {
+			ch_buttonPressed <- elevator_io.ButtonEvent{BtnFloor: i, BtnType: elevator_io.BT_Cab}
+		}
+	}
 
 	go elevator_io.PollButtons(ch_buttonPressed)
 	go elevator_io.PollFloorSensor(ch_arrivalFloor)
@@ -94,5 +100,5 @@ func main() {
 	go elevator_io.PollStopButton(ch_stopButton)
 
 	//go fsm.Fsm(ch_arrivalFloor, ch_buttonPressed, ch_doorObstruction, ch_stopButton)
-
+	select {}
 }
