@@ -20,9 +20,11 @@ func Fsm(ch_arrivalFloor chan int,
 	ch_buttonPressed chan elevator_io.ButtonEvent,
 	ch_doorObstruction chan bool,
 	ch_stopButton chan bool,
+	ch_completedOrders chan elevator_io.ButtonEvent,
 ) {
 
 	// Initializing
+	fmt.Printf("INITIALIZING ELEVATOR\n")
 	localElevator := elevator.UninitializedElevator()
 	elevator_io.SetMotorDirection(elevator_io.MD_Down)
 
@@ -39,6 +41,7 @@ func Fsm(ch_arrivalFloor chan int,
 		}
 	}
 
+	elevator_io.SetDoorOpenLamp(false)
 	doorTimer := time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
 
 	// "For-Select" to supervise the different channels/events that changes the FSM
@@ -67,11 +70,10 @@ func Fsm(ch_arrivalFloor chan int,
 				case elevator.EB_DoorOpen:
 					elevator_io.SetDoorOpenLamp(true)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-					localElevator = requests.Requests_clearAtCurrentFloor(localElevator)
+					localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedOrders)
 
 				case elevator.EB_Moving:
 					elevator_io.SetMotorDirection(localElevator.Dirn)
-					fmt.Printf("DirectionSet: %s\n", elevator.ElevDirnToString(elevator_io.MotorDirection(localElevator.Dirn)))
 
 				case elevator.EB_Idle:
 					// No action needed
@@ -90,7 +92,7 @@ func Fsm(ch_arrivalFloor chan int,
 				if requests.Requests_shouldStop(localElevator) {
 					elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 					elevator_io.SetDoorOpenLamp(true)
-					localElevator = requests.Requests_clearAtCurrentFloor(localElevator)
+					localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedOrders)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					localElevator.Behaviour = elevator.EB_DoorOpen
 				}

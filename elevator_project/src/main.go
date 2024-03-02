@@ -86,6 +86,7 @@ func main() {
 	ch_arrivalFloor := make(chan int)
 	ch_doorObstruction := make(chan bool)
 	ch_stopButton := make(chan bool)
+	ch_completedOrders := make(chan elevator_io.ButtonEvent)
 
 	go backup.LoadBackupFromFile("status.txt", ch_buttonPressed)
 
@@ -94,7 +95,7 @@ func main() {
 	go elevator_io.PollObstructionSwitch(ch_doorObstruction)
 	go elevator_io.PollStopButton(ch_stopButton)
 
-	go fsm.Fsm(ch_arrivalFloor, ch_buttonPressed, ch_doorObstruction, ch_stopButton)
+	go fsm.Fsm(ch_arrivalFloor, ch_buttonPressed, ch_doorObstruction, ch_stopButton, ch_completedOrders)
 
 	for {
 		//this is comment
