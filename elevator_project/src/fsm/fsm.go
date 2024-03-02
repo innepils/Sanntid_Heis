@@ -11,8 +11,8 @@ import (
 
 //*****************************************************************************
 // 						*****	Status	*****
-//	Mangler muligens channels for ordre-håndtering?
-//  	Vi må se litt mer på hvordan det skal implementeres
+//	Ordre-håndtering må nok endre til å ta hånd om den "global request"
+// 	Lys har ikke blitt implementert enda, da de skal avhenge av "global requests"
 //*****************************************************************************
 
 // One single function for the Final State Machine, to be run as a goroutine from main
@@ -24,7 +24,6 @@ func Fsm(ch_arrivalFloor chan int,
 
 	// Initializing
 	localElevator := elevator.UninitializedElevator()
-	doorTimer := time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
 	elevator_io.SetMotorDirection(elevator_io.MD_Down)
 
 	// Run the elevator to the bottom floor
@@ -40,6 +39,8 @@ func Fsm(ch_arrivalFloor chan int,
 		}
 	}
 
+	doorTimer := time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
+
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
 		select {
@@ -48,7 +49,7 @@ func Fsm(ch_arrivalFloor chan int,
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
 				if requests.Requests_shouldClearImmediately(localElevator, buttonPressed.BtnFloor, elevator_io.ButtonType(buttonPressed.BtnType)) {
-					doorTimer.Reset(time.Duration(localElevator.Config.DoorOpenDurationSec) * time.Second)
+					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				} else {
 					localElevator.Requests[buttonPressed.BtnFloor][buttonPressed.BtnType] = true
 				}
@@ -65,7 +66,7 @@ func Fsm(ch_arrivalFloor chan int,
 				switch pair.Behaviour {
 				case elevator.EB_DoorOpen:
 					elevator_io.SetDoorOpenLamp(true)
-					doorTimer.Reset(time.Duration(localElevator.Config.DoorOpenDurationSec) * time.Second)
+					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					localElevator = requests.Requests_clearAtCurrentFloor(localElevator)
 
 				case elevator.EB_Moving:
@@ -90,7 +91,7 @@ func Fsm(ch_arrivalFloor chan int,
 					elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 					elevator_io.SetDoorOpenLamp(true)
 					localElevator = requests.Requests_clearAtCurrentFloor(localElevator)
-					doorTimer.Reset(time.Duration(localElevator.Config.DoorOpenDurationSec) * time.Second)
+					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					localElevator.Behaviour = elevator.EB_DoorOpen
 				}
 			case elevator.EB_DoorOpen:
@@ -111,7 +112,7 @@ func Fsm(ch_arrivalFloor chan int,
 				pair := requests.Requests_chooseDirection(localElevator)
 				localElevator.Dirn = pair.Dirn
 				localElevator.Behaviour = pair.Behaviour
-				
+
 				switch localElevator.Behaviour {
 				case elevator.EB_Moving:
 					elevator_io.SetMotorDirection(localElevator.Dirn)
@@ -124,19 +125,18 @@ func Fsm(ch_arrivalFloor chan int,
 
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
-				doorTimer.Reset(time.Duration(localElevator.Config.DoorOpenDurationSec) * time.Second)
+				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 			case elevator.EB_Moving, elevator.EB_Idle:
 				// Do nothing
 			}
 
-		
 		case <-ch_stopButton:
 
 			localElevator.Elevator_print()
 
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
-				doorTimer.Reset(time.Duration(localElevator.Config.DoorOpenDurationSec) * time.Second)
+				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				elevator_io.SetDoorOpenLamp(true)
 
 			case elevator.EB_Moving:
@@ -146,9 +146,9 @@ func Fsm(ch_arrivalFloor chan int,
 			case elevator.EB_Idle:
 				// Do nothing
 			}
-			
+
 			// Loops as long as something (true) is received on the stopbutton-channel.
-				stopButtonPressed := true
+			stopButtonPressed := true
 			for stopButtonPressed {
 				stopButtonPressed = false
 				stopButtonPressed = <-ch_stopButton
@@ -157,7 +157,7 @@ func Fsm(ch_arrivalFloor chan int,
 
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
-				doorTimer.Reset(time.Duration(localElevator.Config.DoorOpenDurationSec) * time.Second)
+				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 			case elevator.EB_Idle:
 				elevator_io.SetMotorDirection(localElevator.Dirn)
 				localElevator.Behaviour = elevator.EB_Moving

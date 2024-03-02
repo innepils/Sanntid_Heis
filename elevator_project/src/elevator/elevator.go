@@ -6,7 +6,6 @@ import (
 	"fmt"
 )
 
-// SK: Elevator states
 type ElevatorBehaviour int
 
 const (
@@ -15,27 +14,12 @@ const (
 	EB_Moving
 )
 
-// SK:
-type ClearRequestVariant int
-
-const (
-	/* GIVEN: Assume everyone waiting for the elevator gets on the elevator, even if
-	   they will be traveling in the "wrong" direction for a while */
-	CV_all ClearRequestVariant = iota
-	CV_InDirn
-)
-
-// Struct contain
 type Elevator struct {
-	Floor     int
-	Dirn      elevator_io.MotorDirection
-	Requests  [config.N_FLOORS][config.N_BUTTONS]bool
-	Behaviour ElevatorBehaviour
-
-	Config struct {
-		ClearRequestVariant ClearRequestVariant
-		DoorOpenDurationSec float64
-	}
+	Floor               int
+	Dirn                elevator_io.MotorDirection
+	Requests            [config.N_FLOORS][config.N_BUTTONS]bool
+	Behaviour           ElevatorBehaviour
+	ClearRequestVariant config.ClearRequestVariant
 }
 
 func ElevBehaviourToString(eb ElevatorBehaviour) string {
@@ -77,7 +61,6 @@ func ElevButtonToString(b elevator_io.ButtonType) string {
 	}
 }
 
-// Prints the state of the elevator
 func (es *Elevator) Elevator_print() {
 	fmt.Println("  +--------------------+")
 	fmt.Printf(
@@ -113,9 +96,10 @@ func (es *Elevator) Elevator_print() {
 
 func UninitializedElevator() Elevator {
 	return Elevator{
-		Floor:     -1,
-		Dirn:      elevator_io.MD_Stop,
-		Behaviour: EB_Idle,
+		Floor:               -1,
+		Dirn:                elevator_io.MD_Stop,
+		Behaviour:           EB_Idle,
+		ClearRequestVariant: config.SystemsClearRequestVariant,
 	}
 }
 
