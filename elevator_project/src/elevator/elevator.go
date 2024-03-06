@@ -4,6 +4,7 @@ import (
 	"driver/config"
 	"driver/elevator_io"
 	"fmt"
+	"strings"
 )
 
 type ElevatorBehaviour int
@@ -20,6 +21,18 @@ type Elevator struct {
 	Requests            [config.N_FLOORS][config.N_BUTTONS]bool
 	Behaviour           ElevatorBehaviour
 	ClearRequestVariant config.ClearRequestVariant
+}
+
+type ElevatorState struct {
+	Behavior    string `json:"behaviour"`
+	Floor       int    `json:"floor"`
+	Direction   string `json:"direction"`
+	CabRequests []bool `json:"cabRequests"`
+}
+
+type HRAInput struct {
+	HallRequests  [][2]bool                `json:"hallRequests"`
+	ElevatorState map[string]ElevatorState `json:"states"`
 }
 
 func ElevBehaviourToString(eb ElevatorBehaviour) string {
@@ -113,6 +126,28 @@ func GetCabRequests(elevator Elevator) []bool {
 	}
 
 	return cabRequests
+}
+
+func ElevatorToHRAElevState(localElevator Elevator) map[string]ElevatorState {
+	return map[string]ElevatorState{
+		"self": ElevatorState{
+			Behavior:    strings.ToLower(ElevBehaviourToString(localElevator.Behaviour)[3:]),
+			Floor:       localElevator.Floor,
+			Direction:   strings.ToLower(ElevDirnToString(localElevator.Dirn)),
+			CabRequests: GetCabRequests(localElevator),
+		},
+	}
+}
+
+func SendLocalElevatorState(
+	localElevator Elevator,
+	ch_elevatorStateToAssigner chan map[string]ElevatorState,
+	ch_elevatorStateToNetwork chan map[string]ElevatorState) {
+
+	HRAElevState := ElevatorToHRAElevState(localElevator)
+
+	ch_elevatorStateToAssigner <- HRAElevState
+	ch_elevatorStateToNetwork <- HRAElevState
 }
 
 func SetAllButtonLights(requests [config.N_FLOORS][config.N_BUTTONS]int) {

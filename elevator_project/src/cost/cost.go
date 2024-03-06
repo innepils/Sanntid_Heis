@@ -9,34 +9,26 @@ import (
 	"strings"
 )
 
-type HRAElevState struct {
-	Behavior    string `json:"behaviour"`
-	Floor       int    `json:"floor"`
-	Direction   string `json:"direction"`
-	CabRequests []bool `json:"cabRequests"`
-}
 
-type HRAInput struct {
-	HallRequests [config.N_FLOORS][config.N_BUTTONS - 1]bool `json:"hallRequests"`
-	States       map[string]HRAElevState                     `json:"states"`
-}
+func Cost(
+	hall_requests [][2]bool,
+	localElevator elevator.Elevator,
+	extern_elevators map[string]elevator.ElevatorState) [][2]bool { //REMEMBER TO CHANGE TYPES HERE
 
-func Cost(hall_requests [config.N_FLOORS][config.N_BUTTONS - 1]bool, localelevator elevator.Elevator, extern_elevators map[string]HRAElevState) [][2]bool { //REMEMBER TO CHANGE TYPES HERE
-
-	input := HRAInput{
+	input := elevator.HRAInput{
 		HallRequests: hall_requests,
-		States: map[string]HRAElevState{
-			"self": HRAElevState{
-				Behavior:    strings.ToLower(elevator.ElevBehaviourToString(localelevator.Behaviour)[3:]),
-				Floor:       localelevator.Floor,
-				Direction:   strings.ToLower(elevator.ElevDirnToString(localelevator.Dirn)),
-				CabRequests: elevator.GetCabRequests(localelevator),
+		ElevatorState: map[string]elevator.ElevatorState{
+			"aaa_self": elevator.ElevatorState{
+				Behavior:    strings.ToLower(elevator.ElevBehaviourToString(localElevator.Behaviour)[3:]),
+				Floor:       localElevator.Floor,
+				Direction:   strings.ToLower(elevator.ElevDirnToString(localElevator.Dirn)),
+				CabRequests: elevator.GetCabRequests(localElevator),
 			},
 		},
 	}
 
 	for key, value := range extern_elevators {
-		input.States[key] = value
+		input.ElevatorState[key] = value
 	}
 
 	fmt.Println(input)

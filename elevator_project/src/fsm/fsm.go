@@ -17,11 +17,14 @@ import (
 
 // One single function for the Final State Machine, to be run as a goroutine from main
 func Fsm(ch_arrivalFloor chan int,
+	ch_localOrders chan [config.N_FLOORS][config.N_BUTTONS]bool,
 	ch_buttonPressed chan elevator_io.ButtonEvent,
 	ch_doorObstruction chan bool,
 	ch_stopButton chan bool,
 	ch_completedOrders chan elevator_io.ButtonEvent,
-) {
+	ch_elevatorStateToAssigner chan map[string]elevator.ElevatorState,
+	ch_elevatorStateToNetwork chan map[string]elevator.ElevatorState,
+) { // Should specify direction of onedirectional channels
 
 	// Initializing
 	fmt.Printf("INITIALIZING ELEVATOR\n")
@@ -65,6 +68,7 @@ func Fsm(ch_arrivalFloor chan int,
 				pair := requests.Requests_chooseDirection(localElevator)
 				localElevator.Dirn = pair.Dirn
 				localElevator.Behaviour = pair.Behaviour
+				elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 				switch pair.Behaviour {
 				case elevator.EB_DoorOpen:
@@ -79,6 +83,9 @@ func Fsm(ch_arrivalFloor chan int,
 					// No action needed
 				}
 			} //switch e.behaviour
+
+		case localOrders := <-ch_localOrders:
+			localElevator.Requests = localOrders
 
 		case newFloor := <-ch_arrivalFloor:
 
@@ -95,6 +102,7 @@ func Fsm(ch_arrivalFloor chan int,
 					localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedOrders)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					localElevator.Behaviour = elevator.EB_DoorOpen
+					elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 				}
 			case elevator.EB_DoorOpen:
 				// Should not be possible
@@ -114,6 +122,7 @@ func Fsm(ch_arrivalFloor chan int,
 				pair := requests.Requests_chooseDirection(localElevator)
 				localElevator.Dirn = pair.Dirn
 				localElevator.Behaviour = pair.Behaviour
+				elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 				switch localElevator.Behaviour {
 				case elevator.EB_Moving:
@@ -129,7 +138,6 @@ func Fsm(ch_arrivalFloor chan int,
 			case elevator.EB_DoorOpen:
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 			case elevator.EB_Moving, elevator.EB_Idle:
-				// Do nothing
 			}
 
 		case <-ch_stopButton:
@@ -144,6 +152,7 @@ func Fsm(ch_arrivalFloor chan int,
 			case elevator.EB_Moving:
 				elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 				localElevator.Behaviour = elevator.EB_Idle
+				elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 			case elevator.EB_Idle:
 				// Do nothing
@@ -156,18 +165,17 @@ func Fsm(ch_arrivalFloor chan int,
 				stopButtonPressed = <-ch_stopButton
 
 			}
-
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 			case elevator.EB_Idle:
 				elevator_io.SetMotorDirection(localElevator.Dirn)
 				localElevator.Behaviour = elevator.EB_Moving
-
+				elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 			}
-		} // select
 
-		localElevator.Elevator_print()
+			localElevator.Elevator_print()
 
-	} // for
-}
+		} //select
+	} //For
+} //Fsm
