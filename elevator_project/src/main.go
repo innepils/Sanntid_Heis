@@ -18,8 +18,8 @@ type ElevatorMessage struct {
 
 func main() {
 
-	var boolArray [4]bool = {false, true, false, true}
-	backup.SaveBackupToFile("status.txt", boolArray)
+	//var boolArray [4]bool = {false, true, false, true}
+	//backup.SaveBackupToFile("status.txt", boolArray)
 
 	/* Initialize elevator ID and port
 	This section sets the elevators ID (anything) and port (of the running node/PC),
@@ -34,6 +34,7 @@ func main() {
 			if id == "" {
 				localIP, err := localip.LocalIP()
 				if err != nil {
+
 					fmt.Println(err)
 					localIP = "DISCONNECTED"
 				}
@@ -80,11 +81,12 @@ func main() {
 
 	elevator_io.Init("localhost:15657", config.N_FLOORS)
 	// Channels for sending and recieving
-	ch_buttonPressed := make(chan elevator_io.ButtonEvent)
 	ch_arrivalFloor := make(chan int)
+	ch_buttonPressed := make(chan elevator_io.ButtonEvent)
+	ch_localOrders := make(chan [config.N_FLOORS][config.N_BUTTONS]bool)
 	ch_doorObstruction := make(chan bool)
 	ch_stopButton := make(chan bool)
-	ch_localOrders := make(chan [config.N_FLOORS][config.N_BUTTONS]bool)
+	ch_completedOrders := make(chan elevator_io.ButtonEvent)
 
 	go backup.LoadBackupFromFile("status.txt", ch_buttonPressed)
 
@@ -93,7 +95,7 @@ func main() {
 	go elevator_io.PollObstructionSwitch(ch_doorObstruction)
 	go elevator_io.PollStopButton(ch_stopButton)
 
-	go fsm.Fsm(ch_arrivalFloor, ch_buttonPressed, ch_doorObstruction, ch_stopButton, ch_completedOrders)
+	go fsm.Fsm(ch_arrivalFloor, ch_localOrders, ch_buttonPressed, ch_doorObstruction, ch_stopButton, ch_completedOrders)
 
 	go func() {
 		for {
