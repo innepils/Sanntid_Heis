@@ -6,7 +6,13 @@ import (
 	"driver/elevator"
 	"driver/elevator_io"
 	"driver/fsm"
+	"driver/network/bcast"
+	"driver/network/localip"
+	"driver/network/peers"
+	"flag"
 	"fmt"
+	"os"
+	"time"
 )
 
 type ElevMsg struct {
@@ -51,23 +57,25 @@ func main() {
 	ch_peerTxEnable := make(chan bool)
 	ch_msgOut := make(chan ElevMsg)
 	ch_msgIn := make(chan ElevMsg)
-	ch_localOrders := make(chan [config.N_FLOORS][config.N_BUTTONS]bool)
 	ch_completedOrders := make(chan elevator_io.ButtonEvent)
-	ch_hallRequests := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
+	//ch_hallRequests := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
 
 	
 
 	// Goroutines for sending and recieving messages
 	go peers.Transmitter(config.GlobalPort, id, ch_peerTxEnable)
-	go peers.Reciever(config.GlobalPort, ch_peerUpdate)
+	go peers.Receiver(config.GlobalPort, ch_peerUpdate)
 	go bcast.Transmitter(config.GlobalPort, ch_msgOut)
-	go bcast.Reciever(config.GlobalPort, ch_msgIn)
+	go bcast.Receiver(config.GlobalPort, ch_msgIn)
 
 	// Channels for local elevator
+	ch_arrivalFloor := make(chan int)
 	ch_buttonPressed := make(chan elevator_io.ButtonEvent)
 	ch_localOrders := make(chan [config.N_FLOORS][config.N_BUTTONS]bool)
 	ch_doorObstruction := make(chan bool)
 	ch_stopButton := make(chan bool)
+	ch_elevatorStateToAssigner := make(chan elevator.ElevatorBehaviour)
+	ch_elevatorStateToNetWork := make(chan elevator.ElevatorBehaviour)
 
 	// Backup goroutine
 	go backup.LoadBackupFromFile("status.txt", ch_buttonPressed)
@@ -78,15 +86,24 @@ func main() {
 	go elevator_io.PollObstructionSwitch(ch_doorObstruction)
 	go elevator_io.PollStopButton(ch_stopButton)
 
-	go fsm.Fsm(ch_arrivalFloor, ch_localOrders, ch_buttonPressed, ch_doorObstruction, ch_stopButton, ch_completedOrders)
+	go fsm.Fsm(
+		ch_arrivalFloor,
+		ch_localOrders,
+		ch_buttonPressed,
+		ch_doorObstruction,
+		ch_stopButton,
+		ch_completedOrders,
+		ch_elevatorStateToAssigner,
+		ch_elevatorStateToNetWork,
+	)
 
 	// Sending message
 	go func() {
-		ElevMsg := ElevMsg{"Hello from " + id, 0}
+		ElevMsg := ElevMsg{"Hello from " + id, true, 0, 0}
 		for {
 			ElevMsg.Iter++
-			msgOut <- ElevMsg
-			time.Sleep(100 * time.Millisecond())
+			ch_msgOut <- ElevMsg
+			time.Sleep(100 * time.Millisecond)
 		}
 	}()
 
@@ -107,7 +124,7 @@ func main() {
 			fmt.Printf("  New:      %q\n", p.New)
 			fmt.Printf("  Lost:     %q\n", p.Lost)
 
-		case a := <-helloRx:
+		case a := <-ch_msgIn:
 			fmt.Printf("Received: %#v\n", a)
 		}
 	}
