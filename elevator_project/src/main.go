@@ -16,11 +16,7 @@ type ElevatorMessage struct {
 
 func main() {
 
-	var boolArray [4]bool
-	boolArray[0] = true
-	boolArray[1] = false
-	boolArray[2] = true
-	boolArray[3] = false
+	var boolArray [4]bool = {false, true, false, true}
 	backup.SaveBackupToFile("status.txt", boolArray)
 
 	/* Initialize elevator ID and port
@@ -86,7 +82,7 @@ func main() {
 	ch_arrivalFloor := make(chan int)
 	ch_doorObstruction := make(chan bool)
 	ch_stopButton := make(chan bool)
-	ch_completedOrders := make(chan elevator_io.ButtonEvent)
+	ch_localOrders := make(chan [config.N_FLOORS][config.N_BUTTONS]bool)
 
 	go backup.LoadBackupFromFile("status.txt", ch_buttonPressed)
 
