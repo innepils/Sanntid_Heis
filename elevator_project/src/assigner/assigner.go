@@ -2,6 +2,8 @@ package assigner
 
 import (
 	"driver/config"
+	"driver/cost"
+	"driver/elevator"
 	"driver/elevator_io"
 )
 
@@ -14,13 +16,20 @@ const (
 	completed             = 3
 )
 
-func Assigner(ch_buttonPressed chan elevator_io.ButtonEvent, ch_completedOrders chan elevator_io.ButtonEvent, ch_localOrders chan elevator_io.ButtonEvent) {
+func Assigner(ch_buttonPressed chan elevator_io.ButtonEvent,
+	ch_completedOrders chan elevator_io.ButtonEvent,
+	ch_localOrders chan [config.N_FLOORS][config.N_BUTTONS]bool,
+	hall_requests chan [][]int,
+	ch_elevatorStateToAssigner chan cost.HRAElevState,
+) {
 	var allOrders [config.N_FLOORS][config.N_BUTTONS]int
 	for i := range allOrders {
 		for j := range allOrders[i] {
 			allOrders[i][j] = 0
 		}
 	}
+
+	var localElevatorState cost.HRAElevState
 
 	for {
 		select {
@@ -34,10 +43,23 @@ func Assigner(ch_buttonPressed chan elevator_io.ButtonEvent, ch_completedOrders 
 			} else if allOrders[completedOrder.BtnFloor][completedOrder.BtnType] == 2 {
 				allOrders[completedOrder.BtnFloor][completedOrder.BtnType] = 3
 			}
+		case elevatorState := <-ch_elevatorStateToAssigner:
+			localElevatorState = elevatorState
 		}
 
-		//COST
-		assignedHallRequests := cost()
+		elevator.SetAllButtonLights(allOrders)
+
+		var hall_requests [config.N_FLOORS][config.N_BUTTONS - 1]bool
+		for i := range hall_requests {
+			for j := 0; j < 2; j++ {
+				if allOrders[i][j] == 2 {
+					hall_requests[i][j] = true
+				} else {
+					hall_requests[i][j] = false
+				}
+			}
+		}
+		assignedHallRequests := cost.Cost(hall_requests, localElevatorState, extern_elevators)
 		var localOrders [config.N_FLOORS][config.N_BUTTONS]bool
 		for i := range assignedHallRequests {
 			for j := 0; j < 2; j++ {
@@ -51,13 +73,14 @@ func Assigner(ch_buttonPressed chan elevator_io.ButtonEvent, ch_completedOrders 
 				localOrders[i][2] = false
 			}
 		}
-		
-		for i := range localOrders {
-			for j := range localOrders[i] {
-				if localOrders[i][j] {
-					ch_localOrders <- elevator_io.ButtonEvent{BtnFloor: i, BtnType: elevator_io.ButtonType(j)}
-				}
-			}
-		}
+
+		// for i := range localOrders {
+		// 	for j := range localOrders[i] {
+		// 		if localOrders[i][j] {
+		// 			ch_localOrders <- elevator_io.ButtonEvent{BtnFloor: i, BtnType: elevator_io.ButtonType(j)}
+		// 		}
+		// 	}
+		// }
+		ch_localOrders <- localOrders
 	}
 }

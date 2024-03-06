@@ -114,3 +114,15 @@ func GetCabRequests(elevator Elevator) []bool {
 
 	return cabRequests
 }
+
+func SetAllButtonLights(requests [config.N_FLOORS][config.N_BUTTONS]int) {
+	for i := range requests {
+		for j := range requests[i] {
+			if requests[i][j] == 2 {
+				elevator_io.SetButtonLamp(j, i, true)
+			} else {
+				elevator_io.SetButtonLamp(j, i, false)
+			}
+		}
+	}
+}

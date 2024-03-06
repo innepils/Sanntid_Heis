@@ -1,6 +1,7 @@
 package cost
 
 import (
+	"driver/config"
 	"driver/elevator"
 	"encoding/json"
 	"fmt"
@@ -16,16 +17,16 @@ type HRAElevState struct {
 }
 
 type HRAInput struct {
-	HallRequests [][2]bool               `json:"hallRequests"`
-	States       map[string]HRAElevState `json:"states"`
+	HallRequests [config.N_FLOORS][config.N_BUTTONS - 1]bool `json:"hallRequests"`
+	States       map[string]HRAElevState                     `json:"states"`
 }
 
-func Cost(hall_requests [][2]bool, localelevator elevator.Elevator, extern_elevators map[string]HRAElevState) [][2]bool { //REMEMBER TO CHANGE TYPES HERE
+func Cost(hall_requests [config.N_FLOORS][config.N_BUTTONS - 1]bool, localelevator elevator.Elevator, extern_elevators map[string]HRAElevState) [][2]bool { //REMEMBER TO CHANGE TYPES HERE
 
 	input := HRAInput{
 		HallRequests: hall_requests,
 		States: map[string]HRAElevState{
-			"aaa_self": HRAElevState{
+			"self": HRAElevState{
 				Behavior:    strings.ToLower(elevator.ElevBehaviourToString(localelevator.Behaviour)[3:]),
 				Floor:       localelevator.Floor,
 				Direction:   strings.ToLower(elevator.ElevDirnToString(localelevator.Dirn)),
@@ -60,11 +61,5 @@ func Cost(hall_requests [][2]bool, localelevator elevator.Elevator, extern_eleva
 		//die?
 	}
 
-	for _, value := range *output {
-		return value
-	}
-
-	fmt.Println("Cost function terminated without output.")
-	//die?
-	return [][2]bool{{false, false}, {false, false}}
+	return (*output)["self"]
 }
