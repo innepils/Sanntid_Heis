@@ -129,9 +129,7 @@ func Fsm(ch_arrivalFloor chan int,
 			case elevator.EB_DoorOpen:
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 			case elevator.EB_Moving, elevator.EB_Idle:
-				// Do nothing
 			}
-
 		case <-ch_stopButton:
 
 			localElevator.Elevator_print()
@@ -156,7 +154,6 @@ func Fsm(ch_arrivalFloor chan int,
 				stopButtonPressed = <-ch_stopButton
 
 			}
-
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
@@ -165,9 +162,9 @@ func Fsm(ch_arrivalFloor chan int,
 				localElevator.Behaviour = elevator.EB_Moving
 
 			}
-		} // select
 
-		localElevator.Elevator_print()
+			localElevator.Elevator_print()
 
-	} // for
-}
+		} //select
+	} //For
+} //Fsm
