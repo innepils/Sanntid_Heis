@@ -17,12 +17,14 @@ import (
 
 // One single function for the Final State Machine, to be run as a goroutine from main
 func Fsm(ch_arrivalFloor chan int,
-	ch_buttonPressed chan elevator_io.ButtonEvent,
 	ch_localOrders chan [config.N_FLOORS][config.N_BUTTONS]bool,
+	ch_buttonPressed chan elevator_io.ButtonEvent,
 	ch_doorObstruction chan bool,
 	ch_stopButton chan bool,
 	ch_completedOrders chan elevator_io.ButtonEvent,
-) {
+	ch_elevatorStateToAssigner chan elevator.ElevatorBehaviour,
+	ch_elevatorStateToNetWork chan elevator.ElevatorBehaviour,
+) { // Should specify direction of onedirectional channels 
 
 	// Initializing
 	fmt.Printf("INITIALIZING ELEVATOR\n")
