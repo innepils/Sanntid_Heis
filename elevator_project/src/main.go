@@ -18,8 +18,8 @@ import (
 
 type HeartBeat struct {
 	ID           string
-	HallRequests bool
-	state        int
+	HallRequests [config.N_FLOORS][config.N_BUTTONS - 1]int
+	state        map[string]elevator.ElevatorState
 	Iter         int
 }
 
@@ -32,7 +32,7 @@ func main() {
 	var id string
 	flag.StringVar(&id, "ID", "", "ID of this peer")
 
-	if id == "" { // if no ID is given, use local IP address
+	if id == "" { // if no ID is given, use local IP address and process ID
 		localIP, err := localip.LocalIP()
 		if err != nil {
 			fmt.Println(err)
@@ -58,15 +58,15 @@ func main() {
 	ch_msgOut := make(chan HeartBeat)
 	ch_msgIn := make(chan HeartBeat)
 	ch_completedOrders := make(chan elevator_io.ButtonEvent)
-
-	ch_hallRequests := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
+	ch_hallRequestsIn := make(chan [config.N_BUTTONS][config.N_FLOORS - 1]int)
+	ch_hallRequestsOut := make(chan [config.N_BUTTONS][config.N_FLOORS - 1]int)
 
 	// Goroutines for sending and recieving messages
 	go peers.Transmitter(config.GlobalPort, id, ch_peerTxEnable)
 	go peers.Receiver(config.GlobalPort, ch_peerUpdate)
 
-	go bcast.Transmitter(config.GlobalPort, ch_msgOut)
-	go bcast.Receiver(config.GlobalPort, ch_msgIn)
+	go bcast.Transmitter(config.GlobalPort, ch_msgOut) // tror dette må være en annen port
+	go bcast.Receiver(config.GlobalPort, ch_msgIn)     // ^
 
 	// Channels for local elevator
 	ch_arrivalFloor := make(chan int)
@@ -76,7 +76,7 @@ func main() {
 	ch_stopButton := make(chan bool)
 	ch_elevatorStateToAssigner := make(chan map[string]elevator.ElevatorState)
 	ch_elevatorStateToNetwork := make(chan map[string]elevator.ElevatorState)
-
+	rintf("completed order-channel received in assign")
 	// Backup goroutine
 	go backup.LoadBackupFromFile("status.txt", ch_buttonPressed)
 
@@ -104,14 +104,12 @@ func main() {
 		ch_elevatorStateToAssigner,
 	)
 
-	// Sending message
+	// Send heartbeat incl. all info
 	go func() {
-		HeartBeat := HeartBeat{"Hello from " + id, true, 0, 0}
-		for {
-			HeartBeat.Iter++
-			ch_msgOut <- HeartBeat
-			time.Sleep(1 * time.Second)
-		}
+		HeartBeat := HeartBeat{"Hello from " + id, <-ch_hallRequestsIn, <-ch_elevatorStateToNetwork, 0}
+		HeartBeat.Iter++
+		ch_msgOut <- HeartBeat
+		time.Sleep(1 * time.Second)
 	}()
 
 	go func() {
@@ -131,6 +129,14 @@ func main() {
 	}()
 
 	// Peer monitoring (for config/debug purposes)
+	// fmt.Println("Started")
+	// for {
+	// 	select {
+	// 	case p := <-ch_peerUpdate:
+	// 		fmt.Printf("Peer update:\n")
+	// 		fmt.Printf("  Peers:    %q\n", p.Peers)
+	// 		fmt.Printf("  New:      %q\n", p.New)
+	// 		fmt.Printf("  Lost:     %q\n", p.Lost)
 	// fmt.Println("Started")
 	// for {
 	// 	select {
