@@ -3,8 +3,10 @@ package main
 import (
 	"driver/backup"
 	"driver/config"
+	"driver/elevator"
 	"driver/elevator_io"
 	"driver/fsm"
+	"fmt"
 )
 
 type ElevatorMessage struct {
@@ -97,7 +99,14 @@ func main() {
 
 	go fsm.Fsm(ch_arrivalFloor, ch_buttonPressed, ch_doorObstruction, ch_stopButton, ch_completedOrders)
 
+	go func() {
+		for {
+			event := <-ch_completedOrders
+			fmt.Printf("Received event. Floor %d, Btn: %s\n", event.BtnFloor+1, elevator.ElevButtonToString(event.BtnType))
+		}
+	}()
+
 	for {
-		//this is comment
+
 	}
 }

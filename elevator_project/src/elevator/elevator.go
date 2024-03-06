@@ -48,6 +48,7 @@ func ElevDirnToString(d elevator_io.MotorDirection) string {
 	}
 }
 
+
 func ElevButtonToString(b elevator_io.ButtonType) string {
 	switch b {
 	case elevator_io.BT_HallUp:
