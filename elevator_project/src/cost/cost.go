@@ -9,21 +9,15 @@ import (
 	"strings"
 )
 
-
 func Cost(
-	hall_requests [][2]bool,
-	localElevator elevator.Elevator,
+	hall_requests [config.N_FLOORS][config.N_BUTTONS - 1]bool,
+	localElevator elevator.ElevatorState,
 	extern_elevators map[string]elevator.ElevatorState) [][2]bool { //REMEMBER TO CHANGE TYPES HERE
 
 	input := elevator.HRAInput{
 		HallRequests: hall_requests,
 		ElevatorState: map[string]elevator.ElevatorState{
-			"aaa_self": elevator.ElevatorState{
-				Behavior:    strings.ToLower(elevator.ElevBehaviourToString(localElevator.Behaviour)[3:]),
-				Floor:       localElevator.Floor,
-				Direction:   strings.ToLower(elevator.ElevDirnToString(localElevator.Dirn)),
-				CabRequests: elevator.GetCabRequests(localElevator),
-			},
+			"self": localElevator,
 		},
 	}
 

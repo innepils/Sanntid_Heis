@@ -31,8 +31,8 @@ type ElevatorState struct {
 }
 
 type HRAInput struct {
-	HallRequests  [][2]bool                `json:"hallRequests"`
-	ElevatorState map[string]ElevatorState `json:"states"`
+	HallRequests  [config.N_FLOORS][config.N_BUTTONS - 1]bool `json:"hallRequests"`
+	ElevatorState map[string]ElevatorState                    `json:"states"`
 }
 
 func ElevBehaviourToString(eb ElevatorBehaviour) string {
