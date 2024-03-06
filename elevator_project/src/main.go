@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-type ElevMsg struct {
+type HeartBeat struct {
 	ID           string
 	HallRequests bool
 	state        int
@@ -37,8 +37,7 @@ func main() {
 			fmt.Println(err)
 			localIP = "DISCONNECTED"
 		}
-		id = fmt.Sprintf("peer-%s-%d", localIP, os.Getpid())
-
+		id = fmt.Sprintf("peer_%s:%d", localIP, os.Getpid())
 	}
 
 	var port string
@@ -55,14 +54,15 @@ func main() {
 	// Assigner channels (Recieve updates on the ID's of of the peers that are alive on the network)
 	ch_peerUpdate := make(chan peers.PeerUpdate)
 	ch_peerTxEnable := make(chan bool)
-	ch_msgOut := make(chan ElevMsg)
-	ch_msgIn := make(chan ElevMsg)
+	ch_msgOut := make(chan HeartBeat)
+	ch_msgIn := make(chan HeartBeat)
 	ch_completedOrders := make(chan elevator_io.ButtonEvent)
 	//ch_hallRequests := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
 
 	// Goroutines for sending and recieving messages
 	go peers.Transmitter(config.GlobalPort, id, ch_peerTxEnable)
 	go peers.Receiver(config.GlobalPort, ch_peerUpdate)
+
 	go bcast.Transmitter(config.GlobalPort, ch_msgOut)
 	go bcast.Receiver(config.GlobalPort, ch_msgIn)
 
@@ -97,11 +97,11 @@ func main() {
 
 	// Sending message
 	go func() {
-		ElevMsg := ElevMsg{"Hello from " + id, true, 0, 0}
+		HeartBeat := HeartBeat{"Hello from " + id, true, 0, 0}
 		for {
-			ElevMsg.Iter++
-			ch_msgOut <- ElevMsg
-			time.Sleep(100 * time.Millisecond)
+			HeartBeat.Iter++
+			ch_msgOut <- HeartBeat
+			time.Sleep(1 * time.Second)
 		}
 	}()
 
