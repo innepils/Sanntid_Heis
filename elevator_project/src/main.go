@@ -73,7 +73,7 @@ func main() {
 	ch_doorObstruction := make(chan bool)
 	ch_stopButton := make(chan bool)
 	ch_elevatorStateToAssigner := make(chan elevator.ElevatorBehaviour)
-	ch_elevatorStateToNetWork := make(chan elevator.ElevatorBehaviour)
+	ch_elevatorStateToNetwork := make(chan elevator.ElevatorBehaviour)
 
 	// Backup goroutine
 	go backup.LoadBackupFromFile("status.txt", ch_buttonPressed)
@@ -92,7 +92,7 @@ func main() {
 		ch_stopButton,
 		ch_completedOrders,
 		ch_elevatorStateToAssigner,
-		ch_elevatorStateToNetWork,
+		ch_elevatorStateToNetwork,
 	)
 
 	// Sending message
