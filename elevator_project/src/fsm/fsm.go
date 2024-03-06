@@ -50,7 +50,7 @@ func Fsm(ch_arrivalFloor chan int,
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
 		select {
-		case buttonPressed := <-ch_buttonPressed:
+		/*	case buttonPressed := <-ch_buttonPressed:
 
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
@@ -68,7 +68,6 @@ func Fsm(ch_arrivalFloor chan int,
 				pair := requests.Requests_chooseDirection(localElevator)
 				localElevator.Dirn = pair.Dirn
 				localElevator.Behaviour = pair.Behaviour
-				elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 				switch pair.Behaviour {
 				case elevator.EB_DoorOpen:
@@ -82,13 +81,45 @@ func Fsm(ch_arrivalFloor chan int,
 				case elevator.EB_Idle:
 					// No action needed
 				}
-			} //switch e.behaviour
+			} //switch e.behaviour*/
 
 		case localOrders := <-ch_localOrders:
+			fmt.Printf("Entered Local orders in FSM\n")
+
 			localElevator.Requests = localOrders
 
-		case newFloor := <-ch_arrivalFloor:
+			switch localElevator.Behaviour {
+			/*case elevator.EB_DoorOpen:
+			if requests.Requests_shouldClearImmediately(localElevator, buttonPressed.BtnFloor, elevator_io.ButtonType(buttonPressed.BtnType)) {
+				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+			} else {
+				localElevator.Requests[buttonPressed.BtnFloor][buttonPressed.BtnType] = true
+			}
+			*/
+			case elevator.EB_Idle:
+				fmt.Printf("1\n")
+				pair := requests.Requests_chooseDirection(localElevator)
+				fmt.Printf("Pair: %s, %s\n", elevator.ElevBehaviourToString(pair.Behaviour), elevator.ElevDirnToString(pair.Dirn))
 
+				localElevator.Dirn = pair.Dirn
+				localElevator.Behaviour = pair.Behaviour
+				fmt.Printf("2\n")
+				elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
+				fmt.Printf("3\n")
+				switch pair.Behaviour {
+				case elevator.EB_DoorOpen:
+					elevator_io.SetDoorOpenLamp(true)
+					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+					localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedOrders)
+
+				case elevator.EB_Moving:
+					elevator_io.SetMotorDirection(localElevator.Dirn)
+
+				}
+			} //switch e.behaviour*/
+
+		case newFloor := <-ch_arrivalFloor:
+			fmt.Printf("Entered new floor in FSM\n")
 			localElevator.Elevator_print()
 
 			localElevator.Floor = newFloor
@@ -113,7 +144,7 @@ func Fsm(ch_arrivalFloor chan int,
 
 		// This channel automatically "transmits" when the timer times out.
 		case <-doorTimer.C:
-
+			fmt.Printf("Entered doorTimeout in FSM\n")
 			localElevator.Elevator_print()
 
 			switch localElevator.Behaviour {
@@ -131,16 +162,18 @@ func Fsm(ch_arrivalFloor chan int,
 			}
 
 		case <-ch_doorObstruction:
-
+			fmt.Printf("Entered DoorObstruction in FSM\n")
 			localElevator.Elevator_print()
 
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 			case elevator.EB_Moving, elevator.EB_Idle:
+				//Do nothing
 			}
 
 		case <-ch_stopButton:
+			fmt.Printf("Entered Stop Button in FSM\n")
 
 			localElevator.Elevator_print()
 
@@ -168,6 +201,7 @@ func Fsm(ch_arrivalFloor chan int,
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+				localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedOrders)
 			case elevator.EB_Idle:
 				elevator_io.SetMotorDirection(localElevator.Dirn)
 				localElevator.Behaviour = elevator.EB_Moving
@@ -177,5 +211,8 @@ func Fsm(ch_arrivalFloor chan int,
 			localElevator.Elevator_print()
 
 		} //select
+		localElevator.Elevator_print()
+		fmt.Printf("FSM uncreachbleM\n")
 	} //For
+
 } //Fsm

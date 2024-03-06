@@ -1,6 +1,7 @@
 package main
 
 import (
+	"driver/assigner"
 	"driver/backup"
 	"driver/config"
 	"driver/elevator"
@@ -57,8 +58,8 @@ func main() {
 	ch_msgOut := make(chan HeartBeat)
 	ch_msgIn := make(chan HeartBeat)
 	ch_completedOrders := make(chan elevator_io.ButtonEvent)
-	
-	//ch_hallRequests := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
+
+	ch_hallRequests := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
 
 	// Goroutines for sending and recieving messages
 	go peers.Transmitter(config.GlobalPort, id, ch_peerTxEnable)
@@ -95,6 +96,13 @@ func main() {
 		ch_elevatorStateToAssigner,
 		ch_elevatorStateToNetwork,
 	)
+	go assigner.Assigner(
+		ch_buttonPressed,
+		ch_completedOrders,
+		ch_localOrders,
+		ch_hallRequests,
+		ch_elevatorStateToAssigner,
+	)
 
 	// Sending message
 	go func() {
@@ -108,23 +116,34 @@ func main() {
 
 	go func() {
 		for {
-			event := <-ch_completedOrders
-			fmt.Printf("Received event. Floor %d, Btn: %s\n", event.BtnFloor+1, elevator.ElevButtonToString(event.BtnType))
+			select {
+			case event := <-ch_completedOrders:
+				fmt.Printf("Received event. Floor %d, Btn: %s\n", event.BtnFloor+1, elevator.ElevButtonToString(event.BtnType))
+
+			case <-ch_elevatorStateToNetwork:
+				fmt.Printf("Received event from elevatorStateToNetWork\n")
+
+			case <-ch_elevatorStateToAssigner:
+				fmt.Printf("Received event from elevatorStateToAssigner\n")
+			}
+
 		}
 	}()
 
 	// Peer monitoring (for config/debug purposes)
-	fmt.Println("Started")
-	for {
-		select {
-		case p := <-ch_peerUpdate:
-			fmt.Printf("Peer update:\n")
-			fmt.Printf("  Peers:    %q\n", p.Peers)
-			fmt.Printf("  New:      %q\n", p.New)
-			fmt.Printf("  Lost:     %q\n", p.Lost)
+	// fmt.Println("Started")
+	// for {
+	// 	select {
+	// 	case p := <-ch_peerUpdate:
+	// 		fmt.Printf("Peer update:\n")
+	// 		fmt.Printf("  Peers:    %q\n", p.Peers)
+	// 		fmt.Printf("  New:      %q\n", p.New)
+	// 		fmt.Printf("  Lost:     %q\n", p.Lost)
 
-		case a := <-ch_msgIn:
-			fmt.Printf("Received: %#v\n", a)
-		}
+	// 	case a := <-ch_msgIn:
+	// 		fmt.Printf("Received: %#v\n", a)
+	// 	}
+	// }
+	for {
 	}
 }
