@@ -20,7 +20,7 @@ func Assigner(ch_buttonPressed chan elevator_io.ButtonEvent,
 	ch_completedOrders chan elevator_io.ButtonEvent,
 	ch_localOrders chan [config.N_FLOORS][config.N_BUTTONS]bool,
 	hall_requests chan [][]int,
-	ch_elevatorStateToAssigner chan cost.HRAElevState,
+	ch_elevatorStateToAssigner chan elevator.ElevatorState,
 ) {
 	var allOrders [config.N_FLOORS][config.N_BUTTONS]int
 	for i := range allOrders {
@@ -29,7 +29,7 @@ func Assigner(ch_buttonPressed chan elevator_io.ButtonEvent,
 		}
 	}
 
-	var localElevatorState cost.HRAElevState
+	var localElevatorState elevator.ElevatorState
 
 	for {
 		select {
@@ -59,7 +59,7 @@ func Assigner(ch_buttonPressed chan elevator_io.ButtonEvent,
 				}
 			}
 		}
-		assignedHallRequests := cost.Cost(hall_requests, localElevatorState, extern_elevators)
+		assignedHallRequests := cost.Cost(hall_requests, localElevatorState, externalElevators)
 		var localOrders [config.N_FLOORS][config.N_BUTTONS]bool
 		for i := range assignedHallRequests {
 			for j := 0; j < 2; j++ {

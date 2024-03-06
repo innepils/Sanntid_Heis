@@ -1,7 +1,6 @@
 package cost
 
 import (
-	"driver/config"
 	"driver/elevator"
 	"encoding/json"
 	"fmt"
@@ -9,11 +8,10 @@ import (
 	"strings"
 )
 
-
 func Cost(
 	hall_requests [][2]bool,
 	localElevator elevator.Elevator,
-	extern_elevators map[string]elevator.ElevatorState) [][2]bool { //REMEMBER TO CHANGE TYPES HERE
+	externalElevators map[string]elevator.ElevatorState) [][2]bool { //REMEMBER TO CHANGE TYPES HERE
 
 	input := elevator.HRAInput{
 		HallRequests: hall_requests,
@@ -27,7 +25,7 @@ func Cost(
 		},
 	}
 
-	for key, value := range extern_elevators {
+	for key, value := range externalElevators {
 		input.ElevatorState[key] = value
 	}
 
