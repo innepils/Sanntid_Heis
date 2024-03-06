@@ -22,9 +22,9 @@ func Fsm(ch_arrivalFloor chan int,
 	ch_doorObstruction chan bool,
 	ch_stopButton chan bool,
 	ch_completedOrders chan elevator_io.ButtonEvent,
-	ch_elevatorStateToAssigner chan elevator.ElevatorBehaviour,
-	ch_elevatorStateToNetWork chan elevator.ElevatorBehaviour,
-) { // Should specify direction of onedirectional channels 
+	ch_elevatorStateToAssigner chan map[string]elevator.ElevatorState,
+	ch_elevatorStateToNetwork chan map[string]elevator.ElevatorState,
+) { // Should specify direction of onedirectional channels
 
 	// Initializing
 	fmt.Printf("INITIALIZING ELEVATOR\n")
@@ -68,6 +68,7 @@ func Fsm(ch_arrivalFloor chan int,
 				pair := requests.Requests_chooseDirection(localElevator)
 				localElevator.Dirn = pair.Dirn
 				localElevator.Behaviour = pair.Behaviour
+				elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 				switch pair.Behaviour {
 				case elevator.EB_DoorOpen:
@@ -101,6 +102,7 @@ func Fsm(ch_arrivalFloor chan int,
 					localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedOrders)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					localElevator.Behaviour = elevator.EB_DoorOpen
+					elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 				}
 			case elevator.EB_DoorOpen:
 				// Should not be possible
@@ -120,6 +122,7 @@ func Fsm(ch_arrivalFloor chan int,
 				pair := requests.Requests_chooseDirection(localElevator)
 				localElevator.Dirn = pair.Dirn
 				localElevator.Behaviour = pair.Behaviour
+				elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 				switch localElevator.Behaviour {
 				case elevator.EB_Moving:
@@ -149,6 +152,7 @@ func Fsm(ch_arrivalFloor chan int,
 			case elevator.EB_Moving:
 				elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 				localElevator.Behaviour = elevator.EB_Idle
+				elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 			case elevator.EB_Idle:
 				// Do nothing
@@ -167,7 +171,7 @@ func Fsm(ch_arrivalFloor chan int,
 			case elevator.EB_Idle:
 				elevator_io.SetMotorDirection(localElevator.Dirn)
 				localElevator.Behaviour = elevator.EB_Moving
-
+				elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 			}
 
 			localElevator.Elevator_print()
