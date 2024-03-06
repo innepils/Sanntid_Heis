@@ -72,8 +72,8 @@ func main() {
 	ch_localOrders := make(chan [config.N_FLOORS][config.N_BUTTONS]bool)
 	ch_doorObstruction := make(chan bool)
 	ch_stopButton := make(chan bool)
-	ch_elevatorStateToAssigner := make(chan elevator.ElevatorBehaviour)
-	ch_elevatorStateToNetwork := make(chan elevator.ElevatorBehaviour)
+	ch_elevatorStateToAssigner := make(chan map[string]elevator.ElevatorState)
+	ch_elevatorStateToNetwork := make(chan map[string]elevator.ElevatorState)
 
 	// Backup goroutine
 	go backup.LoadBackupFromFile("status.txt", ch_buttonPressed)
@@ -125,7 +125,5 @@ func main() {
 		case a := <-ch_msgIn:
 			fmt.Printf("Received: %#v\n", a)
 		}
-	}
-	for {
 	}
 }
