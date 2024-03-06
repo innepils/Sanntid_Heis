@@ -55,6 +55,8 @@ func main() {
 	ch_completedOrders := make(chan elevator_io.ButtonEvent)
 	ch_hallRequests := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
 
+	
+
 	// Goroutines for sending and recieving messages
 	go peers.Transmitter(config.GlobalPort, id, ch_peerTxEnable)
 	go peers.Reciever(config.GlobalPort, ch_peerUpdate)
