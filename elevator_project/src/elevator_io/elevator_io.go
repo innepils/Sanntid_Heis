@@ -31,8 +31,8 @@ const (
 )
 
 type ButtonEvent struct {
-	BtnFloor  int
-	BtnType ButtonType
+	BtnFloor int
+	BtnType  ButtonType
 }
 
 func Init(addr string, numFloors int) {
@@ -107,8 +107,7 @@ func PollStopButton(receiver chan<- bool) {
 		if v != prev {
 			receiver <- v
 			// Kan nok flyttes til config (bare at vi da må endre overalt ellers fra "elevator_io_types" til "config")
-			
-			
+
 		}
 		prev = v
 	}

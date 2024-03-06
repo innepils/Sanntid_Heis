@@ -6,9 +6,6 @@ import (
 	"driver/elevator_io"
 )
 
-// Assuming the Elevator struct and constants like N_FLOORS, N_BUTTONS, Dirn, ElevatorBehaviour,
-// Button, CV_All, CV_InDirn are defined elsewhere in Go.
-
 type DirnBehaviourPair struct {
 	Dirn      elevator_io.MotorDirection
 	Behaviour elevator.ElevatorBehaviour
@@ -100,10 +97,10 @@ func Requests_shouldStop(e elevator.Elevator) bool {
 }
 
 func Requests_shouldClearImmediately(e elevator.Elevator, btnFloor int, btnType elevator_io.ButtonType) bool {
-	switch e.Config.ClearRequestVariant {
-	case elevator.CV_all:
+	switch e.ClearRequestVariant {
+	case config.CV_all:
 		return e.Floor == btnFloor
-	case elevator.CV_InDirn:
+	case config.CV_InDirn:
 		return e.Floor == btnFloor &&
 			((e.Dirn == elevator_io.MD_Up && btnType == elevator_io.BT_HallUp) || (e.Dirn == elevator_io.MD_Down && btnType == elevator_io.BT_HallDown) || e.Dirn == elevator_io.MD_Stop || btnType == elevator_io.BT_Cab)
 	default:
@@ -111,30 +108,46 @@ func Requests_shouldClearImmediately(e elevator.Elevator, btnFloor int, btnType 
 	}
 }
 
-func Requests_clearAtCurrentFloor(e elevator.Elevator) elevator.Elevator {
-	switch e.Config.ClearRequestVariant {
-	case elevator.CV_all:
+func Requests_clearAtCurrentFloor(e elevator.Elevator, ch_completedOrders chan elevator_io.ButtonEvent) elevator.Elevator {
+	switch e.ClearRequestVariant {
+
+	case config.CV_all:
 		for btn := 0; btn < config.N_BUTTONS; btn++ {
 			e.Requests[e.Floor][btn] = false
+			//ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.ButtonType(btn)}
 		}
-	case elevator.CV_InDirn:
+
+	case config.CV_InDirn:
+
 		e.Requests[e.Floor][elevator_io.BT_Cab] = false
+		//ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_Cab}
+
 		switch e.Dirn {
+
 		case elevator_io.MD_Up:
 			if !Requests_above(e) && !e.Requests[e.Floor][elevator_io.BT_HallUp] {
 				e.Requests[e.Floor][elevator_io.BT_HallDown] = false
+				//ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
 			}
 			e.Requests[e.Floor][elevator_io.BT_HallUp] = false
+			//ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallUp}
+
 		case elevator_io.MD_Down:
 			if !Requests_below(e) && !e.Requests[e.Floor][elevator_io.BT_HallDown] {
 				e.Requests[e.Floor][elevator_io.BT_HallUp] = false
 			}
 			e.Requests[e.Floor][elevator_io.BT_HallDown] = false
+			//ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
+
 		case elevator_io.MD_Stop:
 			fallthrough
+
+		//Might be unnecessary
 		default:
 			e.Requests[e.Floor][elevator_io.BT_HallUp] = false
 			e.Requests[e.Floor][elevator_io.BT_HallDown] = false
+			//ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallUp}
+			//ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
 		}
 	}
 	return e
