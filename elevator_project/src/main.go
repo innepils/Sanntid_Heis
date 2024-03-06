@@ -57,6 +57,7 @@ func main() {
 	ch_msgOut := make(chan HeartBeat)
 	ch_msgIn := make(chan HeartBeat)
 	ch_completedOrders := make(chan elevator_io.ButtonEvent)
+	
 	//ch_hallRequests := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
 
 	// Goroutines for sending and recieving messages

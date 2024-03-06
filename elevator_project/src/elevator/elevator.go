@@ -154,9 +154,9 @@ func SetAllButtonLights(requests [config.N_FLOORS][config.N_BUTTONS]int) {
 	for i := range requests {
 		for j := range requests[i] {
 			if requests[i][j] == 2 {
-				elevator_io.SetButtonLamp(j, i, true)
+				elevator_io.SetButtonLamp(elevator_io.ButtonType(j), i, true)
 			} else {
-				elevator_io.SetButtonLamp(j, i, false)
+				elevator_io.SetButtonLamp(elevator_io.ButtonType(j), i, false)
 			}
 		}
 	}

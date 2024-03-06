@@ -1,7 +1,6 @@
 package cost
 
 import (
-	"driver/config"
 	"driver/elevator"
 	"encoding/json"
 	"fmt"
@@ -21,7 +20,7 @@ func Cost(
 		},
 	}
 
-	for key, value := range extern_elevators {
+	for key, value := range externalElevators {
 		input.ElevatorState[key] = value
 	}
 
