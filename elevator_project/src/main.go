@@ -20,7 +20,7 @@ type HeartBeat struct {
 	HallRequests bool
 	state        int
 	Iter         int
-	
+
 }
 
 func main() {
@@ -38,7 +38,7 @@ func main() {
 			fmt.Println(err)
 			localIP = "DISCONNECTED"
 		}
-		id = fmt.Sprintf("peer-%s-%d", localIP, os.Getpid())
+		id = fmt.Sprintf("peer_%s:%d", localIP, os.Getpid())
 	}
 
 	var port string
