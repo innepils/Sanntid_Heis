@@ -3,8 +3,10 @@ package main
 import (
 	"driver/backup"
 	"driver/config"
+	"driver/elevator"
 	"driver/elevator_io"
 	"driver/fsm"
+	"fmt"
 )
 
 type ElevMsg struct {
@@ -61,7 +63,7 @@ func main() {
 
 	// Channels for local elevator
 	ch_buttonPressed := make(chan elevator_io.ButtonEvent)
-	ch_arrivalFloor := make(chan int)
+	ch_localOrders := make(chan [config.N_FLOORS][config.N_BUTTONS]bool)
 	ch_doorObstruction := make(chan bool)
 	ch_stopButton := make(chan bool)
 
@@ -74,7 +76,7 @@ func main() {
 	go elevator_io.PollObstructionSwitch(ch_doorObstruction)
 	go elevator_io.PollStopButton(ch_stopButton)
 
-	go fsm.Fsm(ch_arrivalFloor, ch_buttonPressed, ch_doorObstruction, ch_stopButton, ch_completedOrders)
+	go fsm.Fsm(ch_arrivalFloor, ch_localOrders, ch_buttonPressed, ch_doorObstruction, ch_stopButton, ch_completedOrders)
 
 	// Sending message
 	go func() {
@@ -83,6 +85,13 @@ func main() {
 			ElevMsg.Iter++
 			msgOut <- ElevMsg
 			time.Sleep(100 * time.Millisecond())
+		}
+	}()
+
+	go func() {
+		for {
+			event := <-ch_completedOrders
+			fmt.Printf("Received event. Floor %d, Btn: %s\n", event.BtnFloor+1, elevator.ElevButtonToString(event.BtnType))
 		}
 	}()
 

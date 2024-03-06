@@ -18,6 +18,7 @@ import (
 // One single function for the Final State Machine, to be run as a goroutine from main
 func Fsm(ch_arrivalFloor chan int,
 	ch_buttonPressed chan elevator_io.ButtonEvent,
+	ch_localOrders chan [config.N_FLOORS][config.N_BUTTONS]bool,
 	ch_doorObstruction chan bool,
 	ch_stopButton chan bool,
 	ch_completedOrders chan elevator_io.ButtonEvent,
@@ -80,6 +81,9 @@ func Fsm(ch_arrivalFloor chan int,
 				}
 			} //switch e.behaviour
 
+		case localOrders := <-ch_localOrders:
+			localElevator.Requests = localOrders
+
 		case newFloor := <-ch_arrivalFloor:
 
 			localElevator.Elevator_print()
@@ -129,7 +133,6 @@ func Fsm(ch_arrivalFloor chan int,
 			case elevator.EB_DoorOpen:
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 			case elevator.EB_Moving, elevator.EB_Idle:
-				// Do nothing
 			}
 
 		case <-ch_stopButton:
@@ -156,7 +159,6 @@ func Fsm(ch_arrivalFloor chan int,
 				stopButtonPressed = <-ch_stopButton
 
 			}
-
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
@@ -165,9 +167,9 @@ func Fsm(ch_arrivalFloor chan int,
 				localElevator.Behaviour = elevator.EB_Moving
 
 			}
-		} // select
 
-		localElevator.Elevator_print()
+			localElevator.Elevator_print()
 
-	} // for
-}
+		} //select
+	} //For
+} //Fsm
