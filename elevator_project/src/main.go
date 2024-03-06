@@ -20,7 +20,6 @@ type HeartBeat struct {
 	HallRequests bool
 	state        int
 	Iter         int
-
 }
 
 func main() {
@@ -63,7 +62,7 @@ func main() {
 	// Goroutines for sending and recieving messages
 	go peers.Transmitter(config.GlobalPort, id, ch_peerTxEnable)
 	go peers.Receiver(config.GlobalPort, ch_peerUpdate)
-	
+
 	go bcast.Transmitter(config.GlobalPort, ch_msgOut)
 	go bcast.Receiver(config.GlobalPort, ch_msgIn)
 
@@ -102,7 +101,7 @@ func main() {
 		for {
 			HeartBeat.Iter++
 			ch_msgOut <- HeartBeat
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(1 * time.Second)
 		}
 	}()
 
