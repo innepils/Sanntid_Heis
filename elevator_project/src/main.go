@@ -59,7 +59,7 @@ func main() {
 	ch_msgIn := make(chan HeartBeat)
 	ch_completedOrders := make(chan elevator_io.ButtonEvent)
 	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
-	ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
+	// ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
 
 	// Goroutines for sending and recieving messages
 	go peers.Transmitter(config.GlobalPort, id, ch_peerTxEnable)
@@ -76,7 +76,7 @@ func main() {
 	ch_stopButton := make(chan bool)
 	ch_elevatorStateToAssigner := make(chan map[string]elevator.ElevatorState)
 	ch_elevatorStateToNetwork := make(chan map[string]elevator.ElevatorState)
-	rintf("completed order-channel received in assign")
+	fmt.Printf("completed order-channel received in assign")
 	// Backup goroutine
 	go backup.LoadBackupFromFile("status.txt", ch_buttonPressed)
 
