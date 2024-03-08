@@ -61,7 +61,7 @@ func main() {
 	fmt.Println("Primary started.")
 
 	// Initialize local elevator
-	elevator_io.Init("localhost:"+fmt.Sprint(port), config.N_FLOORS)
+	elevator_io.Init("localhost:"+port, config.N_FLOORS)
 	fmt.Println("\n--- Initialized elevator " + id + " with port " + port + " ---\n")
 
 	// Assigner channels (Recieve updates on the ID's of of the peers that are alive on the network)
@@ -71,13 +71,11 @@ func main() {
 	ch_msgIn := make(chan HeartBeat)
 	ch_completedOrders := make(chan elevator_io.ButtonEvent)
 	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
-	// ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
+	//ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
 
-	// Goroutines for sending and recieving messages on this node
+	// Goroutines for sending and recieving messages
 	go peers.Transmitter(portInt, id, ch_peerTxEnable)
 	go peers.Receiver(portInt, ch_peerUpdate)
-
-	// Broadcast on default port
 	go bcast.Transmitter(config.DefaultPort, ch_msgOut)
 	go bcast.Receiver(config.DefaultPort, ch_msgIn)
 
@@ -89,7 +87,8 @@ func main() {
 	ch_stopButton := make(chan bool)
 	ch_elevatorStateToAssigner := make(chan map[string]elevator.ElevatorState)
 	ch_elevatorStateToNetwork := make(chan map[string]elevator.ElevatorState)
-	fmt.Printf("completed order-channel received in assign")
+	//fmt.Printf("completed order-channel received in assign")
+	
 	// Backup goroutine
 	go backup.LoadBackupFromFile("status.txt", ch_buttonPressed)
 
@@ -145,20 +144,18 @@ func main() {
 	}()
 
 	// Peer monitoring (for config/debug purposes)
-	/*
-		fmt.Println("Started")
-		for {
-			select {
-				case p := <-ch_peerUpdate:
-					fmt.Printf("Peer update:\n")
-					fmt.Printf("  Peers:    %q\n", p.Peers)
-					fmt.Printf("  New:      %q\n", p.New)
-					fmt.Printf("  Lost:     %q\n", p.Lost)
-				case a := <-ch_msgIn:
-					fmt.Printf("Received: %#v\n", a)
-				}
+	fmt.Println("Started")
+	for {
+		select {
+		case p := <-ch_peerUpdate:
+			fmt.Printf("Peer update:\n")
+			fmt.Printf("  Peers:    %q\n", p.Peers)
+			fmt.Printf("  New:      %q\n", p.New)
+			fmt.Printf("  Lost:     %q\n", p.Lost)
+		case a := <-ch_msgIn:
+			fmt.Printf("Received: %#v\n", a)
 		}
-	*/
+	}
 
-	select {}
+	// select {}
 }
