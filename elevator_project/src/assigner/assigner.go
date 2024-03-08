@@ -21,7 +21,7 @@ func Assigner(
 	ch_buttonPressed chan elevator_io.ButtonEvent,
 	ch_completedOrders chan elevator_io.ButtonEvent,
 	ch_localOrders chan [config.N_FLOORS][config.N_BUTTONS]bool,
-	hall_requests chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
+	ch_hallRequestsIn chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
 	ch_elevatorStateToAssigner chan map[string]elevator.ElevatorState,
 ) {
 	externalElevators := map[string]elevator.ElevatorState{}

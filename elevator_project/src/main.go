@@ -25,7 +25,7 @@ type HeartBeat struct {
 
 func main() {
 	/* Initialize elevator ID and port
-	This section sets the elevators ID (anything) and port (of the running node/PC),
+	This section sets the elevators ID and port
 	which should be passed on in the command line using
 	'go run main.go -id=any_id -port=port'
 	*/
@@ -58,8 +58,8 @@ func main() {
 	ch_msgOut := make(chan HeartBeat)
 	ch_msgIn := make(chan HeartBeat)
 	ch_completedOrders := make(chan elevator_io.ButtonEvent)
-	ch_hallRequestsIn := make(chan [config.N_BUTTONS][config.N_FLOORS - 1]int)
-	ch_hallRequestsOut := make(chan [config.N_BUTTONS][config.N_FLOORS - 1]int)
+	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
+	ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
 
 	// Goroutines for sending and recieving messages
 	go peers.Transmitter(config.GlobalPort, id, ch_peerTxEnable)
@@ -100,7 +100,7 @@ func main() {
 		ch_buttonPressed,
 		ch_completedOrders,
 		ch_localOrders,
-		ch_hallRequests,
+		ch_hallRequestsIn,
 		ch_elevatorStateToAssigner,
 	)
 
@@ -150,6 +150,5 @@ func main() {
 	// 		fmt.Printf("Received: %#v\n", a)
 	// 	}
 	// }
-	for {
-	}
+	select {}
 }
