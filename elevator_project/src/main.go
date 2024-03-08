@@ -96,6 +96,7 @@ func main() {
 	go elevator_io.PollObstructionSwitch(ch_doorObstruction)
 	go elevator_io.PollStopButton(ch_stopButton)
 
+	// Finite state machine goroutine
 	go fsm.Fsm(
 		ch_arrivalFloor,
 		ch_localOrders,
@@ -106,6 +107,8 @@ func main() {
 		ch_elevatorStateToAssigner,
 		ch_elevatorStateToNetwork,
 	)
+
+	// Assigner goroutine
 	go assigner.Assigner(
 		ch_buttonPressed,
 		ch_completedOrders,
@@ -139,26 +142,20 @@ func main() {
 	}()
 
 	// Peer monitoring (for config/debug purposes)
-	// fmt.Println("Started")
-	// for {
-	// 	select {
-	// 	case p := <-ch_peerUpdate:
-	// 		fmt.Printf("Peer update:\n")
-	// 		fmt.Printf("  Peers:    %q\n", p.Peers)
-	// 		fmt.Printf("  New:      %q\n", p.New)
-	// 		fmt.Printf("  Lost:     %q\n", p.Lost)
-	// fmt.Println("Started")
-	// for {
-	// 	select {
-	// 	case p := <-ch_peerUpdate:
-	// 		fmt.Printf("Peer update:\n")
-	// 		fmt.Printf("  Peers:    %q\n", p.Peers)
-	// 		fmt.Printf("  New:      %q\n", p.New)
-	// 		fmt.Printf("  Lost:     %q\n", p.Lost)
-
-	// 	case a := <-ch_msgIn:
-	// 		fmt.Printf("Received: %#v\n", a)
-	// 	}
-	// }
+	/*
+	fmt.Println("Started")
+	for {
+		select {
+			case p := <-ch_peerUpdate:
+				fmt.Printf("Peer update:\n")
+				fmt.Printf("  Peers:    %q\n", p.Peers)
+				fmt.Printf("  New:      %q\n", p.New)
+				fmt.Printf("  Lost:     %q\n", p.Lost)
+			case a := <-ch_msgIn:
+				fmt.Printf("Received: %#v\n", a)
+			}
+	}
+	*/
+	
 	select {}
 }
