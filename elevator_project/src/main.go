@@ -13,6 +13,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -45,6 +46,14 @@ func main() {
 	flag.StringVar(&port, "port", "", "Port of this peer")
 	flag.Parse()
 
+	// convert port to int for later use
+	portInt, err := strconv.Atoi(port)
+	if err != nil {
+		// handle error, perhaps log it or convert it to a default port number
+		fmt.Println("Error converting string to int:", err)
+		return
+	}
+
 	// Spawn backup
 	backup.BackupProcess(id) //this halts the progression of the program while it is the backup
 	fmt.Println("Primary started.")
@@ -61,12 +70,13 @@ func main() {
 	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
 	// ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
 
-	// Goroutines for sending and recieving messages
-	go peers.Transmitter(config.GlobalPort, id, ch_peerTxEnable)
-	go peers.Receiver(config.GlobalPort, ch_peerUpdate)
+	// Goroutines for sending and recieving messages on this node
+	go peers.Transmitter(portInt, id, ch_peerTxEnable)
+	go peers.Receiver(portInt, ch_peerUpdate)
 
-	go bcast.Transmitter(config.GlobalPort, ch_msgOut) // tror dette må være en annen port
-	go bcast.Receiver(config.GlobalPort, ch_msgIn)     // ^
+	// Broadcast on GlobalPort
+	go bcast.Transmitter(config.GlobalPort, ch_msgOut)
+	go bcast.Receiver(config.GlobalPort, ch_msgIn)
 
 	// Channels for local elevator
 	ch_arrivalFloor := make(chan int)
