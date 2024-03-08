@@ -28,10 +28,10 @@ func main() {
 	/* Initialize elevator ID and port
 	This section sets the elevators ID and port
 	which should be passed on in the command line using
-	'go run main.go -id=any_id -port=port'
+	'go run main.go -id=any_id -port=server_port'
 	*/
 	var id string
-	flag.StringVar(&id, "ID", "", "ID of this peer")
+	flag.StringVar(&id, "id", "", "id of this peer")
 
 	if id == "" { // if no ID is given, use local IP address and process ID
 		localIP, err := localip.LocalIP()
@@ -43,14 +43,16 @@ func main() {
 	}
 
 	var port string
-	flag.StringVar(&port, "port", "", "Port of this peer")
+	flag.StringVar(&port, "port", "", "port of this peer")
+
+	if port == "" { // if no port is given, use default port (15657)
+		port = fmt.Sprint(config.DefaultPort)
+	}
 	flag.Parse()
 
-	// convert port to int for later use
-	portInt, err := strconv.Atoi(port)
+	portInt, err := strconv.Atoi(port) // convert port to int for later use
 	if err != nil {
-		// handle error, perhaps log it or convert it to a default port number
-		fmt.Println("Error converting string to int:", err)
+		fmt.Println("Error converting string to int: ", err)
 		return
 	}
 
@@ -59,7 +61,8 @@ func main() {
 	fmt.Println("Primary started.")
 
 	// Initialize local elevator
-	elevator_io.Init("localhost:15657", config.N_FLOORS)
+	elevator_io.Init("localhost:"+fmt.Sprint(port), config.N_FLOORS)
+	fmt.Println("\n--- Initialized elevator " + id + " with port " + port + " ---\n")
 
 	// Assigner channels (Recieve updates on the ID's of of the peers that are alive on the network)
 	ch_peerUpdate := make(chan peers.PeerUpdate)
@@ -74,9 +77,9 @@ func main() {
 	go peers.Transmitter(portInt, id, ch_peerTxEnable)
 	go peers.Receiver(portInt, ch_peerUpdate)
 
-	// Broadcast on GlobalPort
-	go bcast.Transmitter(config.GlobalPort, ch_msgOut)
-	go bcast.Receiver(config.GlobalPort, ch_msgIn)
+	// Broadcast on default port
+	go bcast.Transmitter(config.DefaultPort, ch_msgOut)
+	go bcast.Receiver(config.DefaultPort, ch_msgIn)
 
 	// Channels for local elevator
 	ch_arrivalFloor := make(chan int)
@@ -143,19 +146,19 @@ func main() {
 
 	// Peer monitoring (for config/debug purposes)
 	/*
-	fmt.Println("Started")
-	for {
-		select {
-			case p := <-ch_peerUpdate:
-				fmt.Printf("Peer update:\n")
-				fmt.Printf("  Peers:    %q\n", p.Peers)
-				fmt.Printf("  New:      %q\n", p.New)
-				fmt.Printf("  Lost:     %q\n", p.Lost)
-			case a := <-ch_msgIn:
-				fmt.Printf("Received: %#v\n", a)
-			}
-	}
+		fmt.Println("Started")
+		for {
+			select {
+				case p := <-ch_peerUpdate:
+					fmt.Printf("Peer update:\n")
+					fmt.Printf("  Peers:    %q\n", p.Peers)
+					fmt.Printf("  New:      %q\n", p.New)
+					fmt.Printf("  Lost:     %q\n", p.Lost)
+				case a := <-ch_msgIn:
+					fmt.Printf("Received: %#v\n", a)
+				}
+		}
 	*/
-	
+
 	select {}
 }
