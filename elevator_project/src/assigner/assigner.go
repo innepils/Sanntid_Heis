@@ -118,7 +118,7 @@ func Assigner(
 				}
 			}
 		}
-		//ch_hallRequestsOut<-hall_requests
+		ch_hallRequestsOut<-hall_requests
 
 		assignedHallRequests := cost.Cost(hall_requests, localElevatorState, externalElevators)
 		var localOrders [config.N_FLOORS][config.N_BUTTONS]bool

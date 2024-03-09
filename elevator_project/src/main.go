@@ -102,7 +102,7 @@ func main() {
 			}
 			HeartBeat.Iter++
 			ch_msgOut <- HeartBeat
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(100 * time.Second)
 		}
 	}()
 
