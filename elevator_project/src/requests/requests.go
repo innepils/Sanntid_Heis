@@ -108,7 +108,6 @@ func Requests_shouldClearImmediately(e elevator.Elevator, btnFloor int, btnType 
 	}
 }
 
-
 func Requests_clearAtCurrentFloor(e elevator.Elevator, ch_completedOrders chan<- elevator_io.ButtonEvent) elevator.Elevator {
 
 	switch e.ClearRequestVariant {
@@ -126,12 +125,10 @@ func Requests_clearAtCurrentFloor(e elevator.Elevator, ch_completedOrders chan<-
 		switch e.Dirn {
 
 		case elevator_io.MD_Up:
-			// If elev goes up and there are no requests above no requests to move on up, clear request.
 			if !Requests_above(e) && !e.Requests[e.Floor][elevator_io.BT_HallUp] {
 				e.Requests[e.Floor][elevator_io.BT_HallDown] = false
 				ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
 			}
-			// If then there are requests above and/or an Up-request at current floor
 			e.Requests[e.Floor][elevator_io.BT_HallUp] = false
 			ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallUp}
 

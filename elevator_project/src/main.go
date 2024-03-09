@@ -29,6 +29,9 @@ func main() {
 	which should be passed on in the command line using
 	'go run main.go -id=any_id -port=server_port'
 	*/
+	fmt.Printf("\n\n\n\n")
+	fmt.Printf("*************NEW RUN*************")
+	fmt.Printf("\n\n\n\n")
 	var id string
 	flag.StringVar(&id, "id", "", "id of this peer")
 

@@ -108,7 +108,6 @@ func PollStopButton(receiver chan<- bool) {
 		v := GetStop()
 		if v != prev {
 			receiver <- v
-			// Kan nok flyttes til config (bare at vi da må endre overalt ellers fra "elevator_io_types" til "config")
 
 		}
 		prev = v
@@ -121,6 +120,7 @@ func PollObstructionSwitch(receiver chan<- bool) {
 		time.Sleep(_pollRate)
 		v := GetObstruction()
 		if v != prev {
+			fmt.Println(v)
 			receiver <- v
 		}
 		prev = v
