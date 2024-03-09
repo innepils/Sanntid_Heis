@@ -2,6 +2,7 @@ package cost
 
 import (
 	"driver/config"
+	"driver/config"
 	"driver/elevator"
 	"encoding/json"
 	"fmt"
@@ -10,13 +11,23 @@ import (
 
 func Cost(
 	hall_requests [config.N_FLOORS][config.N_BUTTONS - 1]bool,
-	localElevator elevator.ElevatorState,
+	localElevator map[string]elevator.ElevatorState,
 	externalElevators map[string]elevator.ElevatorState) [][2]bool { //REMEMBER TO CHANGE TYPES HERE
 
+	// input := elevator.HRAInput{
+	// 	HallRequests:  hall_requests,
+	// 	ElevatorState: localElevator,
+	// }
+
 	input := elevator.HRAInput{
-		HallRequests: hall_requests,
+		HallRequests: [4][2]bool{{false, false}, {true, false}, {false, false}, {false, true}},
 		ElevatorState: map[string]elevator.ElevatorState{
-			"self": localElevator,
+			"self": elevator.ElevatorState{
+				Behavior:    "moving",
+				Floor:       2,
+				Direction:   "up",
+				CabRequests: []bool{false, false, false, true},
+			},
 		},
 	}
 
@@ -32,7 +43,7 @@ func Cost(
 		//die?
 	}
 
-	ret, err := exec.Command("./hall_request_assigner/hall_request_assigner.exe", "-i", string(jsonBytes)).CombinedOutput()
+	ret, err := exec.Command("./hall_request_assigner/hall_request_assigner", "-i", string(jsonBytes)).CombinedOutput()
 	if err != nil {
 		fmt.Println("exec.Command error: ", err)
 		fmt.Println(string(ret))

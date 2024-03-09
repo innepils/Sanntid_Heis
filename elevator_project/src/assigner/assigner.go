@@ -6,6 +6,7 @@ import (
 	"driver/elevator"
 	"driver/elevator_io"
 	"fmt"
+	"fmt"
 )
 
 type requestType int
@@ -17,12 +18,12 @@ const (
 	completed             = 3
 )
 
-func Assigner(ch_buttonPressed chan elevator_io.ButtonEvent,
+func Assigner(
+	ch_buttonPressed chan elevator_io.ButtonEvent,
 	ch_completedOrders chan elevator_io.ButtonEvent,
 	ch_localOrders chan [config.N_FLOORS][config.N_BUTTONS]bool,
-	ch_hallRequestsIn chan [][]int,
-	ch_hallRequestsOut chan [][]int,
-	ch_elevatorStateToAssigner chan elevator.ElevatorState,
+	ch_hallRequestsIn chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
+	ch_elevatorStateToAssigner chan map[string]elevator.ElevatorState,
 ) {
 	externalElevators := map[string]elevator.ElevatorState{}
 	var allOrders [config.N_FLOORS][config.N_BUTTONS]int
@@ -32,7 +33,7 @@ func Assigner(ch_buttonPressed chan elevator_io.ButtonEvent,
 		}
 	}
 
-	var localElevatorState elevator.ElevatorState
+	var localElevatorState map[string]elevator.ElevatorState
 
 	for {
 		select {
@@ -41,6 +42,7 @@ func Assigner(ch_buttonPressed chan elevator_io.ButtonEvent,
 				allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] = 1
 			}
 		case completedOrder := <-ch_completedOrders: //THIS NEEDS TO BE REVISED
+			fmt.Printf("completed order-channel received in assign")
 			if allOrders[completedOrder.BtnFloor][completedOrder.BtnType] == 3 {
 				allOrders[completedOrder.BtnFloor][completedOrder.BtnType] = 0
 			} else if allOrders[completedOrder.BtnFloor][completedOrder.BtnType] == 2 {

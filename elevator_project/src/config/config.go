@@ -2,7 +2,7 @@ package config
 
 
 // ***** Network-configuration *****
-const GlobalPort int = 20007
+const DefaultPort int = 15657
 
 // ***** System specifications *****
 const (
