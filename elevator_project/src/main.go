@@ -8,8 +8,11 @@ import (
 	"driver/elevator_io"
 	"driver/fsm"
 	"driver/network/bcast"
+	"driver/network/localip"
 	"driver/network/peers"
+	"flag"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -22,7 +25,11 @@ type HeartBeat struct {
 
 func main() {
 
-	id, port := config.InitializeConfig()
+	/* 
+	Initialize elevator ID and port from command line:
+	'go run main.go -id=any_id -port=server_port'
+	*/
+	id, port := InitializeConfig()
 
 	// Spawn backup
 	backup.BackupProcess(id) //this halts the progression of the program while it is the backup
@@ -135,4 +142,21 @@ func main() {
 	}
 
 	// select {}
+}
+
+func InitializeConfig() (string, string) {
+	var id, port string
+	flag.StringVar(&id, "id", getDefaultID(), "ID of this peer")
+	flag.StringVar(&port, "port", "15657", "Port of this peer")
+	flag.Parse()
+	return id, port
+}
+
+func getDefaultID() string {
+	localIP, err := localip.LocalIP()
+	if err != nil {
+		fmt.Println("Error obtaining local IP:", err)
+		return "DISCONNECTED"
+	}
+	return fmt.Sprintf("peer_%s:%d", localIP, os.Getpid())
 }
