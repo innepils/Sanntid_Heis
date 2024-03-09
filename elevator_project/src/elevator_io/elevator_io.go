@@ -118,7 +118,6 @@ func PollObstructionSwitch(receiver chan<- bool) {
 		time.Sleep(_pollRate)
 		v := GetObstruction()
 		if v != prev {
-			fmt.Println(v)
 			receiver <- v
 		}
 		prev = v
