@@ -18,31 +18,30 @@ import (
 // One single function for the Final State Machine, to be run as a goroutine from main
 func Fsm(ch_arrivalFloor chan int,
 	ch_localOrders chan [config.N_FLOORS][config.N_BUTTONS]bool,
-	ch_buttonPressed chan elevator_io.ButtonEvent,
 	ch_doorObstruction chan bool,
 	ch_stopButton chan bool,
 	ch_completedOrders chan elevator_io.ButtonEvent,
 	ch_elevatorStateToAssigner chan map[string]elevator.ElevatorState,
 	ch_elevatorStateToNetwork chan map[string]elevator.ElevatorState,
-) { // Should specify direction of onedirectional channels
+) {
 
 	// Initializing
 	fmt.Printf("INITIALIZING ELEVATOR\n")
 	localElevator := elevator.UninitializedElevator()
 	elevator_io.SetMotorDirection(elevator_io.MD_Down)
+	newFloor := <-ch_arrivalFloor
+	localElevator.Floor = newFloor
+	// for { // Run the elevator to the bottom floor
+	// 	newFloor := <-ch_arrivalFloor
 
-	// Run the elevator to the bottom floor
-	for {
-		newFloor := <-ch_arrivalFloor
-
-		if newFloor != 0 {
-			elevator_io.SetMotorDirection(elevator_io.MD_Down)
-		} else {
-			elevator_io.SetMotorDirection(elevator_io.MD_Stop)
-			localElevator.Floor = newFloor
-			break
-		}
-	}
+	// 	if newFloor != 0 {
+	// 		elevator_io.SetMotorDirection(elevator_io.MD_Down)
+	// 	} else {
+	// 		elevator_io.SetMotorDirection(elevator_io.MD_Stop)
+	// 		localElevator.Floor = newFloor
+	// 		break
+	// 	}
+	// }
 
 	elevator_io.SetDoorOpenLamp(false)
 	doorTimer := time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
@@ -212,7 +211,7 @@ func Fsm(ch_arrivalFloor chan int,
 
 		} //select
 		//localElevator.Elevator_print()
-		fmt.Printf("FSM uncreachble\n")
+		fmt.Printf("FSM loop\n")
 		//time.Sleep(30 * time.Millisecond)
 	} //For
 

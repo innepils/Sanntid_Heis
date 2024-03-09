@@ -64,15 +64,8 @@ func main() {
 	ch_msgIn := make(chan HeartBeat, 100)
 	ch_completedOrders := make(chan elevator_io.ButtonEvent, 100)
 	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int, 100)
-	//ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
+	ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
 	ch_externalElevators := make(chan map[string]elevator.ElevatorState, 100)
-
-	// Goroutines for sending and recieving messages
-	go bcast.Transmitter(config.DefaultPortBcast, ch_msgOut)
-	go bcast.Receiver(config.DefaultPortBcast, ch_msgIn)
-
-	go peers.Transmitter(config.DefaultPortPeer, id, ch_peerTxEnable)
-	go peers.Receiver(config.DefaultPortPeer, ch_peerUpdate)
 
 	// Channels for local elevator
 	ch_arrivalFloor := make(chan int, 100)
@@ -82,12 +75,18 @@ func main() {
 	ch_stopButton := make(chan bool, 100)
 	ch_elevatorStateToAssigner := make(chan map[string]elevator.ElevatorState, 100)
 	ch_elevatorStateToNetwork := make(chan map[string]elevator.ElevatorState, 100)
-	//fmt.Printf("completed order-channel received in assign")
+
+	// Goroutines for sending and recieving messages
+	go bcast.Transmitter(config.DefaultPortBcast, ch_msgOut)
+	go bcast.Receiver(config.DefaultPortBcast, ch_msgIn)
+
+	go peers.Transmitter(config.DefaultPortPeer, id, ch_peerTxEnable)
+	go peers.Receiver(config.DefaultPortPeer, ch_peerUpdate)
 
 	// Backup goroutine
 	go backup.LoadBackupFromFile("status.txt", ch_buttonPressed)
 
-	// Local elevator goroutines
+	// elevator_io goroutines
 	go elevator_io.PollButtons(ch_buttonPressed)
 	go elevator_io.PollFloorSensor(ch_arrivalFloor)
 	go elevator_io.PollObstructionSwitch(ch_doorObstruction)
@@ -97,7 +96,6 @@ func main() {
 	go fsm.Fsm(
 		ch_arrivalFloor,
 		ch_localOrders,
-		ch_buttonPressed,
 		ch_doorObstruction,
 		ch_stopButton,
 		ch_completedOrders,
@@ -111,6 +109,7 @@ func main() {
 		ch_completedOrders,
 		ch_localOrders,
 		ch_hallRequestsIn,
+		ch_hallRequestsOut,
 		ch_elevatorStateToAssigner,
 		ch_externalElevators,
 	)
