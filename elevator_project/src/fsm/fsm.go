@@ -18,36 +18,25 @@ import (
 // One single function for the Final State Machine, to be run as a goroutine from main
 func Fsm(ch_arrivalFloor chan int,
 	ch_localOrders chan [config.N_FLOORS][config.N_BUTTONS]bool,
-	ch_buttonPressed chan elevator_io.ButtonEvent,
 	ch_doorObstruction chan bool,
 	ch_stopButton chan bool,
 	ch_completedOrders chan elevator_io.ButtonEvent,
 	ch_elevatorStateToAssigner chan map[string]elevator.ElevatorState,
 	ch_elevatorStateToNetwork chan map[string]elevator.ElevatorState,
-) { // Should specify direction of onedirectional channels
+) {
 
 	// Initializing
 	fmt.Printf("INITIALIZING ELEVATOR\n")
 	localElevator := elevator.UninitializedElevator()
 	elevator_io.SetMotorDirection(elevator_io.MD_Down)
-	var prevObstruction bool
-
-	// Run the elevator to the bottom floor
-	for {
-		newFloor := <-ch_arrivalFloor
-
-		if newFloor != 0 {
-			elevator_io.SetMotorDirection(elevator_io.MD_Down)
-		} else {
-			elevator_io.SetMotorDirection(elevator_io.MD_Stop)
-			localElevator.Floor = newFloor
-			break
-		}
-	}
+	newFloor := <-ch_arrivalFloor
+	elevator_io.SetMotorDirection(elevator_io.MD_Stop)
+	localElevator.Floor = newFloor
 
 	elevator_io.SetDoorOpenLamp(false)
 	doorTimer := time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
-
+	var prevObstruction bool
+	
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
 		select {

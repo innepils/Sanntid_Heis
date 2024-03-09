@@ -103,7 +103,7 @@ func (es *Elevator) Elevator_print() {
 		}
 		fmt.Println("|")
 	}
-	fmt.Println("  +--------------------+\n")
+	fmt.Println("  +--------------------+")
 }
 
 func UninitializedElevator() Elevator {
@@ -130,7 +130,7 @@ func GetCabRequests(elevator Elevator) []bool {
 // needs new name?
 func ElevatorToHRAElevState(localElevator Elevator) map[string]ElevatorState {
 	return map[string]ElevatorState{
-		"self": ElevatorState{
+		"self": {
 			Behavior:    strings.ReplaceAll(strings.ToLower(ElevBehaviourToString(localElevator.Behaviour)[3:]), "open", "Open"),
 			Floor:       localElevator.Floor,
 			Direction:   strings.ToLower(ElevDirnToString(localElevator.Dirn)),

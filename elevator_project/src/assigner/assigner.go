@@ -21,6 +21,7 @@ func Assigner(
 	ch_completedOrders chan elevator_io.ButtonEvent,
 	ch_localOrders chan [config.N_FLOORS][config.N_BUTTONS]bool,
 	ch_hallRequestsIn chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
+	ch_hallRequestsOut chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
 	ch_elevatorStateToAssigner chan map[string]elevator.ElevatorState,
 	ch_externalElevators chan map[string]elevator.ElevatorState,
 ) {
@@ -31,8 +32,7 @@ func Assigner(
 			allOrders[i][j] = 0
 		}
 	}
-	cabReq := []bool{true, false, true, false}
-	var localElevatorState = map[string]elevator.ElevatorState{"self": {Behavior: "idle", Floor: 1, Direction: "stop", CabRequests: cabReq}}
+	var localElevatorState = map[string]elevator.ElevatorState{"self": {Behavior: "idle", Floor: 1, Direction: "stop", CabRequests: []bool{true, false, true, false}}}
 	var prevLocalRequests [config.N_FLOORS][config.N_BUTTONS]bool
 	for i := range prevLocalRequests {
 		for j := range prevLocalRequests[i] {
@@ -44,6 +44,8 @@ func Assigner(
 		case buttonPressed := <-ch_buttonPressed:
 			if allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
 				allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] = 2
+			} else if allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
+				allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] = 1
 			}
 		case completedOrder := <-ch_completedOrders: //THIS NEEDS TO BE REVISED
 			if allOrders[completedOrder.BtnFloor][completedOrder.BtnType] == 3 {
@@ -104,10 +106,11 @@ func Assigner(
 		}
 
 		elevator.SetAllButtonLights(allOrders)
-
+		var hall_requestsOut [config.N_FLOORS][config.N_BUTTONS - 1]int
 		var hall_requests [config.N_FLOORS][config.N_BUTTONS - 1]bool
 		for i := range hall_requests {
 			for j := 0; j < 2; j++ {
+				hall_requestsOut[i][j] = allOrders[i][j]
 				if allOrders[i][j] == 2 {
 					hall_requests[i][j] = true
 				} else {
@@ -115,7 +118,8 @@ func Assigner(
 				}
 			}
 		}
-		//<-hall_requests
+		ch_hallRequestsOut <- hall_requestsOut
+
 		assignedHallRequests := cost.Cost(hall_requests, localElevatorState, externalElevators)
 		var localOrders [config.N_FLOORS][config.N_BUTTONS]bool
 		for i := range assignedHallRequests {
@@ -131,13 +135,6 @@ func Assigner(
 			}
 		}
 
-		// for i := range localOrders {
-		// 	for j := range localOrders[i] {
-		// 		if localOrders[i][j] {
-		// 			ch_localOrders <- elevator_io.ButtonEvent{BtnFloor: i, BtnType: elevator_io.ButtonType(j)}
-		// 		}
-		// 	}
-		// }
 		if localOrders != prevLocalRequests {
 			ch_localOrders <- localOrders
 			prevLocalRequests = localOrders

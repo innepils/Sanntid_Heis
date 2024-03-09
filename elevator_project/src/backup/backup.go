@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"driver/config"
 	"driver/elevator_io"
 	"encoding/gob"
 	"fmt"
@@ -13,7 +14,7 @@ import (
 
 const (
 	sendAddr       = "255.255.255.255:20007"
-	receiveAddr    = ":20007"
+	receiveAddr    = config.DefaultPortBcastStr
 	baseStatusMsg  = "heartbeat"
 	heartbeatSleep = 1000
 )
@@ -61,11 +62,11 @@ func LoadBackupFromFile(filename string, ch_buttonPressed chan elevator_io.Butto
 	return
 }
 
-func StartBackupProcess() {
-	exec.Command("gnome-terminal", "--", "go", "run", "main.go").Run()
+func StartBackupProcess(id string, port string) {
+	exec.Command("gnome-terminal", "--", "go", "run", "main.go", "-id="+id, "-port="+port).Run()
 }
 
-func BackupProcess(localID string) {
+func BackupProcess(id string, port string) {
 	localState := ""
 	fmt.Println(localState)
 	fmt.Printf("---------BACKUP PHASE---------\n")
@@ -91,7 +92,7 @@ func BackupProcess(localID string) {
 				fmt.Println("Backup did not receive heartbeat, becoming primary.")
 				// This is where the backup takes over and becomes Primary
 				conn.Close()
-				StartBackupProcess()
+				StartBackupProcess(id, port)
 				return
 			} else {
 				fmt.Println("Error reading from UDP:", err)
@@ -111,7 +112,7 @@ func BackupProcess(localID string) {
 		// 	fmt.Println("String is empty or doesn't contain any ';'")
 		// }
 
-		if parts[0] == localID {
+		if parts[0] == id {
 			localState = string(msg[2])
 			conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 5 * time.Millisecond))
 		}
