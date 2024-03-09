@@ -49,12 +49,6 @@ func main() {
 	}
 	flag.Parse()
 
-	// portInt, err := strconv.Atoi(port) // convert port to int for later use
-	// if err != nil {
-	// 	fmt.Println("Error converting string to int: ", err)
-	// 	return
-	// }
-
 	// Spawn backup
 	backup.BackupProcess(id) //this halts the progression of the program while it is the backup
 	fmt.Println("Primary started.")
