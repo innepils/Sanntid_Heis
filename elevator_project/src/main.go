@@ -13,7 +13,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -30,7 +29,6 @@ func main() {
 	which should be passed on in the command line using
 	'go run main.go -id=any_id -port=server_port'
 	*/
-	// test comme
 	var id string
 	flag.StringVar(&id, "id", "", "id of this peer")
 
@@ -47,15 +45,15 @@ func main() {
 	flag.StringVar(&port, "port", "", "port of this peer")
 
 	if port == "" { // if no port is given, use default port (15657)
-		port = fmt.Sprint(config.DefaultPort)
+		port = fmt.Sprint(15657)
 	}
 	flag.Parse()
 
-	portInt, err := strconv.Atoi(port) // convert port to int for later use
-	if err != nil {
-		fmt.Println("Error converting string to int: ", err)
-		return
-	}
+	// portInt, err := strconv.Atoi(port) // convert port to int for later use
+	// if err != nil {
+	// 	fmt.Println("Error converting string to int: ", err)
+	// 	return
+	// }
 
 	// Spawn backup
 	backup.BackupProcess(id) //this halts the progression of the program while it is the backup
@@ -75,10 +73,11 @@ func main() {
 	//ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
 
 	// Goroutines for sending and recieving messages
-	go peers.Transmitter(portInt, id, ch_peerTxEnable)
-	go peers.Receiver(portInt, ch_peerUpdate)
-	go bcast.Transmitter(config.DefaultPort, ch_msgOut)
-	go bcast.Receiver(config.DefaultPort, ch_msgIn)
+	go peers.Transmitter(config.DefaultPortPeer, id, ch_peerTxEnable)
+	go peers.Receiver(config.DefaultPortPeer, ch_peerUpdate)
+
+	go bcast.Transmitter(config.DefaultPortBcast, ch_msgOut)
+	go bcast.Receiver(config.DefaultPortBcast, ch_msgIn)
 
 	// Channels for local elevator
 	ch_arrivalFloor := make(chan int)
@@ -89,7 +88,7 @@ func main() {
 	ch_elevatorStateToAssigner := make(chan map[string]elevator.ElevatorState)
 	ch_elevatorStateToNetwork := make(chan map[string]elevator.ElevatorState)
 	//fmt.Printf("completed order-channel received in assign")
-	
+
 	// Backup goroutine
 	go backup.LoadBackupFromFile("status.txt", ch_buttonPressed)
 
@@ -124,7 +123,7 @@ func main() {
 	go func() {
 		HeartBeat := HeartBeat{"Hello from " + id, <-ch_hallRequestsIn, <-ch_elevatorStateToNetwork, 0}
 		HeartBeat.Iter++
-		ch_msgOut <- HeartBeat
+		ch_msgIn <- HeartBeat
 		time.Sleep(1 * time.Second)
 	}()
 
