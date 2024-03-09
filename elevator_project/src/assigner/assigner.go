@@ -6,7 +6,6 @@ import (
 	"driver/elevator"
 	"driver/elevator_io"
 	"fmt"
-	"fmt"
 )
 
 type requestType int
@@ -50,8 +49,8 @@ func Assigner(
 			}
 		case elevatorState := <-ch_elevatorStateToAssigner:
 			localElevatorState = elevatorState
-		case updateHallRequest := <- ch_hallRequestsIn:
-			
+		// case updateHallRequest := <-ch_hallRequestsIn:
+
 		default:
 			//NOP
 		}

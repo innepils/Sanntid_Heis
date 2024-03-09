@@ -2,7 +2,8 @@ package config
 
 
 // ***** Network-configuration *****
-const DefaultPort int = 15657
+const DefaultPortPeer int = 20017
+const DefaultPortBcast int = 20018
 
 // ***** System specifications *****
 const (
