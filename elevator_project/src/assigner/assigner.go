@@ -44,8 +44,10 @@ func Assigner(
 		select {
 		case buttonPressed := <-ch_buttonPressed:
 			fmt.Printf("Received buttonpress in assigner\n")
-			if allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
+			if buttonPressed.BtnType == elevator_io.BT_Cab {
 				allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] = 2
+			} else if allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
+				allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] = 1
 			}
 		case completedOrder := <-ch_completedOrders: //THIS NEEDS TO BE REVISED
 			fmt.Printf("completed order-channel received in assign")
@@ -107,10 +109,11 @@ func Assigner(
 		}
 
 		elevator.SetAllButtonLights(allOrders)
-
+		var hall_requestsOut [config.N_FLOORS][config.N_BUTTONS - 1]int
 		var hall_requests [config.N_FLOORS][config.N_BUTTONS - 1]bool
 		for i := range hall_requests {
 			for j := 0; j < 2; j++ {
+				hall_requestsOut[i][j] = allOrders[i][j]
 				if allOrders[i][j] == 2 {
 					hall_requests[i][j] = true
 				} else {
@@ -118,7 +121,7 @@ func Assigner(
 				}
 			}
 		}
-		ch_hallRequestsOut<-hall_requests
+		ch_hallRequestsOut <- hall_requestsOut
 
 		assignedHallRequests := cost.Cost(hall_requests, localElevatorState, externalElevators)
 		var localOrders [config.N_FLOORS][config.N_BUTTONS]bool

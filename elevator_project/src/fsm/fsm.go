@@ -31,17 +31,6 @@ func Fsm(ch_arrivalFloor chan int,
 	elevator_io.SetMotorDirection(elevator_io.MD_Down)
 	newFloor := <-ch_arrivalFloor
 	localElevator.Floor = newFloor
-	// for { // Run the elevator to the bottom floor
-	// 	newFloor := <-ch_arrivalFloor
-
-	// 	if newFloor != 0 {
-	// 		elevator_io.SetMotorDirection(elevator_io.MD_Down)
-	// 	} else {
-	// 		elevator_io.SetMotorDirection(elevator_io.MD_Stop)
-	// 		localElevator.Floor = newFloor
-	// 		break
-	// 	}
-	// }
 
 	elevator_io.SetDoorOpenLamp(false)
 	doorTimer := time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
