@@ -213,6 +213,7 @@ func Fsm(ch_arrivalFloor chan int,
 		} //select
 		localElevator.Elevator_print()
 		fmt.Printf("FSM uncreachbleM\n")
+		time.Sleep(20 * time.Millisecond)
 	} //For
 
 } //Fsm
