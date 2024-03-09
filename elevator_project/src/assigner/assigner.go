@@ -43,6 +43,7 @@ func Assigner(
 	for {
 		select {
 		case buttonPressed := <-ch_buttonPressed:
+			fmt.Printf("Received buttonpress in assigner\n")
 			if allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
 				allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] = 2
 			}
