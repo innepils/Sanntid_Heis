@@ -90,13 +90,14 @@ func Fsm(ch_arrivalFloor chan int,
 			//localElevator.Elevator_print() // Currently SPAMS
 
 			switch localElevator.Behaviour {
-			/*case elevator.EB_DoorOpen:
-			if requests.Requests_shouldClearImmediately(localElevator, buttonPressed.BtnFloor, elevator_io.ButtonType(buttonPressed.BtnType)) {
-				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-			} else {
-				localElevator.Requests[buttonPressed.BtnFloor][buttonPressed.BtnType] = true
-			}
-			*/
+
+			case elevator.EB_DoorOpen:
+				if requests.Requests_here(localElevator) {
+					elevator_io.SetDoorOpenLamp(true)
+					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+					localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedOrders)
+				}
+
 			case elevator.EB_Idle:
 				pair := requests.Requests_chooseDirection(localElevator)
 				fmt.Printf("Pair: %s, %s\n", elevator.ElevBehaviourToString(pair.Behaviour), elevator.ElevDirnToString(pair.Dirn))

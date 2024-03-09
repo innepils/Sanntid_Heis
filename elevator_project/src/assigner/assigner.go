@@ -142,6 +142,7 @@ func Assigner(
 		// 	}
 		// }
 		if localOrders != prevLocalRequests {
+			fmt.Printf("Sent orders from Assigner\n")
 			ch_localOrders <- localOrders
 			prevLocalRequests = localOrders
 		}
