@@ -33,8 +33,13 @@ func Assigner(
 		}
 	}
 	cabReq := []bool{true, false, true, false}
-	var localElevatorState = map[string]elevator.ElevatorState{"self": {Behavior: "idle", Floor: 1, Direction: "Stop", CabRequests: cabReq}}
-
+	var localElevatorState = map[string]elevator.ElevatorState{"self": {Behavior: "idle", Floor: 1, Direction: "stop", CabRequests: cabReq}}
+	var prevLocalRequests [config.N_FLOORS][config.N_BUTTONS]bool
+	for i := range prevLocalRequests {
+		for j := range prevLocalRequests[i] {
+			prevLocalRequests[i][j] = false
+		}
+	}
 	for {
 		select {
 		case buttonPressed := <-ch_buttonPressed:
@@ -135,6 +140,9 @@ func Assigner(
 		// 		}
 		// 	}
 		// }
-		ch_localOrders <- localOrders
+		if localOrders != prevLocalRequests {
+			ch_localOrders <- localOrders
+			prevLocalRequests = localOrders
+		}
 	}
 }
