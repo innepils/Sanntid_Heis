@@ -118,6 +118,7 @@ func main() {
 		ch_localOrders,
 		ch_hallRequestsIn,
 		ch_elevatorStateToAssigner,
+		ch_externalElevators,
 	)
 
 	// Send heartbeat incl. all info
