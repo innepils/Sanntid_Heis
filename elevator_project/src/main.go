@@ -98,14 +98,14 @@ func main() {
 	go func() {
 		for {
 			HeartBeat := HeartBeat{
-				ID:           "Hello from " + id,
+				ID:           id,
 				HallRequests: <-ch_hallRequestsOut,
 				state:        <-ch_elevatorStateToNetwork,
 				Iter:         0,
 			}
 			HeartBeat.Iter++
 			ch_msgOut <- HeartBeat
-			time.Sleep(100 * time.Second)
+			time.Sleep(100 * time.Millisecond)
 		}
 	}()
 
