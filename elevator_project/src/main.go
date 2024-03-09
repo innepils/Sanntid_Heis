@@ -8,11 +8,8 @@ import (
 	"driver/elevator_io"
 	"driver/fsm"
 	"driver/network/bcast"
-	"driver/network/localip"
 	"driver/network/peers"
-	"flag"
 	"fmt"
-	"os"
 	"time"
 )
 
@@ -24,30 +21,12 @@ type HeartBeat struct {
 }
 
 func main() {
-	/* Initialize elevator ID and port
-	This section sets the elevators ID and port
-	which should be passed on in the command line using
-	'go run main.go -id=any_id -port=server_port'
+
+	/*
+		Initialize elevator ID and port from command line:
+		'go run main.go -id=any_id -port=server_port'
 	*/
-	var id string
-	flag.StringVar(&id, "id", "", "id of this peer")
-
-	if id == "" { // if no ID is given, use local IP address and process ID
-		localIP, err := localip.LocalIP()
-		if err != nil {
-			fmt.Println(err)
-			localIP = "DISCONNECTED"
-		}
-		id = fmt.Sprintf("peer_%s:%d", localIP, os.Getpid())
-	}
-
-	var port string
-	flag.StringVar(&port, "port", "", "port of this peer")
-
-	if port == "" { // if no port is given, use default port (15657)
-		port = fmt.Sprint(15657)
-	}
-	flag.Parse()
+	id, port := config.InitializeConfig()
 
 	// Spawn backup
 	backup.BackupProcess(id) //this halts the progression of the program while it is the backup
@@ -116,11 +95,16 @@ func main() {
 
 	// Send heartbeat incl. all info
 	go func() {
-		HeartBeat := HeartBeat{"Hello from " + id, <-ch_hallRequestsIn, <-ch_elevatorStateToNetwork, 0}
 		for {
+			HeartBeat := HeartBeat{
+				ID:           "Hello from " + id,
+				HallRequests: <-ch_hallRequestsOut,
+				state:        <-ch_elevatorStateToNetwork,
+				Iter:         0,
+			}
 			HeartBeat.Iter++
 			ch_msgOut <- HeartBeat
-			time.Sleep(1 * time.Second)
+			time.Sleep(100 * time.Millisecond)
 		}
 	}()
 
