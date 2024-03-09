@@ -5,6 +5,7 @@ import (
 	"driver/cost"
 	"driver/elevator"
 	"driver/elevator_io"
+	"fmt"
 )
 
 type requestType int
@@ -19,7 +20,8 @@ const (
 func Assigner(ch_buttonPressed chan elevator_io.ButtonEvent,
 	ch_completedOrders chan elevator_io.ButtonEvent,
 	ch_localOrders chan [config.N_FLOORS][config.N_BUTTONS]bool,
-	hall_requests chan [][]int,
+	ch_hallRequestsIn chan [][]int,
+	ch_hallRequestsOut chan [][]int,
 	ch_elevatorStateToAssigner chan elevator.ElevatorState,
 ) {
 	externalElevators := map[string]elevator.ElevatorState{}
@@ -46,6 +48,10 @@ func Assigner(ch_buttonPressed chan elevator_io.ButtonEvent,
 			}
 		case elevatorState := <-ch_elevatorStateToAssigner:
 			localElevatorState = elevatorState
+		case updateHallRequest := <- ch_hallRequestsIn:
+			
+		default:
+			//NOP
 		}
 
 		elevator.SetAllButtonLights(allOrders)
@@ -60,6 +66,7 @@ func Assigner(ch_buttonPressed chan elevator_io.ButtonEvent,
 				}
 			}
 		}
+		//<-hall_requests
 		assignedHallRequests := cost.Cost(hall_requests, localElevatorState, externalElevators)
 		var localOrders [config.N_FLOORS][config.N_BUTTONS]bool
 		for i := range assignedHallRequests {
