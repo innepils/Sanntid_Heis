@@ -30,6 +30,7 @@ func Fsm(ch_arrivalFloor chan int,
 	localElevator := elevator.UninitializedElevator()
 	elevator_io.SetMotorDirection(elevator_io.MD_Down)
 	newFloor := <-ch_arrivalFloor
+	elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 	localElevator.Floor = newFloor
 
 	elevator_io.SetDoorOpenLamp(false)
