@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"driver/config"
 	"driver/elevator_io"
 	"encoding/gob"
 	"fmt"
@@ -13,7 +14,7 @@ import (
 
 const (
 	sendAddr       = "255.255.255.255:20007"
-	receiveAddr    = ":20007"
+	receiveAddr    = config.DefaultPortBcastStr
 	baseStatusMsg  = "heartbeat"
 	heartbeatSleep = 1000
 )
