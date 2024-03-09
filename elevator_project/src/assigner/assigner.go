@@ -44,7 +44,7 @@ func Assigner(
 		select {
 		case buttonPressed := <-ch_buttonPressed:
 			if allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
-				allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] = 1
+				allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] = 2
 			}
 		case completedOrder := <-ch_completedOrders: //THIS NEEDS TO BE REVISED
 			fmt.Printf("completed order-channel received in assign")
