@@ -145,6 +145,7 @@ func Assigner(
 			fmt.Printf("Sent orders from Assigner\n")
 			ch_localOrders <- localOrders
 			prevLocalRequests = localOrders
+			//fmt.Println(allOrders)
 		}
 	}
 }

@@ -87,7 +87,7 @@ func Fsm(ch_arrivalFloor chan int,
 			fmt.Printf("Entered Local orders in FSM\n")
 
 			localElevator.Requests = localOrders
-			//localElevator.Elevator_print() // Currently SPAMS
+			localElevator.Elevator_print() // Currently SPAMS
 
 			switch localElevator.Behaviour {
 
