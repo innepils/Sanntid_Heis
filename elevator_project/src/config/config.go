@@ -5,16 +5,11 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strconv"
 )
 
 // ***** Network-configuration *****
 const DefaultPortPeer int = 22017
 const DefaultPortBcast int = 22018
-const DefaultPortBcastBackup int = DefaultPortBcast + 2
-
-var DefaultPortBcastStr string = strconv.Itoa(DefaultPortBcast)
-var DefaultPortBcastBackupStr string = strconv.Itoa(DefaultPortBcastBackup)
 
 // ***** System specifications *****
 const (

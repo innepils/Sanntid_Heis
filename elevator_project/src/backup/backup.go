@@ -13,7 +13,7 @@ import (
 
 const (
 	sendAddr       = "255.255.255.255:20007"
-	receiveAddr    = ":21999"
+	receiveAddr    = ":22018"
 	baseStatusMsg  = "heartbeat"
 	heartbeatSleep = 1000
 )
