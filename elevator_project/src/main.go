@@ -58,30 +58,31 @@ func main() {
 	fmt.Println("\n--- Initialized elevator " + id + " with port " + port + " ---\n")
 
 	// Assigner channels (Recieve updates on the ID's of of the peers that are alive on the network)
-	ch_peerUpdate := make(chan peers.PeerUpdate)
-	ch_peerTxEnable := make(chan bool)
-	ch_msgOut := make(chan HeartBeat)
-	ch_msgIn := make(chan HeartBeat)
-	ch_completedOrders := make(chan elevator_io.ButtonEvent)
-	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
+	ch_peerUpdate := make(chan peers.PeerUpdate, 100)
+	ch_peerTxEnable := make(chan bool, 100)
+	ch_msgOut := make(chan HeartBeat, 100)
+	ch_msgIn := make(chan HeartBeat, 100)
+	ch_completedOrders := make(chan elevator_io.ButtonEvent, 100)
+	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int, 100)
 	//ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
-	ch_externalElevators:= make(chan map[string]elevator.ElevatorState)
+	ch_externalElevators:= make(chan map[string]elevator.ElevatorState, 100)
 
 	// Goroutines for sending and recieving messages
-	go peers.Transmitter(config.DefaultPortPeer, id, ch_peerTxEnable)
-	go peers.Receiver(config.DefaultPortPeer, ch_peerUpdate)
-
 	go bcast.Transmitter(config.DefaultPortBcast, ch_msgOut)
 	go bcast.Receiver(config.DefaultPortBcast, ch_msgIn)
 
+	go peers.Transmitter(config.DefaultPortPeer, id, ch_peerTxEnable)
+	go peers.Receiver(config.DefaultPortPeer, ch_peerUpdate)
+
+
 	// Channels for local elevator
-	ch_arrivalFloor := make(chan int)
-	ch_buttonPressed := make(chan elevator_io.ButtonEvent)
-	ch_localOrders := make(chan [config.N_FLOORS][config.N_BUTTONS]bool)
-	ch_doorObstruction := make(chan bool)
-	ch_stopButton := make(chan bool)
-	ch_elevatorStateToAssigner := make(chan map[string]elevator.ElevatorState)
-	ch_elevatorStateToNetwork := make(chan map[string]elevator.ElevatorState)
+	ch_arrivalFloor := make(chan int, 100)
+	ch_buttonPressed := make(chan elevator_io.ButtonEvent, 100)
+	ch_localOrders := make(chan [config.N_FLOORS][config.N_BUTTONS]bool, 100)
+	ch_doorObstruction := make(chan bool, 100)
+	ch_stopButton := make(chan bool, 100)
+	ch_elevatorStateToAssigner := make(chan map[string]elevator.ElevatorState, 100)
+	ch_elevatorStateToNetwork := make(chan map[string]elevator.ElevatorState, 100)
 	//fmt.Printf("completed order-channel received in assign")
 
 	// Backup goroutine
@@ -135,7 +136,6 @@ func main() {
 			case <-ch_elevatorStateToAssigner:
 				fmt.Printf("Received event from elevatorStateToAssigner\n")
 			}
-
 		}
 	}()
 
