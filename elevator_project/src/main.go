@@ -65,7 +65,7 @@ func main() {
 	ch_completedOrders := make(chan elevator_io.ButtonEvent, 100)
 	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int, 100)
 	//ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
-	ch_externalElevators:= make(chan map[string]elevator.ElevatorState, 100)
+	ch_externalElevators := make(chan map[string]elevator.ElevatorState, 100)
 
 	// Goroutines for sending and recieving messages
 	go bcast.Transmitter(config.DefaultPortBcast, ch_msgOut)
@@ -73,7 +73,6 @@ func main() {
 
 	go peers.Transmitter(config.DefaultPortPeer, id, ch_peerTxEnable)
 	go peers.Receiver(config.DefaultPortPeer, ch_peerUpdate)
-
 
 	// Channels for local elevator
 	ch_arrivalFloor := make(chan int, 100)
