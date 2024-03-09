@@ -127,6 +127,7 @@ func GetCabRequests(elevator Elevator) []bool {
 	return cabRequests
 }
 
+// needs new name?
 func ElevatorToHRAElevState(localElevator Elevator) map[string]ElevatorState {
 	return map[string]ElevatorState{
 		"self": ElevatorState{
