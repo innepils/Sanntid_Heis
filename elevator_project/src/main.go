@@ -108,20 +108,20 @@ func main() {
 		}
 	}()
 
-	go func() {
-		for {
-			select {
-			//case event := <-ch_completedOrders:
-			//	fmt.Printf("Received event. Floor %d, Btn: %s\n", event.BtnFloor+1, elevator.ElevButtonToString(event.BtnType))
+	// go func() {
+	// 	for {
+	// 		select {
+	// 		//case event := <-ch_completedOrders:
+	// 		//	fmt.Printf("Received event. Floor %d, Btn: %s\n", event.BtnFloor+1, elevator.ElevButtonToString(event.BtnType))
 
-			case <-ch_elevatorStateToNetwork:
-				//fmt.Printf("Received event from elevatorStateToNetWork\n")
+	// 		case <-ch_elevatorStateToNetwork:
+	// 			//fmt.Printf("Received event from elevatorStateToNetWork\n")
 
-				//case <-ch_elevatorStateToAssigner:
-				//fmt.Printf("Received event from elevatorStateToAssigner\n")
-			}
-		}
-	}()
+	// 			//case <-ch_elevatorStateToAssigner:
+	// 			//fmt.Printf("Received event from elevatorStateToAssigner\n")
+	// 		}
+	// 	}
+	// }()
 
 	// Peer monitoring (for config/debug purposes)
 	fmt.Println("Started")
