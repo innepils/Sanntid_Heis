@@ -2,7 +2,6 @@ package cost
 
 import (
 	"driver/config"
-	"driver/config"
 	"driver/elevator"
 	"encoding/json"
 	"fmt"

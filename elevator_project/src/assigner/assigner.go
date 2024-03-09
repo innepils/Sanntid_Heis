@@ -6,7 +6,6 @@ import (
 	"driver/elevator"
 	"driver/elevator_io"
 	"fmt"
-	"fmt"
 )
 
 type requestType int
@@ -24,6 +23,7 @@ func Assigner(
 	ch_localOrders chan [config.N_FLOORS][config.N_BUTTONS]bool,
 	ch_hallRequestsIn chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
 	ch_elevatorStateToAssigner chan map[string]elevator.ElevatorState,
+	ch_externalElevators chan map[string]elevator.ElevatorState,
 ) {
 	externalElevators := map[string]elevator.ElevatorState{}
 	var allOrders [config.N_FLOORS][config.N_BUTTONS]int
@@ -50,8 +50,52 @@ func Assigner(
 			}
 		case elevatorState := <-ch_elevatorStateToAssigner:
 			localElevatorState = elevatorState
-		case updateHallRequest := <- ch_hallRequestsIn:
-			
+		case updateHallRequest := <-ch_hallRequestsIn:
+			for i := range updateHallRequest {
+				for j := 0; j < 2; j++ {
+					if allOrders[i][j] == 0 {
+						if updateHallRequest[i][j] == 0 {
+							//NOP
+						} else if updateHallRequest[i][j] == 1 {
+							allOrders[i][j] = 2
+						} else if updateHallRequest[i][j] == 2 {
+							allOrders[i][j] = 2
+						} else if updateHallRequest[i][j] == 3 {
+							//NOP
+						}
+					} else if allOrders[i][j] == 1 {
+						if updateHallRequest[i][j] == 0 {
+							//NOP
+						} else if updateHallRequest[i][j] == 1 {
+							allOrders[i][j] = 2
+						} else if updateHallRequest[i][j] == 2 {
+							allOrders[i][j] = 2
+						} else if updateHallRequest[i][j] == 3 {
+							//NOP
+						}
+					} else if allOrders[i][j] == 2 {
+						if updateHallRequest[i][j] == 0 {
+							//NOP
+						} else if updateHallRequest[i][j] == 1 {
+							//NOP
+						} else if updateHallRequest[i][j] == 2 {
+							//NOP
+						} else if updateHallRequest[i][j] == 3 {
+							allOrders[i][j] = 3
+						}
+					} else if allOrders[i][j] == 3 {
+						if updateHallRequest[i][j] == 0 {
+							allOrders[i][j] = 0
+						} else if updateHallRequest[i][j] == 1 {
+							allOrders[i][j] = 2
+						} else if updateHallRequest[i][j] == 2 {
+							allOrders[i][j] = 2
+						} else if updateHallRequest[i][j] == 3 {
+							allOrders[i][j] = 0
+						}
+					}
+				}
+			}
 		default:
 			//NOP
 		}
