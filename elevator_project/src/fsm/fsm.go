@@ -87,6 +87,7 @@ func Fsm(ch_arrivalFloor chan int,
 			fmt.Printf("Entered Local orders in FSM\n")
 
 			localElevator.Requests = localOrders
+			//localElevator.Elevator_print() // Currently SPAMS
 
 			switch localElevator.Behaviour {
 			/*case elevator.EB_DoorOpen:
@@ -97,15 +98,13 @@ func Fsm(ch_arrivalFloor chan int,
 			}
 			*/
 			case elevator.EB_Idle:
-				fmt.Printf("1\n")
 				pair := requests.Requests_chooseDirection(localElevator)
 				fmt.Printf("Pair: %s, %s\n", elevator.ElevBehaviourToString(pair.Behaviour), elevator.ElevDirnToString(pair.Dirn))
 
 				localElevator.Dirn = pair.Dirn
 				localElevator.Behaviour = pair.Behaviour
-				fmt.Printf("2\n")
 				elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
-				fmt.Printf("3\n")
+
 				switch pair.Behaviour {
 				case elevator.EB_DoorOpen:
 					elevator_io.SetDoorOpenLamp(true)
@@ -211,9 +210,9 @@ func Fsm(ch_arrivalFloor chan int,
 			localElevator.Elevator_print()
 
 		} //select
-		localElevator.Elevator_print()
-		fmt.Printf("FSM uncreachbleM\n")
-		time.Sleep(20 * time.Millisecond)
+		//localElevator.Elevator_print()
+		fmt.Printf("FSM uncreachble\n")
+		time.Sleep(30 * time.Millisecond)
 	} //For
 
 } //Fsm
