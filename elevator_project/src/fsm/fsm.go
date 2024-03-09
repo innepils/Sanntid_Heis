@@ -35,10 +35,11 @@ func Fsm(ch_arrivalFloor chan int,
 
 	elevator_io.SetDoorOpenLamp(false)
 	doorTimer := time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
-	var prevObstruction bool
-	
+	prevObstruction := false
+
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
+		fmt.Println("fsm for loop")
 		select {
 		case localOrders := <-ch_localOrders:
 			fmt.Printf("Entered Local orders in FSM\n")
