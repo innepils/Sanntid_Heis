@@ -11,7 +11,7 @@ import (
 const DefaultPortPeer int = 20017
 const DefaultPortBcast int = 20018
 
-const DefaultPortBcastStr string = "20018"
+const DefaultPortBcastStr string = ":20018"
 
 // ***** System specifications *****
 const (

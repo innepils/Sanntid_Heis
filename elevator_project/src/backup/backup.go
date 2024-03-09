@@ -81,10 +81,10 @@ func BackupProcess(localID string) {
 		return
 	}
 	defer conn.Close()
-	conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 5 * time.Millisecond))
+	conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 2.5 * time.Millisecond))
 	for {
 		buffer := make([]byte, 1024)
-		conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 5 * time.Millisecond))
+		conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 2.5 * time.Millisecond))
 		n, _, err := conn.ReadFromUDP(buffer)
 
 		if err != nil {
