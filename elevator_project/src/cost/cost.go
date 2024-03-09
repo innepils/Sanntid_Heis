@@ -13,11 +13,6 @@ func Cost(
 	localElevator map[string]elevator.ElevatorState,
 	externalElevators map[string]elevator.ElevatorState) [][2]bool { //REMEMBER TO CHANGE TYPES HERE
 
-	// input := elevator.HRAInput{
-	// 	HallRequests:  hall_requests,
-	// 	ElevatorState: localElevator,
-	// }
-
 	input := elevator.HRAInput{
 		HallRequests:  hall_requests,
 		ElevatorState: localElevator,
