@@ -98,7 +98,7 @@ func main() {
 	go func() {
 		for {
 			HeartBeat := HeartBeat{
-				ID:           "Hello from " + id,
+				ID:           id,
 				HallRequests: <-ch_hallRequestsOut,
 				state:        <-ch_elevatorStateToNetwork,
 				Iter:         0,
