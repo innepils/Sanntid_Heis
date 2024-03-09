@@ -133,7 +133,7 @@ func ElevatorToHRAElevState(localElevator Elevator) map[string]ElevatorState {
 		"self": {
 			Behavior:    strings.ReplaceAll(strings.ToLower(ElevBehaviourToString(localElevator.Behaviour)[3:]), "open", "Open"),
 			Floor:       localElevator.Floor,
-			Direction:   strings.ToLower(ElevDirnToString(localElevator.Dirn)),
+			Direction:   strings.ToLower(ElevDirnToString(localElevator.Dirn)), //To lower et problem?
 			CabRequests: GetCabRequests(localElevator),
 		},
 	}
@@ -145,7 +145,6 @@ func SendLocalElevatorState(
 	ch_elevatorStateToNetwork chan map[string]ElevatorState) {
 
 	HRAElevState := ElevatorToHRAElevState(localElevator)
-
 	ch_elevatorStateToAssigner <- HRAElevState
 	ch_elevatorStateToNetwork <- HRAElevState
 }

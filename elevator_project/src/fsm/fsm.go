@@ -36,6 +36,7 @@ func Fsm(ch_arrivalFloor chan int,
 	elevator_io.SetDoorOpenLamp(false)
 	doorTimer := time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
 	prevObstruction := false
+	elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
@@ -114,9 +115,7 @@ func Fsm(ch_arrivalFloor chan int,
 			case elevator.EB_DoorOpen:
 
 				if prevObstruction {
-
 					prevObstruction = <-ch_doorObstruction
-
 				}
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				elevator_io.SetDoorOpenLamp(false)
