@@ -125,7 +125,7 @@ func main() {
 	go func() {
 		HeartBeat := HeartBeat{"Hello from " + id, <-ch_hallRequestsIn, <-ch_elevatorStateToNetwork, 0}
 		HeartBeat.Iter++
-		ch_msgIn <- HeartBeat
+		ch_msgOut <- HeartBeat
 		time.Sleep(1 * time.Second)
 	}()
 
