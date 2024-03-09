@@ -5,7 +5,6 @@ import (
 	"driver/cost"
 	"driver/elevator"
 	"driver/elevator_io"
-	"fmt"
 )
 
 type requestType int
@@ -43,14 +42,12 @@ func Assigner(
 	for {
 		select {
 		case buttonPressed := <-ch_buttonPressed:
-			fmt.Printf("Received buttonpress in assigner\n")
-			if buttonPressed.BtnType == elevator_io.BT_Cab {
+			if allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
 				allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] = 2
 			} else if allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
 				allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] = 1
 			}
 		case completedOrder := <-ch_completedOrders: //THIS NEEDS TO BE REVISED
-			fmt.Printf("completed order-channel received in assign")
 			if allOrders[completedOrder.BtnFloor][completedOrder.BtnType] == 3 {
 				allOrders[completedOrder.BtnFloor][completedOrder.BtnType] = 0
 			} else if allOrders[completedOrder.BtnFloor][completedOrder.BtnType] == 2 {
@@ -131,7 +128,7 @@ func Assigner(
 			}
 		}
 		for i := range localOrders {
-			if allOrders[i][2] != 0 {
+			if allOrders[i][2] == 2 {
 				localOrders[i][2] = true
 			} else {
 				localOrders[i][2] = false
@@ -139,10 +136,8 @@ func Assigner(
 		}
 
 		if localOrders != prevLocalRequests {
-			fmt.Printf("Sent orders from Assigner\n")
 			ch_localOrders <- localOrders
 			prevLocalRequests = localOrders
-			//fmt.Println(allOrders)
 		}
 	}
 }

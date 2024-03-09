@@ -8,10 +8,8 @@ import (
 )
 
 // ***** Network-configuration *****
-const DefaultPortPeer int = 20017
-const DefaultPortBcast int = 20018
-
-const DefaultPortBcastStr string = ":20018"
+const DefaultPortPeer int = 22017
+const DefaultPortBcast int = 22018
 
 // ***** System specifications *****
 const (
