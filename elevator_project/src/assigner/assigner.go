@@ -32,8 +32,8 @@ func Assigner(
 			allOrders[i][j] = 0
 		}
 	}
-
-	var localElevatorState map[string]elevator.ElevatorState
+	cabReq := []bool{true, false, true, false}
+	var localElevatorState = map[string]elevator.ElevatorState{"self": {Behavior: "idle", Floor: 1, Direction: "Stop", CabRequests: cabReq}}
 
 	for {
 		select {
