@@ -118,12 +118,12 @@ func main() {
 	// Send heartbeat incl. all info
 	go func() {
 		for {
-		HeartBeat := HeartBeat{
-			ID:			"Hello from " + id,
-			HallRequests:	<-ch_hallRequestsIn,
-			state:			<-ch_elevatorStateToNetwork,
-			Iter:			0,
-		}
+			HeartBeat := HeartBeat{
+				ID:			"Hello from " + id,
+				HallRequests:	<-ch_hallRequestsIn,
+				state:			<-ch_elevatorStateToNetwork,
+				Iter:			0,
+			}
 			HeartBeat.Iter++
 			ch_msgOut <- HeartBeat
 			time.Sleep(1 * time.Second)
