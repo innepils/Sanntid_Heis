@@ -10,7 +10,7 @@ import (
 const _pollRate = 20 * time.Millisecond
 
 var _initialized bool = false
-var _numFloors int = 4		// Bruke N_FLOORS fra config?
+var _numFloors int = 4 // Bruke N_FLOORS fra config?
 var _mtx sync.Mutex
 var _conn net.Conn
 
@@ -40,10 +40,12 @@ func Init(addr string, numFloors int) {
 		fmt.Println("Driver already initialized!")
 		return
 	}
+	fmt.Printf("here\n")
 	_numFloors = numFloors
 	_mtx = sync.Mutex{}
 	var err error
 	_conn, err = net.Dial("tcp", addr)
+	fmt.Printf("here2\n")
 
 	if err != nil {
 		panic(err.Error())

@@ -19,15 +19,8 @@ func Cost(
 	// }
 
 	input := elevator.HRAInput{
-		HallRequests: [4][2]bool{{false, false}, {true, false}, {false, false}, {false, true}},
-		ElevatorState: map[string]elevator.ElevatorState{
-			"self": elevator.ElevatorState{
-				Behavior:    "moving",
-				Floor:       2,
-				Direction:   "up",
-				CabRequests: []bool{false, false, false, true},
-			},
-		},
+		HallRequests:  hall_requests,
+		ElevatorState: localElevator,
 	}
 
 	for key, value := range externalElevators {
