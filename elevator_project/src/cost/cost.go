@@ -2,7 +2,6 @@ package cost
 
 import (
 	"driver/config"
-	"driver/config"
 	"driver/elevator"
 	"encoding/json"
 	"fmt"
@@ -35,7 +34,7 @@ func Cost(
 		input.ElevatorState[key] = value
 	}
 
-	fmt.Println(input)
+	//fmt.Println(input)
 
 	jsonBytes, err := json.Marshal(input)
 	if err != nil {
