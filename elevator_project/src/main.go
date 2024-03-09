@@ -70,6 +70,7 @@ func main() {
 	ch_msgIn := make(chan HeartBeat)
 	ch_completedOrders := make(chan elevator_io.ButtonEvent)
 	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
+	ch_externalElevators:= make(chan map[string]elevator.ElevatorState)
 	//ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
 
 	// Goroutines for sending and recieving messages
@@ -117,13 +118,14 @@ func main() {
 		ch_localOrders,
 		ch_hallRequestsIn,
 		ch_elevatorStateToAssigner,
+		ch_externalElevators,
 	)
 
 	// Send heartbeat incl. all info
 	go func() {
 		HeartBeat := HeartBeat{"Hello from " + id, <-ch_hallRequestsIn, <-ch_elevatorStateToNetwork, 0}
 		HeartBeat.Iter++
-		ch_msgIn <- HeartBeat
+		ch_msgOut <- HeartBeat
 		time.Sleep(1 * time.Second)
 	}()
 
