@@ -22,10 +22,8 @@ type HeartBeat struct {
 
 func main() {
 
-	/*
-		Initialize elevator ID and port from command line:
-		'go run main.go -id=any_id -port=server_port'
-	*/
+	/* Initialize elevator ID and port from command line:
+	   'go run main.go -id=any_id -port=server_port' */
 	id, port := config.InitializeConfig()
 
 	// Spawn backup
