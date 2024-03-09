@@ -45,7 +45,7 @@ func Assigner(
 		case buttonPressed := <-ch_buttonPressed:
 			fmt.Printf("Received buttonpress in assigner\n")
 			if allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
-				allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] = 1
+				allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] = 2
 			}
 		case completedOrder := <-ch_completedOrders: //THIS NEEDS TO BE REVISED
 			fmt.Printf("completed order-channel received in assign")
@@ -142,6 +142,7 @@ func Assigner(
 		// 	}
 		// }
 		if localOrders != prevLocalRequests {
+			fmt.Printf("Sent orders from Assigner\n")
 			ch_localOrders <- localOrders
 			prevLocalRequests = localOrders
 		}
