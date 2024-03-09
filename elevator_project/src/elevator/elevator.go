@@ -131,7 +131,7 @@ func GetCabRequests(elevator Elevator) []bool {
 func ElevatorToHRAElevState(localElevator Elevator) map[string]ElevatorState {
 	return map[string]ElevatorState{
 		"self": ElevatorState{
-			Behavior:    strings.ToLower(ElevBehaviourToString(localElevator.Behaviour)[3:]),
+			Behavior:    strings.ReplaceAll(strings.ToLower(ElevBehaviourToString(localElevator.Behaviour)[3:]), "open", "Open"),
 			Floor:       localElevator.Floor,
 			Direction:   strings.ToLower(ElevDirnToString(localElevator.Dirn)),
 			CabRequests: GetCabRequests(localElevator),
