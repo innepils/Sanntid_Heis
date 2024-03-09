@@ -2,7 +2,6 @@ package main
 
 import (
 	"driver/assigner"
-	"driver/backup"
 	"driver/config"
 	"driver/elevator"
 	"driver/elevator_io"
@@ -27,8 +26,8 @@ func main() {
 	id, port := config.InitializeConfig()
 
 	// Spawn backup
-	backup.BackupProcess(id, port) //this halts the progression of the program while it is the backup
-	fmt.Println("Primary started.")
+	//backup.BackupProcess(id, port) //this halts the progression of the program while it is the backup
+	//fmt.Println("Primary started.")
 
 	// Initialize local elevator
 	elevator_io.Init("localhost:"+port, config.N_FLOORS)
@@ -61,7 +60,7 @@ func main() {
 	go peers.Receiver(config.DefaultPortPeer, ch_peerUpdate)
 
 	// Backup goroutine
-	go backup.LoadBackupFromFile("status.txt", ch_buttonPressed)
+	//go backup.LoadBackupFromFile("status.txt", ch_buttonPressed)
 
 	// elevator_io goroutines
 	go elevator_io.PollButtons(ch_buttonPressed)
