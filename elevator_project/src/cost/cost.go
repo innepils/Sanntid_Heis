@@ -13,17 +13,6 @@ func Cost(
 	localElevator map[string]elevator.ElevatorState,
 	externalElevators map[string]elevator.ElevatorState) [][2]bool { //REMEMBER TO CHANGE TYPES HERE
 
-	// input := elevator.HRAInput{
-	// 	HallRequests:  hall_requests,
-	// 	ElevatorState: localElevator,
-	// }
-	fmt.Printf("locel:\n")
-	fmt.Println(localElevator)
-	fmt.Printf("\n\n\n")
-	fmt.Println(externalElevators)
-	fmt.Printf("\n\n\n")
-	
-	//fmt.Println(localElevator)
 	input := elevator.HRAInput{
 		HallRequests:  hall_requests,
 		ElevatorState: localElevator,
@@ -33,7 +22,7 @@ func Cost(
 		input.ElevatorState[key] = value
 	}
 
-	fmt.Println(input)
+	//fmt.Println(input)
 
 	jsonBytes, err := json.Marshal(input)
 	if err != nil {

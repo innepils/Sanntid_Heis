@@ -84,7 +84,7 @@ func Fsm(ch_arrivalFloor chan int,
 			} //switch e.behaviour*/
 
 		case localOrders := <-ch_localOrders:
-			fmt.Printf("Entered Local orders in FSM\n")
+			//fmt.Printf("Entered Local orders in FSM\n")
 
 			localElevator.Requests = localOrders
 			//localElevator.Elevator_print() // Currently SPAMS
@@ -211,8 +211,8 @@ func Fsm(ch_arrivalFloor chan int,
 
 		} //select
 		//localElevator.Elevator_print()
-		fmt.Printf("FSM uncreachble\n")
-		time.Sleep(30 * time.Millisecond)
+		//fmt.Printf("FSM uncreachble\n")
+		//time.Sleep(30 * time.Millisecond)
 	} //For
 
 } //Fsm
