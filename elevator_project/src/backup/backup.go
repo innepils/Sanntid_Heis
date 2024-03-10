@@ -8,7 +8,6 @@ import (
 	"net"
 	"os"
 	"os/exec"
-	"strings"
 	"time"
 )
 
@@ -117,7 +116,7 @@ func BackupProcess(localID string, port string) {
 	conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 5 * time.Millisecond))
 	for {
 		buffer := make([]byte, 1024)
-		conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 2.5 * time.Millisecond))
+		//conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 2.5 * time.Millisecond))
 		n, _, err := conn.ReadFromUDP(buffer)
 
 		if err != nil {
@@ -134,9 +133,8 @@ func BackupProcess(localID string, port string) {
 		}
 
 		msg := string(buffer[:n])
-		parts := strings.Split(msg, ";")
 
-		if parts[0] == localID {
+		if msg == localID {
 			println("Primary is alive!")
 			conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 2.5 * time.Millisecond))
 		}

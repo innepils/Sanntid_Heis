@@ -7,18 +7,16 @@ import (
 	"os"
 )
 
-// ***** System specifications *****
 const (
-	N_FLOORS  = 4
-	N_BUTTONS = 3
+	// System specifications
+	N_FLOORS            int = 4
+	N_BUTTONS           int = 3
+	DoorOpenDurationSec int = 3
+	// Network-configuration
+	DefaultPortPeer   int = 22017
+	DefaultPortBcast  int = 22018
+	DefaultPortBackup int = 22019
 )
-
-const DoorOpenDurationSec int = 3
-
-// ***** Network-configuration *****
-const DefaultPortPeer int = 22017
-const DefaultPortBcast int = 22018
-const DefaultPortBackup int = 22019
 
 func InitializeConfig() (string, string) {
 	var id, port string

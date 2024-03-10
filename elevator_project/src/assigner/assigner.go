@@ -9,15 +9,6 @@ import (
 	"fmt"
 )
 
-type requestType int
-
-const (
-	none      requestType = 0
-	new                   = 1
-	confirmed             = 2
-	completed             = 3
-)
-
 func Assigner(
 	ch_buttonPressed chan elevator_io.ButtonEvent,
 	ch_completedRequests chan elevator_io.ButtonEvent,

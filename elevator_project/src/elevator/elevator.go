@@ -7,19 +7,27 @@ import (
 	"strings"
 )
 
-type ElevatorBehaviour int
+type (
+	ElevatorBehaviour int
+	requestType       int
+)
 
 const (
-	EB_Idle ElevatorBehaviour = iota
-	EB_DoorOpen
-	EB_Moving
+	EB_Idle     ElevatorBehaviour = 0
+	EB_DoorOpen ElevatorBehaviour = 1
+	EB_Moving   ElevatorBehaviour = 2
+
+	NoRequest        requestType = 0
+	NewRequest       requestType = 1
+	ConfirmedRequest requestType = 2
+	CompletedRequest requestType = 3
 )
 
 type Elevator struct {
-	Floor               int
-	Dirn                elevator_io.MotorDirection
-	Requests            [config.N_FLOORS][config.N_BUTTONS]bool
-	Behaviour           ElevatorBehaviour
+	Floor     int
+	Dirn      elevator_io.MotorDirection
+	Requests  [config.N_FLOORS][config.N_BUTTONS]bool
+	Behaviour ElevatorBehaviour
 }
 
 type ElevatorState struct {
@@ -34,8 +42,8 @@ type HRAInput struct {
 	ElevatorState map[string]ElevatorState                    `json:"states"`
 }
 
-func ElevBehaviourToString(eb ElevatorBehaviour) string {
-	switch eb {
+func ElevBehaviourToString(elevBehaviour ElevatorBehaviour) string {
+	switch elevBehaviour {
 	case EB_Idle:
 		return "EB_Idle"
 	case EB_DoorOpen:
@@ -47,8 +55,8 @@ func ElevBehaviourToString(eb ElevatorBehaviour) string {
 	}
 }
 
-func ElevDirnToString(d elevator_io.MotorDirection) string {
-	switch d {
+func ElevDirnToString(elevDirection elevator_io.MotorDirection) string {
+	switch elevDirection {
 	case elevator_io.MD_Down:
 		return "Down"
 	case elevator_io.MD_Stop:
@@ -60,8 +68,8 @@ func ElevDirnToString(d elevator_io.MotorDirection) string {
 	}
 }
 
-func ElevButtonToString(b elevator_io.ButtonType) string {
-	switch b {
+func ElevButtonToString(buttonType elevator_io.ButtonType) string {
+	switch buttonType {
 	case elevator_io.BT_HallUp:
 		return "HallUp"
 	case elevator_io.BT_HallDown:
@@ -107,17 +115,14 @@ func (es *Elevator) Elevator_print() {
 
 func UninitializedElevator() Elevator {
 	return Elevator{
-		Floor:               -1,
-		Dirn:                elevator_io.MD_Stop,
-		Behaviour:           EB_Idle,
+		Floor:     -1,
+		Dirn:      elevator_io.MD_Stop,
+		Behaviour: EB_Idle,
 	}
 }
 
 func GetCabRequests(elevator Elevator) []bool {
-	// Create a new slice to store the last column elements
 	cabRequests := make([]bool, len(elevator.Requests))
-
-	// Loop through each row and access the last element
 	for i, row := range elevator.Requests {
 		cabRequests[i] = row[len(row)-1]
 	}
