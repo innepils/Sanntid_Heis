@@ -30,7 +30,7 @@ func main() {
 	id, port := config.InitializeConfig()
 
 	// Spawn backup
-	backup.BackupProcess(id) //this halts the progression of the program while it is the backup
+	backup.BackupProcess(id, port) //this halts the progression of the program while it is the backup
 	fmt.Println("Primary started.")
 
 	// Initialize local elevator
