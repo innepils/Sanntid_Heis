@@ -1,27 +1,50 @@
 # Todo
-
-C++ kode må oversettes
-Endre elevator.io_init til å starte en UDP_init istedenfor en TCP_init.
-
 ### Adrian:
 
-- Lage ny FSM.go
-- Slutte å lure Linus trill rundt med bomkjøp av aksjer
-  - Men det funker jo?
-
 ### Linus:
-
-- Teste og verifisere at cost_fnc fungerer som den skal. die?
+- die?
 
 ### Simon:
 
-- Se på network.go
-  - Tenke på hvordan acknowledgment kan gjøres
-- Finne ut hvordan man beholder endringer som gjøres i git
+##### Kodekvalitet, hva som må endres
+- Navn i elevaotor.go "HRAElevState" er ikke en greie
+- localElevator sendes mye inn i funksjoner (spesielt i requests), bør bruke peker og referanse istedenfor kopi. (hastighet og plass)
+- Fjern alt som har med ClearVariant (CV).
 
-##### Task-box, velg det du kan/vil
+##### Project description, hva har vi gjort og hva mangler #####
+# The button lights are a service guarantee
+  - [] Mangler logikk for at hvis en heis ikke fullfører en ordre (hall call button) på gitt tid (e.g. 30sek?), så må andre heiser ta over. Skal watchdog implementeres f.eks.?
+  - [] Cab calls fungerer som spesifisert (men vi må sikre at backup og lagring i fil fungerer helt.)
 
-- Timer-logikk
-  -
+# No calls are lost
+  - [] Test forskjellige failures som: losing network entirely, software-crash (watchdog?), obstruction, tap av strøm til både motor og hele noden.
+    - [ ] Ved restart (etter crash) hentes cab-orders inn igjen.
+    - [x] Når en node er alene på nettverket, skal den fortsatte å fullføre ordre, samt ta nye.
+    - [ ] Noden skal IKKE måtte restartes manuelt. (Bør implementere restart i software ved ingen ordre og alene på nettverket.)
 
-#####
+# The light and buttons should function as expected
+  - [x] Hall call button henter en heis.
+  - [ ] Hall call button lights skal være lik på alle nodene (når man er på nettverket med andre noder. Evt   packet loss skal bare føre til noe forsinkelse)
+  - [x] Cab button lights skal ikke deles 
+  - [x] Knappelys skrus på så fort som mulig (lov å anta at en kunde kan trykke igejn ved ingen lys.)
+  - [x] Knappelys skrus av når ordren er fullført.
+
+  # The door should function as expected
+  - [x] Lyset simulerer åpen dør (3sek), og skal IKKE gå på når heisen beveger seg.
+  - [x] Obstruction hindrer døra i å lukkes, og har ingen påvirkning når heisen beveger seg.
+ 
+  # An individual elevator should behave sensibly and efficiently
+  - [x] Heisen skal IKKE stoppe overalt bare for sikkerhetsskyld.
+  - [x] Hall call buttons lights som skrus av skal bety at kunder er hentet, og kundene går BARE på om heisen går i retningen de skal.
+  - [] Hvis heisen går i en retning den ikke skal (fordi en kunde endret mening og retning, samt det ikke eksisterer andre ordre i den orginale retningen), så skal heisen "ANNONESERE" retningsendring og holde døre åpen i nye 3 sekunder. 
+
+  ### Secondary requirements ###
+  # Calls should be served as efficiently as possible.
+  - [x] Implementere en fungerende cost-funksjon.
+  - [ ] Gjøre koden mer effektiv, bruke pekere, ikke kopiere structs om unødvendig, osv.
+
+
+  ##### LOVLIGE ANTAGELSER #####
+  - Det er alltid MINST EN heis som ikke er påvirket av failure (inkludert obstruction).
+  - Det testes med 3 heiser, ikke flere.
+

@@ -28,6 +28,7 @@ func Fsm(ch_arrivalFloor chan int,
 	// Initializing
 	fmt.Printf("INITIALIZING ELEVATOR\n")
 	localElevator := elevator.UninitializedElevator()
+
 	elevator_io.SetMotorDirection(elevator_io.MD_Down)
 	newFloor := <-ch_arrivalFloor
 	elevator_io.SetMotorDirection(elevator_io.MD_Stop)
@@ -40,7 +41,6 @@ func Fsm(ch_arrivalFloor chan int,
 
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
-		fmt.Println("fsm for loop")
 		select {
 		case localOrders := <-ch_localOrders:
 			fmt.Printf("Entered Local orders in FSM\n")
@@ -172,6 +172,8 @@ func Fsm(ch_arrivalFloor chan int,
 
 			localElevator.Elevator_print()
 
+		default:
+			// Do Nothing
 		} //select
 		elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 	} //For
