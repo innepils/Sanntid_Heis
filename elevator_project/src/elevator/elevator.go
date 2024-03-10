@@ -122,10 +122,7 @@ func UninitializedElevator() Elevator {
 }
 
 func GetCabRequests(elevator Elevator) []bool {
-	// Create a new slice to store the last column elements
 	cabRequests := make([]bool, len(elevator.Requests))
-
-	// Loop through each row and access the last element
 	for i, row := range elevator.Requests {
 		cabRequests[i] = row[len(row)-1]
 	}
