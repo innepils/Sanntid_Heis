@@ -13,14 +13,14 @@ type (
 )
 
 const (
-	EB_Idle ElevatorBehaviour = iota
-	EB_DoorOpen
-	EB_Moving
+	EB_Idle     ElevatorBehaviour = 0
+	EB_DoorOpen ElevatorBehaviour = 1
+	EB_Moving   ElevatorBehaviour = 2
 
-	none      requestType = 0
-	new       requestType = 1
-	confirmed requestType = 2
-	completed requestType = 3
+	NoRequest        requestType = 0
+	NewRequest       requestType = 1
+	ConfirmedRequest requestType = 2
+	CompletedRequest requestType = 3
 )
 
 type Elevator struct {
@@ -122,10 +122,7 @@ func UninitializedElevator() Elevator {
 }
 
 func GetCabRequests(elevator Elevator) []bool {
-	// Create a new slice to store the last column elements
 	cabRequests := make([]bool, len(elevator.Requests))
-
-	// Loop through each row and access the last element
 	for i, row := range elevator.Requests {
 		cabRequests[i] = row[len(row)-1]
 	}

@@ -11,7 +11,7 @@ import (
 func Cost(
 	hallRequests [config.N_FLOORS][config.N_BUTTONS - 1]bool,
 	localElevator map[string]elevator.ElevatorState,
-	externalElevators map[string]elevator.ElevatorState) [][2]bool { //REMEMBER TO CHANGE TYPES HERE
+	externalElevators map[string]elevator.ElevatorState) [][2]bool {
 
 	input := elevator.HRAInput{
 		HallRequests:  hallRequests,
