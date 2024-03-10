@@ -37,7 +37,7 @@ func main() {
 	fmt.Println("\n--- Initialized elevator " + id + " with port " + port + " ---\n")
 
 	// Assigner channels (Recieve updates on the ID's of of the peers that are alive on the network)
-	ch_BackupHeartbeat := make(chan string, 100)
+	//ch_BackupHeartbeat := make(chan string, 100)
 	ch_peerUpdate := make(chan peers.PeerUpdate, 100)
 	ch_peerTxEnable := make(chan bool, 100)
 	ch_msgOut := make(chan HeartBeat, 100)
@@ -57,7 +57,7 @@ func main() {
 	ch_elevatorStateToNetwork := make(chan map[string]elevator.ElevatorState, 100)
 
 	// Goroutines for sending and recieving messages
-	go bcast.Transmitter(config.DefaultPortBackup, ch_BackupHeartbeat)
+	//go bcast.Transmitter(config.DefaultPortBackup, ch_BackupHeartbeat)
 	go bcast.Transmitter(config.DefaultPortBcast, ch_msgOut)
 	go bcast.Receiver(config.DefaultPortBcast, ch_msgIn)
 
@@ -96,13 +96,7 @@ func main() {
 	)
 
 	// Send heartbeat to network incl. all info
-	go func() {
-		HeartBeat := id
-		for {
-			ch_BackupHeartbeat <- HeartBeat
-			time.Sleep(100 * time.Millisecond)
-		}
-	}()
+	go backup.PrimaryProcess(id)
 	// Send heartbeat to network incl. all info
 	go func() {
 		for {

@@ -1,7 +1,6 @@
 package backup
 
 import (
-	"driver/config"
 	"driver/elevator_io"
 	"encoding/gob"
 	"fmt"
@@ -13,8 +12,8 @@ import (
 )
 
 const (
-	sendAddr       = "255.255.255.255:20007"
-	receiveAddr    = ":" + string(config.DefaultPortBackup)
+	sendAddr       = "255.255.255.255:20019"
+	receiveAddr    = ":" + "20019"
 	baseStatusMsg  = "heartbeat"
 	heartbeatSleep = 1000
 )
@@ -65,6 +64,30 @@ func LoadBackupFromFile(filename string, ch_buttonPressed chan elevator_io.Butto
 
 func StartBackupProcess(localID string, port string) {
 	exec.Command("gnome-terminal", "--", "go", "run", "main.go", "id=", localID, "port=", port).Run()
+}
+
+func PrimaryProcess(localID string) {
+	sendUDPAddr, err := net.ResolveUDPAddr("udp", sendAddr)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	conn, err := net.DialUDP("udp", nil, sendUDPAddr)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer conn.Close()
+
+	for {
+		msg := localID
+		_, err := conn.Write([]byte(msg))
+		if err != nil {
+			fmt.Println("Primary failed to send heartbeat:", err)
+			return
+		}
+		time.Sleep(heartbeatSleep * time.Millisecond)
+	}
 }
 
 func BackupProcess(localID string, port string) {
