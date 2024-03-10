@@ -22,7 +22,7 @@ type HeartBeat struct {
 
 func main() {
 	fmt.Printf("\n\n\n\n")
-	fmt.Printf("*************NEW RUN*************")
+	fmt.Printf("************* NEW RUN *************")
 	fmt.Printf("\n\n\n\n")
 
 	/* Initialize elevator ID and port from command line:
