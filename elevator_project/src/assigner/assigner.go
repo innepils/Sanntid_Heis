@@ -26,10 +26,10 @@ func Assigner(
 	ch_externalElevators chan map[string]elevator.ElevatorState,
 ) {
 	externalElevators := map[string]elevator.ElevatorState{}
-	var allOrders [config.N_FLOORS][config.N_BUTTONS]int
-	for i := range allOrders {
-		for j := range allOrders[i] {
-			allOrders[i][j] = 0
+	var allRequests [config.N_FLOORS][config.N_BUTTONS]int
+	for i := range allRequests {
+		for j := range allRequests[i] {
+			allRequests[i][j] = 0
 		}
 	}
 	var localElevatorState = map[string]elevator.ElevatorState{"self": {Behavior: "idle", Floor: 1, Direction: "stop", CabRequests: []bool{true, false, true, false}}}
@@ -42,43 +42,44 @@ func Assigner(
 	for {
 		select {
 		case buttonPressed := <-ch_buttonPressed:
-			if allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
-				allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] = 2
-			} else if allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
-				allOrders[buttonPressed.BtnFloor][buttonPressed.BtnType] = 1
+			if allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
+				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = 2
+			} else if allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
+				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = 1
 			}
 		case completedOrder := <-ch_completedOrders: //THIS NEEDS TO BE REVISED
-			if allOrders[completedOrder.BtnFloor][completedOrder.BtnType] == 3 {
-				allOrders[completedOrder.BtnFloor][completedOrder.BtnType] = 0
-			} else if allOrders[completedOrder.BtnFloor][completedOrder.BtnType] == 2 {
-				allOrders[completedOrder.BtnFloor][completedOrder.BtnType] = 3
+			if allRequests[completedOrder.BtnFloor][completedOrder.BtnType] == 3 {
+				allRequests[completedOrder.BtnFloor][completedOrder.BtnType] = 0
+			} else if allRequests[completedOrder.BtnFloor][completedOrder.BtnType] == 2 {
+				allRequests[completedOrder.BtnFloor][completedOrder.BtnType] = 3
 			}
 		case elevatorState := <-ch_elevatorStateToAssigner:
 			localElevatorState = elevatorState
+		/*
 		case updateHallRequest := <-ch_hallRequestsIn:
 			for i := range updateHallRequest {
 				for j := 0; j < 2; j++ {
-					if allOrders[i][j] == 0 {
+					if allRequests[i][j] == 0 {
 						if updateHallRequest[i][j] == 0 {
 							//NOP
 						} else if updateHallRequest[i][j] == 1 {
-							allOrders[i][j] = 2
+							allRequests[i][j] = 2
 						} else if updateHallRequest[i][j] == 2 {
-							allOrders[i][j] = 2
+							allRequests[i][j] = 2
 						} else if updateHallRequest[i][j] == 3 {
 							//NOP
 						}
-					} else if allOrders[i][j] == 1 {
+					} else if allRequests[i][j] == 1 {
 						if updateHallRequest[i][j] == 0 {
 							//NOP
 						} else if updateHallRequest[i][j] == 1 {
-							allOrders[i][j] = 2
+							allRequests[i][j] = 2
 						} else if updateHallRequest[i][j] == 2 {
-							allOrders[i][j] = 2
+							allRequests[i][j] = 2
 						} else if updateHallRequest[i][j] == 3 {
 							//NOP
 						}
-					} else if allOrders[i][j] == 2 {
+					} else if allRequests[i][j] == 2 {
 						if updateHallRequest[i][j] == 0 {
 							//NOP
 						} else if updateHallRequest[i][j] == 1 {
@@ -86,41 +87,78 @@ func Assigner(
 						} else if updateHallRequest[i][j] == 2 {
 							//NOP
 						} else if updateHallRequest[i][j] == 3 {
-							allOrders[i][j] = 3
+							allRequests[i][j] = 3
 						}
-					} else if allOrders[i][j] == 3 {
+					} else if allRequests[i][j] == 3 {
 						if updateHallRequest[i][j] == 0 {
-							allOrders[i][j] = 0
+							allRequests[i][j] = 0
 						} else if updateHallRequest[i][j] == 1 {
-							allOrders[i][j] = 2
+							allRequests[i][j] = 2
 						} else if updateHallRequest[i][j] == 2 {
-							allOrders[i][j] = 2
+							allRequests[i][j] = 2
 						} else if updateHallRequest[i][j] == 3 {
-							allOrders[i][j] = 0
+							allRequests[i][j] = 0
 						}
 					}
 				}
 			}
+		*/	
+		case updateHallRequest := <-ch_hallRequestsIn:
+			for i := range updateHallRequest {
+				for j := 0; j < 2; j++ {
+					switch allRequests[i][j] {
+					case 0:
+						switch updateHallRequest[i][j] {
+						case 1, 2:
+							allRequests[i][j] = 2
+						case 0, 3:
+							// NOP
+						}
+					case 1:
+						switch updateHallRequest[i][j] {
+						case 1, 2:
+							allRequests[i][j] = 2
+						case 0, 3:
+							// NOP
+						}
+					case 2:
+						switch updateHallRequest[i][j] {
+						case 3:
+							allRequests[i][j] = 3
+						case 0, 1, 2:
+							// NOP
+						}
+					case 3:
+						switch updateHallRequest[i][j] {
+						case 0, 3:
+							allRequests[i][j] = 0
+						case 1, 2:
+							allRequests[i][j] = 2
+						}
+					}
+				}
+			}
+		
 		default:
 			//NOP
 		}
 
-		elevator.SetAllButtonLights(allOrders)
-		var hall_requestsOut [config.N_FLOORS][config.N_BUTTONS - 1]int
-		var hall_requests [config.N_FLOORS][config.N_BUTTONS - 1]bool
-		for i := range hall_requests {
+		elevator.SetAllButtonLights(allRequests)
+		var hallRequestsOut [config.N_FLOORS][config.N_BUTTONS - 1]int
+		var hallRequests [config.N_FLOORS][config.N_BUTTONS - 1]bool
+		for i := range hallRequests {
 			for j := 0; j < 2; j++ {
-				hall_requestsOut[i][j] = allOrders[i][j]
-				if allOrders[i][j] == 2 {
-					hall_requests[i][j] = true
+				hallRequestsOut[i][j] = allRequests[i][j]
+				if allRequests[i][j] == 2 {
+					hallRequests[i][j] = true
 				} else {
-					hall_requests[i][j] = false
+					hallRequests[i][j] = false
 				}
 			}
 		}
-		ch_hallRequestsOut <- hall_requestsOut
+		ch_hallRequestsOut <- hallRequestsOut
 
-		assignedHallRequests := cost.Cost(hall_requests, localElevatorState, externalElevators)
+		assignedHallRequests := cost.Cost(hallRequests, localElevatorState, externalElevators)
 		var localOrders [config.N_FLOORS][config.N_BUTTONS]bool
 		for i := range assignedHallRequests {
 			for j := 0; j < 2; j++ {
@@ -128,7 +166,7 @@ func Assigner(
 			}
 		}
 		for i := range localOrders {
-			if allOrders[i][2] == 2 {
+			if allRequests[i][2] == 2 {
 				localOrders[i][2] = true
 			} else {
 				localOrders[i][2] = false

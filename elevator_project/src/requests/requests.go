@@ -96,29 +96,15 @@ func Requests_shouldStop(e elevator.Elevator) bool {
 	}
 }
 
+// NOT IN USE?
 func Requests_shouldClearImmediately(e elevator.Elevator, btnFloor int, btnType elevator_io.ButtonType) bool {
-	switch e.ClearRequestVariant {
-	case config.CV_all:
-		return e.Floor == btnFloor
-	case config.CV_InDirn:
 		return e.Floor == btnFloor &&
 			((e.Dirn == elevator_io.MD_Up && btnType == elevator_io.BT_HallUp) || (e.Dirn == elevator_io.MD_Down && btnType == elevator_io.BT_HallDown) || e.Dirn == elevator_io.MD_Stop || btnType == elevator_io.BT_Cab)
-	default:
-		return false
-	}
+
 }
 
 func Requests_clearAtCurrentFloor(e elevator.Elevator, ch_completedOrders chan<- elevator_io.ButtonEvent) elevator.Elevator {
 
-	switch e.ClearRequestVariant {
-
-	case config.CV_all:
-		for btn := 0; btn < config.N_BUTTONS; btn++ {
-			e.Requests[e.Floor][btn] = false
-			ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.ButtonType(btn)}
-		}
-
-	case config.CV_InDirn:
 		e.Requests[e.Floor][elevator_io.BT_Cab] = false
 		ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_Cab}
 
@@ -147,6 +133,5 @@ func Requests_clearAtCurrentFloor(e elevator.Elevator, ch_completedOrders chan<-
 			e.Requests[e.Floor][elevator_io.BT_HallDown] = false
 			ch_completedOrders <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
 		}
-	}
 	return e
 }

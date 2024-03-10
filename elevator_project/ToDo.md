@@ -7,6 +7,16 @@
 ### Simon:
 
 ##### Kodekvalitet, hva som må endres
+# Assigner
+- [x] Endre if-statements til switch
+- [x] Endre allOrders til allRequests
+# Backup
+- [ ] Change comments. They should describe more than the code. "Open file for reading" befor e a file-read gives no new infomration.
+# Config
+- [x] Deleted CV
+# Cost
+- [x] changed var-name
+
 - Navn i elevaotor.go "HRAElevState" er ikke en greie
 - localElevator sendes mye inn i funksjoner (spesielt i requests), bør bruke peker og referanse istedenfor kopi. (hastighet og plass)
 - Fjern alt som har med ClearVariant (CV).
