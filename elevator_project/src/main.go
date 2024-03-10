@@ -42,7 +42,7 @@ func main() {
 	ch_peerTxEnable := make(chan bool, 100)
 	ch_msgOut := make(chan HeartBeat, 100)
 	ch_msgIn := make(chan HeartBeat, 100)
-	ch_completedOrders := make(chan elevator_io.ButtonEvent, 100)
+	ch_completedRequests := make(chan elevator_io.ButtonEvent, 100)
 	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int, 100)
 	ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
 	ch_externalElevators := make(chan map[string]elevator.ElevatorState, 100)
@@ -50,7 +50,7 @@ func main() {
 	// Channels for local elevator
 	ch_arrivalFloor := make(chan int, 100)
 	ch_buttonPressed := make(chan elevator_io.ButtonEvent, 100)
-	ch_localOrders := make(chan [config.N_FLOORS][config.N_BUTTONS]bool, 100)
+	ch_localRequests := make(chan [config.N_FLOORS][config.N_BUTTONS]bool, 100)
 	ch_doorObstruction := make(chan bool, 100)
 	ch_stopButton := make(chan bool, 100)
 	ch_elevatorStateToAssigner := make(chan map[string]elevator.ElevatorState, 100)
@@ -76,10 +76,10 @@ func main() {
 	// Finite state machine goroutine
 	go fsm.Fsm(
 		ch_arrivalFloor,
-		ch_localOrders,
+		ch_localRequests,
 		ch_doorObstruction,
 		ch_stopButton,
-		ch_completedOrders,
+		ch_completedRequests,
 		ch_elevatorStateToAssigner,
 		ch_elevatorStateToNetwork,
 	)
@@ -87,8 +87,8 @@ func main() {
 	// Assigner goroutine
 	go assigner.Assigner(
 		ch_buttonPressed,
-		ch_completedOrders,
-		ch_localOrders,
+		ch_completedRequests,
+		ch_localRequests,
 		ch_hallRequestsIn,
 		ch_hallRequestsOut,
 		ch_elevatorStateToAssigner,

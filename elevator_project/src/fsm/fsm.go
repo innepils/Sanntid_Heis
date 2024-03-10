@@ -11,35 +11,38 @@ import (
 
 // One single function for the Final State Machine, to be run as a goroutine from main
 func Fsm(ch_arrivalFloor chan int,
-	ch_localOrders chan [config.N_FLOORS][config.N_BUTTONS]bool,
+	ch_localRequests chan [config.N_FLOORS][config.N_BUTTONS]bool,
 	ch_doorObstruction chan bool,
 	ch_stopButton chan bool,
-	ch_completedOrders chan elevator_io.ButtonEvent,
+	ch_completedRequests chan elevator_io.ButtonEvent,
 	ch_elevatorStateToAssigner chan map[string]elevator.ElevatorState,
 	ch_elevatorStateToNetwork chan elevator.ElevatorState,
 ) {
 
 	// Initializing
-	fmt.Printf("INITIALIZING ELEVATOR\n")
+	fmt.Printf("*****INITIALIZING ELEVATOR*****\n")
 	localElevator := elevator.UninitializedElevator()
 
+	// If elevator is between floors, run it downwards until a floor is reached.
 	elevator_io.SetMotorDirection(elevator_io.MD_Down)
 	newFloor := <-ch_arrivalFloor
 	elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 	localElevator.Floor = newFloor
 
+	// Initialize door
 	elevator_io.SetDoorOpenLamp(false)
 	doorTimer := time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
 	prevObstruction := false
+
 	elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
 		select {
-		case localOrders := <-ch_localOrders:
-			fmt.Printf("Entered Local orders in FSM\n")
+		case localRequests := <-ch_localRequests:
+			fmt.Printf("Entered Local requests in FSM\n")
 
-			localElevator.Requests = localOrders
+			localElevator.Requests = localRequests
 			localElevator.Elevator_print()
 
 			switch localElevator.Behaviour {
@@ -52,10 +55,12 @@ func Fsm(ch_arrivalFloor chan int,
 						prevObstruction = <-ch_doorObstruction
 					}
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-					localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedOrders)
+					// USE POINTER AND REFERENCE INSTEAD
+					localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedRequests)
 				}
 
 			case elevator.EB_Idle:
+				// USE POINTER AND REFERENCE INSTEAD
 				pair := requests.Requests_chooseDirection(localElevator)
 				localElevator.Dirn = pair.Dirn
 				localElevator.Behaviour = pair.Behaviour
@@ -69,12 +74,12 @@ func Fsm(ch_arrivalFloor chan int,
 						prevObstruction = <-ch_doorObstruction
 					}
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-					localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedOrders)
+					// USE POINTER AND REFERENCE INSTEAD
+					localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedRequests)
 					elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 				case elevator.EB_Moving:
 					elevator_io.SetMotorDirection(localElevator.Dirn)
-
 				}
 			} //switch e.behaviour*/
 
@@ -90,7 +95,8 @@ func Fsm(ch_arrivalFloor chan int,
 				if requests.Requests_shouldStop(localElevator) {
 					elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 					elevator_io.SetDoorOpenLamp(true)
-					localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedOrders)
+					// USE POINTER AND REFERENCE INSTEAD
+					localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedRequests)
 					if prevObstruction {
 						prevObstruction = <-ch_doorObstruction
 					}
@@ -114,6 +120,7 @@ func Fsm(ch_arrivalFloor chan int,
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				elevator_io.SetDoorOpenLamp(false)
 
+				// USE POINTER AND REFERENCE INSTEAD
 				pair := requests.Requests_chooseDirection(localElevator)
 				localElevator.Dirn = pair.Dirn
 				localElevator.Behaviour = pair.Behaviour
@@ -158,7 +165,8 @@ func Fsm(ch_arrivalFloor chan int,
 					prevObstruction = <-ch_doorObstruction
 				}
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-				localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedOrders)
+				// USE POINTER AND REFERENCE INSTEAD
+				localElevator = requests.Requests_clearAtCurrentFloor(localElevator, ch_completedRequests)
 			case elevator.EB_Idle:
 				elevator_io.SetMotorDirection(localElevator.Dirn)
 				localElevator.Behaviour = elevator.EB_Moving
@@ -167,7 +175,7 @@ func Fsm(ch_arrivalFloor chan int,
 			localElevator.Elevator_print()
 
 		default:
-			// Do Nothing
+			// NOP
 		} //select
 		elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 	} //For
