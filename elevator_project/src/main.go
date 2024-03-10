@@ -16,7 +16,7 @@ import (
 type HeartBeat struct {
 	SenderID     string
 	HallRequests [config.N_FLOORS][config.N_BUTTONS - 1]int
-	State        map[string]elevator.ElevatorState
+	State        elevator.ElevatorState
 }
 
 func main() {
@@ -53,7 +53,7 @@ func main() {
 	ch_doorObstruction := make(chan bool, 100)
 	ch_stopButton := make(chan bool, 100)
 	ch_elevatorStateToAssigner := make(chan map[string]elevator.ElevatorState, 100)
-	ch_elevatorStateToNetwork := make(chan map[string]elevator.ElevatorState, 100)
+	ch_elevatorStateToNetwork := make(chan elevator.ElevatorState, 100)
 
 	// Goroutines for sending and recieving messages
 	go bcast.Transmitter(config.DefaultPortBcast, ch_msgOut)
@@ -108,16 +108,27 @@ func main() {
 
 	fmt.Println("Started")
 
+	AlivePeers := make(map[string]elevator.ElevatorState)
 	for {
 		select {
 		case p := <-ch_peerUpdate:
+
+			for _, peer := range p.Lost {
+				if _, ok := AlivePeers[peer]; ok {
+					delete(AlivePeers, peer)
+				}
+			}
+
 			fmt.Printf("Peer update:\n")
 			fmt.Printf("  Peers:    %q\n", p.Peers)
 			fmt.Printf("  New:      %q\n", p.New)
 			fmt.Printf("  Lost:     %q\n", p.Lost)
+
 		case a := <-ch_msgIn:
+			AlivePeers[a.SenderID] = a.State
+
 			ch_hallRequestsIn <- a.HallRequests
-			ch_elevatorStateToAssigner <- a.State
+			ch_externalElevators <- AlivePeers
 
 			fmt.Printf("Received: %#v\n", a)
 

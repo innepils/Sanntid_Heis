@@ -142,11 +142,11 @@ func ElevatorToHRAElevState(localElevator Elevator) map[string]ElevatorState {
 func SendLocalElevatorState(
 	localElevator Elevator,
 	ch_elevatorStateToAssigner chan map[string]ElevatorState,
-	ch_elevatorStateToNetwork chan map[string]ElevatorState) {
+	ch_elevatorStateToNetwork chan ElevatorState) {
 
 	HRAElevState := ElevatorToHRAElevState(localElevator)
 	ch_elevatorStateToAssigner <- HRAElevState
-	ch_elevatorStateToNetwork <- HRAElevState
+	ch_elevatorStateToNetwork <- HRAElevState["self"]
 }
 
 func SetAllButtonLights(requests [config.N_FLOORS][config.N_BUTTONS]int) {

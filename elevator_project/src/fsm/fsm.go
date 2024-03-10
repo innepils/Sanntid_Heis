@@ -22,7 +22,7 @@ func Fsm(ch_arrivalFloor chan int,
 	ch_stopButton chan bool,
 	ch_completedOrders chan elevator_io.ButtonEvent,
 	ch_elevatorStateToAssigner chan map[string]elevator.ElevatorState,
-	ch_elevatorStateToNetwork chan map[string]elevator.ElevatorState,
+	ch_elevatorStateToNetwork chan elevator.ElevatorState,
 ) {
 
 	// Initializing
