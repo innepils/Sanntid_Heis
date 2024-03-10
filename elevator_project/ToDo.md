@@ -16,10 +16,17 @@
 - [x] Deleted CV
 # Cost
 - [x] changed var-name
+# Elevator
+- Changed name on MAP (elevState) etc.
+# Elevator_io
+- []
+# FSM
+- [] print Elevator when it brings new information
+- [] remove "pair" and use pointers. THIS IS IMPORTANT
+- [] When switch-case only has one case, should we use if instead? Might be more clear that it is a State-change, if it is a switch-case?
+ 
 
-- Navn i elevaotor.go "HRAElevState" er ikke en greie
 - localElevator sendes mye inn i funksjoner (spesielt i requests), bør bruke peker og referanse istedenfor kopi. (hastighet og plass)
-- Fjern alt som har med ClearVariant (CV).
 
 ##### Project description, hva har vi gjort og hva mangler #####
 # The button lights are a service guarantee

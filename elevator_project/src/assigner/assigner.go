@@ -1,6 +1,7 @@
 package assigner
 
 import (
+	"driver/backup"
 	"driver/config"
 	"driver/cost"
 	"driver/elevator"
@@ -18,8 +19,8 @@ const (
 
 func Assigner(
 	ch_buttonPressed chan elevator_io.ButtonEvent,
-	ch_completedOrders chan elevator_io.ButtonEvent,
-	ch_localOrders chan [config.N_FLOORS][config.N_BUTTONS]bool,
+	ch_completedRequests chan elevator_io.ButtonEvent,
+	ch_localRequests chan [config.N_FLOORS][config.N_BUTTONS]bool,
 	ch_hallRequestsIn chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
 	ch_hallRequestsOut chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
 	ch_elevatorStateToAssigner chan map[string]elevator.ElevatorState,
@@ -47,11 +48,11 @@ func Assigner(
 			} else if allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
 				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = 1
 			}
-		case completedOrder := <-ch_completedOrders: //THIS NEEDS TO BE REVISED
-			if allRequests[completedOrder.BtnFloor][completedOrder.BtnType] == 3 {
-				allRequests[completedOrder.BtnFloor][completedOrder.BtnType] = 0
-			} else if allRequests[completedOrder.BtnFloor][completedOrder.BtnType] == 2 {
-				allRequests[completedOrder.BtnFloor][completedOrder.BtnType] = 3
+		case completedRequest := <-ch_completedRequests: //THIS NEEDS TO BE REVISED
+			if allRequests[completedRequest.BtnFloor][completedRequest.BtnType] == 3 {
+				allRequests[completedRequest.BtnFloor][completedRequest.BtnType] = 0
+			} else if allRequests[completedRequest.BtnFloor][completedRequest.BtnType] == 2 {
+				allRequests[completedRequest.BtnFloor][completedRequest.BtnType] = 3
 			}
 		case elevatorState := <-ch_elevatorStateToAssigner:
 			localElevatorState = elevatorState
@@ -157,25 +158,25 @@ func Assigner(
 			}
 		}
 		ch_hallRequestsOut <- hallRequestsOut
-
+		backup.SaveBackupToFile("backup.txt", []bool(localElevatorState["self"].CabRequests))
 		assignedHallRequests := cost.Cost(hallRequests, localElevatorState, externalElevators)
-		var localOrders [config.N_FLOORS][config.N_BUTTONS]bool
+		var localRequests [config.N_FLOORS][config.N_BUTTONS]bool
 		for i := range assignedHallRequests {
 			for j := 0; j < 2; j++ {
-				localOrders[i][j] = assignedHallRequests[i][j]
+				localRequests[i][j] = assignedHallRequests[i][j]
 			}
 		}
-		for i := range localOrders {
+		for i := range localRequests {
 			if allRequests[i][2] == 2 {
-				localOrders[i][2] = true
+				localRequests[i][2] = true
 			} else {
-				localOrders[i][2] = false
+				localRequests[i][2] = false
 			}
 		}
 
-		if localOrders != prevLocalRequests {
-			ch_localOrders <- localOrders
-			prevLocalRequests = localOrders
+		if localRequests != prevLocalRequests {
+			ch_localRequests <- localRequests
+			prevLocalRequests = localRequests
 		}
 	}
 }
