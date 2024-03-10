@@ -125,8 +125,7 @@ func GetCabRequests(elevator Elevator) []bool {
 	return cabRequests
 }
 
-// needs new name?
-func ElevatorToHRAElevState(localElevator Elevator) map[string]ElevatorState {
+func ElevToElevatorState(localElevator Elevator) map[string]ElevatorState {
 	return map[string]ElevatorState{
 		"self": {
 			Behavior:    strings.ReplaceAll(strings.ToLower(ElevBehaviourToString(localElevator.Behaviour)[3:]), "open", "Open"),
@@ -142,9 +141,9 @@ func SendLocalElevatorState(
 	ch_elevatorStateToAssigner chan map[string]ElevatorState,
 	ch_elevatorStateToNetwork chan ElevatorState) {
 
-	HRAElevState := ElevatorToHRAElevState(localElevator)
-	ch_elevatorStateToAssigner <- HRAElevState
-	ch_elevatorStateToNetwork <- HRAElevState["self"]
+	elevatorState := ElevToElevatorState(localElevator)
+	ch_elevatorStateToAssigner <- elevatorState
+	ch_elevatorStateToNetwork <- elevatorState["self"]
 }
 
 func SetAllButtonLights(requests [config.N_FLOORS][config.N_BUTTONS]int) {

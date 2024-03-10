@@ -9,20 +9,18 @@ import (
 )
 
 func Cost(
-	hall_requests [config.N_FLOORS][config.N_BUTTONS - 1]bool,
+	hallRequests [config.N_FLOORS][config.N_BUTTONS - 1]bool,
 	localElevator map[string]elevator.ElevatorState,
 	externalElevators map[string]elevator.ElevatorState) [][2]bool { //REMEMBER TO CHANGE TYPES HERE
 
 	input := elevator.HRAInput{
-		HallRequests:  hall_requests,
+		HallRequests:  hallRequests,
 		ElevatorState: localElevator,
 	}
 
 	for key, value := range externalElevators {
 		input.ElevatorState[key] = value
 	}
-
-	//fmt.Println(input)
 
 	jsonBytes, err := json.Marshal(input)
 	if err != nil {
