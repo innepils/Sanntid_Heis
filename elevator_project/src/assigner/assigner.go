@@ -1,6 +1,7 @@
 package assigner
 
 import (
+	"driver/backup"
 	"driver/config"
 	"driver/cost"
 	"driver/elevator"
@@ -56,53 +57,53 @@ func Assigner(
 		case elevatorState := <-ch_elevatorStateToAssigner:
 			localElevatorState = elevatorState
 		/*
-		case updateHallRequest := <-ch_hallRequestsIn:
-			for i := range updateHallRequest {
-				for j := 0; j < 2; j++ {
-					if allRequests[i][j] == 0 {
-						if updateHallRequest[i][j] == 0 {
-							//NOP
-						} else if updateHallRequest[i][j] == 1 {
-							allRequests[i][j] = 2
-						} else if updateHallRequest[i][j] == 2 {
-							allRequests[i][j] = 2
-						} else if updateHallRequest[i][j] == 3 {
-							//NOP
-						}
-					} else if allRequests[i][j] == 1 {
-						if updateHallRequest[i][j] == 0 {
-							//NOP
-						} else if updateHallRequest[i][j] == 1 {
-							allRequests[i][j] = 2
-						} else if updateHallRequest[i][j] == 2 {
-							allRequests[i][j] = 2
-						} else if updateHallRequest[i][j] == 3 {
-							//NOP
-						}
-					} else if allRequests[i][j] == 2 {
-						if updateHallRequest[i][j] == 0 {
-							//NOP
-						} else if updateHallRequest[i][j] == 1 {
-							//NOP
-						} else if updateHallRequest[i][j] == 2 {
-							//NOP
-						} else if updateHallRequest[i][j] == 3 {
-							allRequests[i][j] = 3
-						}
-					} else if allRequests[i][j] == 3 {
-						if updateHallRequest[i][j] == 0 {
-							allRequests[i][j] = 0
-						} else if updateHallRequest[i][j] == 1 {
-							allRequests[i][j] = 2
-						} else if updateHallRequest[i][j] == 2 {
-							allRequests[i][j] = 2
-						} else if updateHallRequest[i][j] == 3 {
-							allRequests[i][j] = 0
+			case updateHallRequest := <-ch_hallRequestsIn:
+				for i := range updateHallRequest {
+					for j := 0; j < 2; j++ {
+						if allRequests[i][j] == 0 {
+							if updateHallRequest[i][j] == 0 {
+								//NOP
+							} else if updateHallRequest[i][j] == 1 {
+								allRequests[i][j] = 2
+							} else if updateHallRequest[i][j] == 2 {
+								allRequests[i][j] = 2
+							} else if updateHallRequest[i][j] == 3 {
+								//NOP
+							}
+						} else if allRequests[i][j] == 1 {
+							if updateHallRequest[i][j] == 0 {
+								//NOP
+							} else if updateHallRequest[i][j] == 1 {
+								allRequests[i][j] = 2
+							} else if updateHallRequest[i][j] == 2 {
+								allRequests[i][j] = 2
+							} else if updateHallRequest[i][j] == 3 {
+								//NOP
+							}
+						} else if allRequests[i][j] == 2 {
+							if updateHallRequest[i][j] == 0 {
+								//NOP
+							} else if updateHallRequest[i][j] == 1 {
+								//NOP
+							} else if updateHallRequest[i][j] == 2 {
+								//NOP
+							} else if updateHallRequest[i][j] == 3 {
+								allRequests[i][j] = 3
+							}
+						} else if allRequests[i][j] == 3 {
+							if updateHallRequest[i][j] == 0 {
+								allRequests[i][j] = 0
+							} else if updateHallRequest[i][j] == 1 {
+								allRequests[i][j] = 2
+							} else if updateHallRequest[i][j] == 2 {
+								allRequests[i][j] = 2
+							} else if updateHallRequest[i][j] == 3 {
+								allRequests[i][j] = 0
+							}
 						}
 					}
 				}
-			}
-		*/	
+		*/
 		case updateHallRequest := <-ch_hallRequestsIn:
 			for i := range updateHallRequest {
 				for j := 0; j < 2; j++ {
@@ -138,7 +139,7 @@ func Assigner(
 					}
 				}
 			}
-		
+
 		default:
 			//NOP
 		}
@@ -157,7 +158,7 @@ func Assigner(
 			}
 		}
 		ch_hallRequestsOut <- hallRequestsOut
-
+		backup.SaveBackupToFile("backup.txt", []bool(localElevatorState["self"].CabRequests))
 		assignedHallRequests := cost.Cost(hallRequests, localElevatorState, externalElevators)
 		var localRequests [config.N_FLOORS][config.N_BUTTONS]bool
 		for i := range assignedHallRequests {

@@ -23,7 +23,7 @@ func KillSelf(localID string, port string) {
 	panic("Program terminated")
 }
 
-func SaveBackupToFile(filename string, status [4]bool) {
+func SaveBackupToFile(filename string, status []bool) {
 	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return
