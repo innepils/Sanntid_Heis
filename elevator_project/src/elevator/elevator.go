@@ -7,19 +7,27 @@ import (
 	"strings"
 )
 
-type ElevatorBehaviour int
+type (
+	ElevatorBehaviour int
+	requestType       int
+)
 
 const (
 	EB_Idle ElevatorBehaviour = iota
 	EB_DoorOpen
 	EB_Moving
+
+	none      requestType = 0
+	new       requestType = 1
+	confirmed requestType = 2
+	completed requestType = 3
 )
 
 type Elevator struct {
-	Floor               int
-	Dirn                elevator_io.MotorDirection
-	Requests            [config.N_FLOORS][config.N_BUTTONS]bool
-	Behaviour           ElevatorBehaviour
+	Floor     int
+	Dirn      elevator_io.MotorDirection
+	Requests  [config.N_FLOORS][config.N_BUTTONS]bool
+	Behaviour ElevatorBehaviour
 }
 
 type ElevatorState struct {
@@ -107,9 +115,9 @@ func (es *Elevator) Elevator_print() {
 
 func UninitializedElevator() Elevator {
 	return Elevator{
-		Floor:               -1,
-		Dirn:                elevator_io.MD_Stop,
-		Behaviour:           EB_Idle,
+		Floor:     -1,
+		Dirn:      elevator_io.MD_Stop,
+		Behaviour: EB_Idle,
 	}
 }
 

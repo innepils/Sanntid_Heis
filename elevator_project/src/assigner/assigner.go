@@ -8,15 +8,6 @@ import (
 	"driver/elevator_io"
 )
 
-type requestType int
-
-const (
-	none      requestType = 0
-	new                   = 1
-	confirmed             = 2
-	completed             = 3
-)
-
 func Assigner(
 	ch_buttonPressed chan elevator_io.ButtonEvent,
 	ch_completedRequests chan elevator_io.ButtonEvent,
@@ -43,7 +34,7 @@ func Assigner(
 	for {
 		select {
 		case buttonPressed := <-ch_buttonPressed:
-			if allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
+			if buttonPressed.BtnType == elevator_io.BT_Cab {
 				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = 2
 			} else if allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
 				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = 1
