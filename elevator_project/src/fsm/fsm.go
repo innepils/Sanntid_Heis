@@ -69,7 +69,7 @@ func Fsm(ch_arrivalFloor chan int,
 				elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 				localElevator.Elevator_print()
 
-				switch pair.Behaviour {
+				switch localElevator.Behaviour {
 				case elevator.EB_DoorOpen:
 					elevator_io.SetDoorOpenLamp(true)
 					if prevObstruction {
