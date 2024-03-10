@@ -14,10 +14,9 @@ import (
 )
 
 type HeartBeat struct {
-	ID           string
+	SenderID     string
 	HallRequests [config.N_FLOORS][config.N_BUTTONS - 1]int
-	state        map[string]elevator.ElevatorState
-	Iter         int
+	State        map[string]elevator.ElevatorState
 }
 
 func main() {
@@ -98,34 +97,17 @@ func main() {
 	go func() {
 		for {
 			HeartBeat := HeartBeat{
-				ID:           id,
+				SenderID:     id,
 				HallRequests: <-ch_hallRequestsOut,
-				state:        <-ch_elevatorStateToNetwork,
-				Iter:         0,
+				State:        <-ch_elevatorStateToNetwork,
 			}
-			HeartBeat.Iter++
 			ch_msgOut <- HeartBeat
 			time.Sleep(100 * time.Millisecond)
 		}
 	}()
 
-	// go func() {
-	// 	for {
-	// 		select {
-	// 		//case event := <-ch_completedOrders:
-	// 		//	fmt.Printf("Received event. Floor %d, Btn: %s\n", event.BtnFloor+1, elevator.ElevButtonToString(event.BtnType))
-
-	// 		case <-ch_elevatorStateToNetwork:
-	// 			//fmt.Printf("Received event from elevatorStateToNetWork\n")
-
-	// 			//case <-ch_elevatorStateToAssigner:
-	// 			//fmt.Printf("Received event from elevatorStateToAssigner\n")
-	// 		}
-	// 	}
-	// }()
-
-	// Peer monitoring (for config/debug purposes)
 	fmt.Println("Started")
+
 	for {
 		select {
 		case p := <-ch_peerUpdate:
@@ -134,7 +116,11 @@ func main() {
 			fmt.Printf("  New:      %q\n", p.New)
 			fmt.Printf("  Lost:     %q\n", p.Lost)
 		case a := <-ch_msgIn:
+			ch_hallRequestsIn <- a.HallRequests
+			ch_elevatorStateToAssigner <- a.State
+
 			fmt.Printf("Received: %#v\n", a)
+
 		}
 	}
 
