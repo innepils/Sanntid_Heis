@@ -10,7 +10,7 @@ import (
 // ***** Network-configuration *****
 const DefaultPortPeer int = 22017
 const DefaultPortBcast int = 22018
-const DefaultPortBcastBackup string = ":22018"
+const DefaultPortBackup int = 22019
 
 // ***** System specifications *****
 const (
