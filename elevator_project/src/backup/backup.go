@@ -18,6 +18,11 @@ const (
 	heartbeatSleep = 1000
 )
 
+func KillSelf(localID string, port string) {
+	StartBackupProcess(localID, port)
+	panic("Program terminated")
+}
+
 func SaveBackupToFile(filename string, status [4]bool) {
 	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
@@ -31,8 +36,6 @@ func SaveBackupToFile(filename string, status [4]bool) {
 	if err != nil {
 		return
 	}
-
-	return
 }
 
 func LoadBackupFromFile(filename string, ch_buttonPressed chan elevator_io.ButtonEvent) {
@@ -57,15 +60,13 @@ func LoadBackupFromFile(filename string, ch_buttonPressed chan elevator_io.Butto
 			ch_buttonPressed <- elevator_io.ButtonEvent{BtnFloor: i, BtnType: elevator_io.BT_Cab}
 		}
 	}
-
-	return
 }
 
-func StartBackupProcess() {
-	exec.Command("gnome-terminal", "--", "go", "run", "main.go").Run()
+func StartBackupProcess(localID string, port string) {
+	exec.Command("gnome-terminal", "--", "go", "run", "main.go", "id=", localID, "port=", port).Run()
 }
 
-func BackupProcess(localID string) {
+func BackupProcess(localID string, port string) {
 	localState := ""
 	fmt.Println(localState)
 	fmt.Printf("---------BACKUP PHASE---------\n")
@@ -91,7 +92,7 @@ func BackupProcess(localID string) {
 				fmt.Println("Backup did not receive heartbeat, becoming primary.")
 				// This is where the backup takes over and becomes Primary
 				conn.Close()
-				StartBackupProcess()
+				StartBackupProcess(localID, port)
 				return
 			} else {
 				fmt.Println("Error reading from UDP:", err)
@@ -100,19 +101,10 @@ func BackupProcess(localID string) {
 		}
 
 		msg := string(buffer[:n])
-
 		parts := strings.Split(msg, ";")
 
-		// if len(parts) > 0 {
-		// 	// Access the first element
-		// 	firstElement := parts[0]
-		// 	fmt.Println("First element:", firstElement)
-		// } else {
-		// 	fmt.Println("String is empty or doesn't contain any ';'")
-		// }
-
 		if parts[0] == localID {
-			localState = string(msg[2])
+			println("Primary is alive!")
 			conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 5 * time.Millisecond))
 		}
 	}
