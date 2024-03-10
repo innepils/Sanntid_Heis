@@ -140,7 +140,7 @@ func main() {
 			ch_hallRequestsIn <- a.HallRequests
 			ch_externalElevators <- AlivePeers
 
-			fmt.Printf("Received: %#v\n", a)
+			//fmt.Printf("Received: %#v\n", a)
 
 		}
 	}
