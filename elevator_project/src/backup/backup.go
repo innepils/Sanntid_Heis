@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"driver/config"
 	"driver/elevator_io"
 	"encoding/gob"
 	"fmt"
@@ -13,7 +14,7 @@ import (
 
 const (
 	sendAddr       = "255.255.255.255:20007"
-	receiveAddr    = ":22018"
+	receiveAddr    = ":" + string(config.DefaultPortBackup)
 	baseStatusMsg  = "heartbeat"
 	heartbeatSleep = 1000
 )
@@ -81,7 +82,7 @@ func BackupProcess(localID string, port string) {
 		return
 	}
 	defer conn.Close()
-	conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 2.5 * time.Millisecond))
+	conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 5 * time.Millisecond))
 	for {
 		buffer := make([]byte, 1024)
 		conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 2.5 * time.Millisecond))
@@ -105,7 +106,7 @@ func BackupProcess(localID string, port string) {
 
 		if parts[0] == localID {
 			println("Primary is alive!")
-			conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 5 * time.Millisecond))
+			conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 2.5 * time.Millisecond))
 		}
 	}
 }
