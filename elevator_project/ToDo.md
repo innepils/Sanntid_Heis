@@ -1,10 +1,16 @@
 # Todo
+### Alle
+ - Kommenter all kode man har laget ut ifra kode-kvalitetsperspektiv (gjerne se pensumboka)
+    - det viktigste er at kommentaren skal gi ytterligere informasjon, ikke gjengi direkte hva koden sier.
+      - Slik kommentering (sistnevnte) er verre enn ingen kommentering.
+    - Ikke benytt "inline-" kommentering om det ikke er helt nødvendig, altså kommentarer på slutten av en kode linje (til høyre)
+
 ### Adrian:
 
 ### Linus:
-- die?
-
+- die? i cost
 ### Simon:
+
 
 ##### Kodekvalitet, hva som må endres
 # Assigner
@@ -17,9 +23,10 @@
 # Cost
 - [x] changed var-name
 # Elevator
-- Changed name on MAP (elevState) etc.
+- [x] Changed name on MAP (elevState) etc.
+- [ ] change functionname from ElevButtonToString to ElevButtonTypeToString??
 # Elevator_io
-- [ ]
+- [ ] Should short one-letter variable names be renamed? It is given code..
 # FSM
 - [ ] print Elevator when it brings new information
 - [x] remove "pair" and use pointers. THIS IS IMPORTANT
@@ -29,7 +36,7 @@
 # Requests
 - [x] change according to FSM. Use pass-by-reference and not value.
 # Main
-- [ ] Heartbeat- and networkstuff should be in a function in a goroutine (looks messy in main atm).
+- [x] Heartbeat- and networkstuff should be in a function in a goroutine (looks messy in main atm).
 
 ##### Project description, hva har vi gjort og hva mangler #####
 # The button lights are a service guarantee

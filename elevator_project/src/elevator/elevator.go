@@ -42,8 +42,8 @@ type HRAInput struct {
 	ElevatorState map[string]ElevatorState                    `json:"states"`
 }
 
-func ElevBehaviourToString(eb ElevatorBehaviour) string {
-	switch eb {
+func ElevBehaviourToString(elevBehaviour ElevatorBehaviour) string {
+	switch elevBehaviour {
 	case EB_Idle:
 		return "EB_Idle"
 	case EB_DoorOpen:
@@ -55,8 +55,8 @@ func ElevBehaviourToString(eb ElevatorBehaviour) string {
 	}
 }
 
-func ElevDirnToString(d elevator_io.MotorDirection) string {
-	switch d {
+func ElevDirnToString(elevDirection elevator_io.MotorDirection) string {
+	switch elevDirection {
 	case elevator_io.MD_Down:
 		return "Down"
 	case elevator_io.MD_Stop:
@@ -68,8 +68,8 @@ func ElevDirnToString(d elevator_io.MotorDirection) string {
 	}
 }
 
-func ElevButtonToString(b elevator_io.ButtonType) string {
-	switch b {
+func ElevButtonToString(buttonType elevator_io.ButtonType) string {
+	switch buttonType {
 	case elevator_io.BT_HallUp:
 		return "HallUp"
 	case elevator_io.BT_HallDown:
