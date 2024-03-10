@@ -20,7 +20,6 @@ type Elevator struct {
 	Dirn                elevator_io.MotorDirection
 	Requests            [config.N_FLOORS][config.N_BUTTONS]bool
 	Behaviour           ElevatorBehaviour
-	ClearRequestVariant config.ClearRequestVariant
 }
 
 type ElevatorState struct {
@@ -111,7 +110,6 @@ func UninitializedElevator() Elevator {
 		Floor:               -1,
 		Dirn:                elevator_io.MD_Stop,
 		Behaviour:           EB_Idle,
-		ClearRequestVariant: config.SystemsClearRequestVariant,
 	}
 }
 

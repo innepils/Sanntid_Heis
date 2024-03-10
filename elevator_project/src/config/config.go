@@ -10,7 +10,7 @@ import (
 // ***** Network-configuration *****
 const DefaultPortPeer int = 22017
 const DefaultPortBcast int = 22018
-const DefaultPortBcastBackup string = ":22018"
+const DefaultPortBackup int = 22019
 
 // ***** System specifications *****
 const (
@@ -18,14 +18,6 @@ const (
 	N_BUTTONS = 3
 )
 
-type ClearRequestVariant int
-
-const (
-	CV_all    ClearRequestVariant = iota // Assumes customers enter the elevator even though its moving in the wrong direction
-	CV_InDirn                            // Assumes customers only enter the elevator when its moving in the correct direction
-)
-
-const SystemsClearRequestVariant ClearRequestVariant = CV_InDirn
 const DoorOpenDurationSec int = 3
 
 func InitializeConfig() (string, string) {
