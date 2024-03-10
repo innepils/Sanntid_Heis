@@ -28,6 +28,8 @@
 - [ ] Make some comments explaining the modules (if needed? it is given code.)
 # Requests
 - [ ] change according to FSM. Use pass-by-reference and not value.
+# Main
+- [ ] Heartbeat- and networkstuff should be in a function in a goroutine (looks messy in main atm).
  
 
 - localElevator sendes mye inn i funksjoner (spesielt i requests), bør bruke peker og referanse istedenfor kopi. (hastighet og plass)
