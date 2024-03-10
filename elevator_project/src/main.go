@@ -7,17 +7,11 @@ import (
 	"driver/elevator"
 	"driver/elevator_io"
 	"driver/fsm"
+	"driver/heartbeat"
 	"driver/network/bcast"
 	"driver/network/peers"
 	"fmt"
-	"time"
 )
-
-type HeartBeat struct {
-	SenderID     string
-	HallRequests [config.N_FLOORS][config.N_BUTTONS - 1]int
-	State        elevator.ElevatorState
-}
 
 func main() {
 	fmt.Printf("\n\n\n\n")
@@ -37,11 +31,10 @@ func main() {
 	fmt.Println("\n--- Initialized elevator " + id + " with port " + port + " ---\n")
 
 	// Assigner channels (Recieve updates on the ID's of of the peers that are alive on the network)
-	//ch_BackupHeartbeat := make(chan string, 100)
 	ch_peerUpdate := make(chan peers.PeerUpdate, 100)
 	ch_peerTxEnable := make(chan bool, 100)
-	ch_msgOut := make(chan HeartBeat, 100)
-	ch_msgIn := make(chan HeartBeat, 100)
+	ch_msgOut := make(chan heartbeat.HeartBeat, 100)
+	ch_msgIn := make(chan heartbeat.HeartBeat, 100)
 	ch_completedRequests := make(chan elevator_io.ButtonEvent, 100)
 	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int, 100)
 	ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int, 100)
@@ -53,18 +46,17 @@ func main() {
 	ch_localRequests := make(chan [config.N_FLOORS][config.N_BUTTONS]bool, 100)
 	ch_doorObstruction := make(chan bool, 100)
 	ch_stopButton := make(chan bool, 100)
-	ch_elevatorStateToAssigner := make(chan map[string]elevator.ElevatorState, 100)
-	ch_elevatorStateToNetwork := make(chan elevator.ElevatorState, 100)
+	ch_elevatorStateToAssigner := make(chan map[string]elevator.ElevatorState, 5)
+	ch_elevatorStateToNetwork := make(chan elevator.ElevatorState, 5)
 
 	// Goroutines for sending and recieving messages
-	//go bcast.Transmitter(config.DefaultPortBackup, ch_BackupHeartbeat)
 	go bcast.Transmitter(config.DefaultPortBcast, ch_msgOut)
 	go bcast.Receiver(config.DefaultPortBcast, ch_msgIn)
 
 	go peers.Transmitter(config.DefaultPortPeer, id, ch_peerTxEnable)
 	go peers.Receiver(config.DefaultPortPeer, ch_peerUpdate)
 
-	// Backup goroutine
+	// Load backup
 	go backup.LoadBackupFromFile("backup.txt", ch_buttonPressed)
 
 	// elevator_io goroutines
@@ -95,64 +87,24 @@ func main() {
 		ch_externalElevators,
 	)
 
-	// Send heartbeat to backup
-	go backup.PrimaryProcess(id)
+	go backup.ReportPrimaryAlive(id)
 
-	// Send heartbeat to network incl. all info
-	go func() {
-		var HallRequests [config.N_FLOORS][config.N_BUTTONS - 1]int = <-ch_hallRequestsOut
-		var State elevator.ElevatorState = <-ch_elevatorStateToNetwork
+	go heartbeat.Send(
+		id,
+		ch_hallRequestsOut,
+		ch_elevatorStateToNetwork,
+		ch_msgOut,
+	)
 
-		for {
-			select {
-			case newHallRequests := <-ch_hallRequestsOut:
-				HallRequests = newHallRequests
-			case newState := <-ch_elevatorStateToNetwork:
-				State = newState
-			default:
-				// NOP
-			}
-			HeartBeat := HeartBeat{
-				SenderID:     id,
-				HallRequests: HallRequests,
-				State:        State,
-			}
-			ch_msgOut <- HeartBeat
-			time.Sleep(100 * time.Millisecond)
-			// fmt.Printf("\n Heartbeat sent\n")
-		}
-	}()
+	go peers.Update(
+		id,
+		ch_peerUpdate,
+		ch_msgIn,
+		ch_hallRequestsIn,
+		ch_externalElevators,
+	)
 
-	fmt.Println("Started")
-
-	AlivePeers := make(map[string]elevator.ElevatorState)
 	for {
-		select {
-		case p := <-ch_peerUpdate:
-
-			for _, peer := range p.Lost {
-				if _, ok := AlivePeers[peer]; ok {
-					delete(AlivePeers, peer)
-				}
-			}
-
-			fmt.Printf("Peer update:\n")
-			fmt.Printf("  Peers:    %q\n", p.Peers)
-			fmt.Printf("  New:      %q\n", p.New)
-			fmt.Printf("  Lost:     %q\n", p.Lost)
-
-		case a := <-ch_msgIn:
-			AlivePeers[a.SenderID] = a.State
-
-			ch_hallRequestsIn <- a.HallRequests
-			ch_externalElevators <- AlivePeers
-
-			//fmt.Printf("Received: %#v\n", a)
-
-		default:
-			// NOP
-		}
-
 	}
 
 }

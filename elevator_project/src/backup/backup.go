@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"driver/config"
 	"driver/elevator_io"
 	"encoding/gob"
 	"fmt"
@@ -23,7 +24,15 @@ func KillSelf(localID string, port string) {
 	panic("Program terminated")
 }
 
-func SaveBackupToFile(filename string, status []bool) {
+func SaveBackupToFile(filename string, allRequests [config.N_FLOORS][config.N_BUTTONS]int) {
+	var cabRequests [config.N_FLOORS]bool
+	for request := range allRequests {
+		if allRequests[request][2] == 2 {
+			cabRequests[request] = true
+		} else {
+			cabRequests[request] = false
+		}
+	}
 	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return
@@ -32,7 +41,7 @@ func SaveBackupToFile(filename string, status []bool) {
 
 	// Encode the array using a gob encoder
 	encoder := gob.NewEncoder(file)
-	err = encoder.Encode(status)
+	err = encoder.Encode(cabRequests)
 	if err != nil {
 		return
 	}
@@ -66,7 +75,7 @@ func StartBackupProcess(localID string, port string) {
 	exec.Command("gnome-terminal", "--", "go", "run", "main.go", "id=", localID, "port=", port).Run()
 }
 
-func PrimaryProcess(localID string) {
+func ReportPrimaryAlive(localID string) {
 	sendUDPAddr, err := net.ResolveUDPAddr("udp", sendAddr)
 	if err != nil {
 		fmt.Println(err)

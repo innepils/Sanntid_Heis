@@ -60,6 +60,7 @@ func Fsm(ch_arrivalFloor chan int,
 				}
 
 			case elevator.EB_Idle:
+				fmt.Printf("FSM idle")
 				// USE POINTER AND REFERENCE INSTEAD
 				pair := requests.Requests_chooseDirection(localElevator)
 				localElevator.Dirn = pair.Dirn
