@@ -6,11 +6,13 @@ import (
 	"driver/elevator_io"
 )
 
+// CAN BE REMOVED AFTER UPDATE
 type DirnBehaviourPair struct {
 	Dirn      elevator_io.MotorDirection
 	Behaviour elevator.ElevatorBehaviour
 }
 
+// PASS BY REFERENCE?
 func Requests_above(e elevator.Elevator) bool {
 	for f := e.Floor + 1; f < config.N_FLOORS; f++ {
 		for btn := 0; btn < config.N_BUTTONS; btn++ {
@@ -21,7 +23,7 @@ func Requests_above(e elevator.Elevator) bool {
 	}
 	return false
 }
-
+// PASS BY REFERENCE?
 func Requests_below(e elevator.Elevator) bool {
 	for f := 0; f < e.Floor; f++ {
 		for btn := 0; btn < config.N_BUTTONS; btn++ {
@@ -33,6 +35,7 @@ func Requests_below(e elevator.Elevator) bool {
 	return false
 }
 
+// PASS BY REFERENCE?
 func Requests_here(e elevator.Elevator) bool {
 	for btn := 0; btn < config.N_BUTTONS; btn++ {
 		if e.Requests[e.Floor][btn] {
@@ -42,6 +45,7 @@ func Requests_here(e elevator.Elevator) bool {
 	return false
 }
 
+// WILL CHANGE AFTER UPDATE. NO DIRNBEHAVPAIR
 func Requests_chooseDirection(e elevator.Elevator) DirnBehaviourPair {
 	switch e.Dirn {
 	case elevator_io.MD_Up:
@@ -83,6 +87,7 @@ func Requests_chooseDirection(e elevator.Elevator) DirnBehaviourPair {
 	}
 }
 
+// PASS BY REFERENCE?
 func Requests_shouldStop(e elevator.Elevator) bool {
 	switch e.Dirn {
 	case elevator_io.MD_Down:
@@ -96,6 +101,7 @@ func Requests_shouldStop(e elevator.Elevator) bool {
 	}
 }
 
+// WILL CHANGE AFTER UPDATE.  PASS BY REFERENCE
 func Requests_clearAtCurrentFloor(e elevator.Elevator, ch_completedRequests chan<- elevator_io.ButtonEvent) elevator.Elevator {
 
 		e.Requests[e.Floor][elevator_io.BT_Cab] = false
