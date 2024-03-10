@@ -146,7 +146,7 @@ func Assigner(
 		elevator.SetAllButtonLights(allRequests)
 		var hallRequestsOut [config.N_FLOORS][config.N_BUTTONS - 1]int
 		var hallRequests [config.N_FLOORS][config.N_BUTTONS - 1]bool
-		for i := range hallrequests {
+		for i := range hallRequests {
 			for j := 0; j < 2; j++ {
 				hallRequestsOut[i][j] = allRequests[i][j]
 				if allRequests[i][j] == 2 {
@@ -166,7 +166,7 @@ func Assigner(
 			}
 		}
 		for i := range localOrders {
-			if allOrders[i][2] == 2 {
+			if allRequests[i][2] == 2 {
 				localOrders[i][2] = true
 			} else {
 				localOrders[i][2] = false
