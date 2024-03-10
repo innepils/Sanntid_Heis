@@ -44,7 +44,7 @@ func main() {
 	ch_msgIn := make(chan HeartBeat, 100)
 	ch_completedOrders := make(chan elevator_io.ButtonEvent, 100)
 	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int, 100)
-	ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int)
+	ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int, 100)
 	ch_externalElevators := make(chan map[string]elevator.ElevatorState, 100)
 
 	// Channels for local elevator
@@ -95,18 +95,31 @@ func main() {
 		ch_externalElevators,
 	)
 
-	// Send heartbeat to network incl. all info
+	// Send heartbeat to backup
 	go backup.PrimaryProcess(id)
+
 	// Send heartbeat to network incl. all info
 	go func() {
+		var HallRequests [config.N_FLOORS][config.N_BUTTONS - 1]int = <-ch_hallRequestsOut
+		var State elevator.ElevatorState = <-ch_elevatorStateToNetwork
+
 		for {
+			select {
+			case newHallRequests := <-ch_hallRequestsOut:
+				HallRequests = newHallRequests
+			case newState := <-ch_elevatorStateToNetwork:
+				State = newState
+			default:
+				// NOP
+			}
 			HeartBeat := HeartBeat{
 				SenderID:     id,
-				HallRequests: <-ch_hallRequestsOut,
-				State:        <-ch_elevatorStateToNetwork,
+				HallRequests: HallRequests,
+				State:        State,
 			}
 			ch_msgOut <- HeartBeat
 			time.Sleep(100 * time.Millisecond)
+			// fmt.Printf("\n Heartbeat sent\n")
 		}
 	}()
 
@@ -136,8 +149,10 @@ func main() {
 
 			//fmt.Printf("Received: %#v\n", a)
 
+		default:
+			// NOP
 		}
+
 	}
 
-	// select {}
 }
