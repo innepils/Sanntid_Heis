@@ -121,14 +121,11 @@ func Update(
 				if prevHallRequests != a.HallRequests {
 					prevHallRequests = a.HallRequests
 					ch_hallRequestsIn <- prevHallRequests
-				} else {
-					fmt.Printf("prevalive peers not equal to alivepeers")
 				}
 				if reflect.DeepEqual(prevAlivePeers, alivePeers) {
+					fmt.Println(alivePeers)
 					prevAlivePeers = alivePeers
 					ch_externalElevators <- prevAlivePeers
-				} else {
-					fmt.Printf("prevalive peers not equal to alivepeers")
 				}
 				//fmt.Printf("Received: %#v\n", a)
 			}

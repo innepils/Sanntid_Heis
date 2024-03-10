@@ -94,7 +94,7 @@ func Assigner(
 							} else if updateHallRequest[i][j] == 1 {
 								allRequests[i][j] = 2
 							} else if updateHallRequest[i][j] == 2 {
-								allRequests[i][j] = 2
+								//NOP
 							} else if updateHallRequest[i][j] == 3 {
 								allRequests[i][j] = 0
 							}
@@ -110,7 +110,9 @@ func Assigner(
 					switch allRequests[i][j] {
 					case 0:
 						switch updateHallRequest[i][j] {
-						case 1, 2:
+						case 1:
+							allRequests[i][j] = 1
+						case 2:
 							allRequests[i][j] = 2
 						case 0, 3:
 							// NOP
@@ -133,8 +135,10 @@ func Assigner(
 						switch updateHallRequest[i][j] {
 						case 0, 3:
 							allRequests[i][j] = 0
-						case 1, 2:
+						case 1:
 							allRequests[i][j] = 2
+						case 2:
+							//NOP
 						}
 					}
 				}
