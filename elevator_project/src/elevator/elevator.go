@@ -133,7 +133,7 @@ func ElevatorToHRAElevState(localElevator Elevator) map[string]ElevatorState {
 		"self": {
 			Behavior:    strings.ReplaceAll(strings.ToLower(ElevBehaviourToString(localElevator.Behaviour)[3:]), "open", "Open"),
 			Floor:       localElevator.Floor,
-			Direction:   strings.ToLower(ElevDirnToString(localElevator.Dirn)), //To lower et problem?
+			Direction:   strings.ToLower(ElevDirnToString(localElevator.Dirn)),
 			CabRequests: GetCabRequests(localElevator),
 		},
 	}
