@@ -71,7 +71,7 @@ func LoadBackupFromFile(filename string, ch_buttonPressed chan elevator_io.Butto
 }
 
 func StartBackupProcess(localID string, port string) {
-	exec.Command("gnome-terminal", "--", "go", "run", "main.go", "id=", localID, "port=", port).Run()
+	exec.Command("gnome-terminal", "--", "go", "run", "main.go", "-id="+localID, "-port="+port).Run()
 }
 
 func ReportPrimaryAlive(localID string) {
@@ -133,7 +133,6 @@ func BackupProcess(localID string, port string) {
 		}
 
 		msg := string(buffer[:n])
-
 		if msg == localID {
 			println("Primary is alive!")
 			conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 2.5 * time.Millisecond))

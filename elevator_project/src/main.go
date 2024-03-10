@@ -86,7 +86,7 @@ func main() {
 		ch_elevatorStateToAssigner,
 		ch_externalElevators,
 	)
-
+	fmt.Println(id)
 	go backup.ReportPrimaryAlive(id)
 
 	go heartbeat.Send(

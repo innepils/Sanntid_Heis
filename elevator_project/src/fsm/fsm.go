@@ -22,6 +22,7 @@ func Fsm(ch_arrivalFloor chan int,
 	// Initializing
 	fmt.Printf("*****INITIALIZING ELEVATOR*****\n")
 	localElevator := elevator.UninitializedElevator()
+	prevLocalElevator := localElevator
 
 	// If elevator is between floors, run it downwards until a floor is reached.
 	elevator_io.SetMotorDirection(elevator_io.MD_Down)
@@ -181,6 +182,10 @@ func Fsm(ch_arrivalFloor chan int,
 		default:
 			// NOP
 		} //select
-		elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
+		if prevLocalElevator != localElevator {
+			prevLocalElevator = localElevator
+			elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
+		}
+
 	} //For
 } //Fsm
