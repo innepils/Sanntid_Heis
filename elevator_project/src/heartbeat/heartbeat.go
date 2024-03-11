@@ -3,6 +3,7 @@ package heartbeat
 import (
 	"driver/config"
 	"driver/elevator"
+	"sync"
 	"time"
 )
 
@@ -29,26 +30,34 @@ func Send(
 	ch_elevatorStateToNetwork chan elevator.ElevatorState,
 	ch_msgOut chan HeartBeat) {
 
-	var HallRequests [config.N_FLOORS][config.N_BUTTONS - 1]int = <-ch_hallRequestsOut
+	var mtxLock sync.Mutex
+	var hallRequests [config.N_FLOORS][config.N_BUTTONS - 1]int = <-ch_hallRequestsOut
 	var elevatorState elevator.ElevatorState = <-ch_elevatorStateToNetwork
+
 	go func() {
 		for {
 			select {
 			case newHallRequests := <-ch_hallRequestsOut:
-				HallRequests = newHallRequests
+				mtxLock.Lock()
+				hallRequests = newHallRequests
+				mtxLock.Unlock()
 			case newElevatorState := <-ch_elevatorStateToNetwork:
+				mtxLock.Lock()
 				elevatorState = newElevatorState
+				mtxLock.Unlock()
 			default:
 				// NOP
 			}
 		}
 	}()
 	for {
+		mtxLock.Lock()
 		newHeartbeat := HeartBeat{
 			SenderID:      id,
-			HallRequests:  HallRequests,
+			HallRequests:  hallRequests,
 			ElevatorState: elevatorState,
 		}
+		mtxLock.Unlock()
 		ch_msgOut <- newHeartbeat
 		time.Sleep(100 * time.Millisecond)
 		//fmt.Printf("\n Heartbeat sent:\n")

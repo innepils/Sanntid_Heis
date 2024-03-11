@@ -17,7 +17,7 @@ func Cost(
 	id string,
 	hallRequests [config.N_FLOORS][config.N_BUTTONS - 1]bool,
 	localElevator map[string]elevator.ElevatorState,
-	externalElevators map[string]elevator.ElevatorState) [][2]bool {
+	externalElevators []byte) [][2]bool {
 
 	input := HRAInput{
 		HallRequests: hallRequests,
@@ -26,7 +26,10 @@ func Cost(
 		},
 	}
 
-	for key, value := range externalElevators {
+	var externalElevatorsDecoded map[string]elevator.ElevatorState
+	json.Unmarshal(externalElevators, &externalElevatorsDecoded)
+
+	for key, value := range externalElevatorsDecoded {
 		input.StatesofElevators[key] = value
 
 	}

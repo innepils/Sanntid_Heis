@@ -6,6 +6,7 @@ import (
 	"driver/cost"
 	"driver/elevator"
 	"driver/elevator_io"
+	"encoding/json"
 )
 
 func Assigner(
@@ -16,9 +17,10 @@ func Assigner(
 	ch_hallRequestsIn chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
 	ch_hallRequestsOut chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
 	ch_elevatorStateToAssigner chan map[string]elevator.ElevatorState,
-	ch_externalElevators chan map[string]elevator.ElevatorState,
+	ch_externalElevators chan []byte,
 ) {
-	externalElevators := map[string]elevator.ElevatorState{}
+	emptyElevatorMap := map[string]elevator.ElevatorState{}
+	externalElevators, _ := json.Marshal(emptyElevatorMap)
 
 	var allRequests [config.N_FLOORS][config.N_BUTTONS]int
 	for i := range allRequests {
@@ -154,7 +156,7 @@ func Assigner(
 			//NOP
 		}
 
-		elevator.SetAllButtonLights(allRequests)
+		//elevator.SetAllButtonLights(allRequests)
 		var hallRequestsOut [config.N_FLOORS][config.N_BUTTONS - 1]int
 		var hallRequests [config.N_FLOORS][config.N_BUTTONS - 1]bool
 		for i := range hallRequests {

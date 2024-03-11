@@ -38,7 +38,7 @@ func main() {
 	ch_completedRequests := make(chan elevator_io.ButtonEvent, 100)
 	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int, 100)
 	ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int, 100)
-	ch_externalElevators := make(chan map[string]elevator.ElevatorState, 100)
+	ch_externalElevators := make(chan []byte, 100)
 
 	// Channels for local elevator
 	ch_arrivalFloor := make(chan int, 100)
