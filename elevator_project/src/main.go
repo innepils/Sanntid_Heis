@@ -67,6 +67,7 @@ func main() {
 
 	// Finite state machine goroutine
 	go fsm.Fsm(
+		id,
 		ch_arrivalFloor,
 		ch_localRequests,
 		ch_doorObstruction,
@@ -78,6 +79,7 @@ func main() {
 
 	// Assigner goroutine
 	go assigner.Assigner(
+		id,
 		ch_buttonPressed,
 		ch_completedRequests,
 		ch_localRequests,
@@ -86,7 +88,7 @@ func main() {
 		ch_elevatorStateToAssigner,
 		ch_externalElevators,
 	)
-	fmt.Println(id)
+
 	go backup.ReportPrimaryAlive(id)
 
 	go heartbeat.Send(

@@ -9,6 +9,7 @@ import (
 )
 
 func Assigner(
+	id string,
 	ch_buttonPressed chan elevator_io.ButtonEvent,
 	ch_completedRequests chan elevator_io.ButtonEvent,
 	ch_localRequests chan [config.N_FLOORS][config.N_BUTTONS]bool,
@@ -25,7 +26,7 @@ func Assigner(
 			allRequests[i][j] = 0
 		}
 	}
-	var localElevatorState = map[string]elevator.ElevatorState{"self": {Behavior: "idle", Floor: 1, Direction: "stop", CabRequests: []bool{true, false, true, false}}}
+	var localElevatorState = map[string]elevator.ElevatorState{id: {Behavior: "idle", Floor: 1, Direction: "stop", CabRequests: []bool{true, false, true, false}}}
 	var prevLocalRequests [config.N_FLOORS][config.N_BUTTONS]bool
 	for i := range prevLocalRequests {
 		for j := range prevLocalRequests[i] {
@@ -167,7 +168,7 @@ func Assigner(
 			}
 		}
 		ch_hallRequestsOut <- hallRequestsOut
-		assignedHallRequests := cost.Cost(hallRequests, localElevatorState, externalElevators)
+		assignedHallRequests := cost.Cost(id, hallRequests, localElevatorState, externalElevators)
 		var localRequests [config.N_FLOORS][config.N_BUTTONS]bool
 		for i := range assignedHallRequests {
 			for j := 0; j < 2; j++ {
@@ -189,4 +190,4 @@ func Assigner(
 	}
 }
 
-// backup.SaveBackupToFile("backup.txt", []bool(localElevatorState["self"].CabRequests))
+// backup.SaveBackupToFile("backup.txt", []bool(localElevatorState[id].CabRequests))

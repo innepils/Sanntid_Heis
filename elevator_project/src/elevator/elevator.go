@@ -125,9 +125,9 @@ func GetCabRequests(elevator Elevator) []bool {
 	return cabRequests
 }
 
-func ElevToElevatorState(localElevator Elevator) map[string]ElevatorState {
+func ElevToElevatorState(id string, localElevator Elevator) map[string]ElevatorState {
 	return map[string]ElevatorState{
-		"self": {
+		id: {
 			Behavior:    strings.ReplaceAll(strings.ToLower(ElevBehaviourToString(localElevator.Behaviour)[3:]), "open", "Open"),
 			Floor:       localElevator.Floor,
 			Direction:   strings.ToLower(ElevDirnToString(localElevator.Dirn)),
@@ -137,13 +137,14 @@ func ElevToElevatorState(localElevator Elevator) map[string]ElevatorState {
 }
 
 func SendLocalElevatorState(
+	id string,
 	localElevator Elevator,
 	ch_elevatorStateToAssigner chan map[string]ElevatorState,
 	ch_elevatorStateToNetwork chan ElevatorState) {
 
-	elevatorState := ElevToElevatorState(localElevator)
+	elevatorState := ElevToElevatorState(id, localElevator)
 	ch_elevatorStateToAssigner <- elevatorState
-	ch_elevatorStateToNetwork <- elevatorState["self"]
+	ch_elevatorStateToNetwork <- elevatorState[id]
 }
 
 func SetAllButtonLights(requests [config.N_FLOORS][config.N_BUTTONS]int) {

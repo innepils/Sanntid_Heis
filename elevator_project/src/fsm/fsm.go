@@ -10,7 +10,9 @@ import (
 )
 
 // One single function for the Final State Machine, to be run as a goroutine from main
-func Fsm(ch_arrivalFloor chan int,
+func Fsm(
+	id string,
+	ch_arrivalFloor chan int,
 	ch_localRequests chan [config.N_FLOORS][config.N_BUTTONS]bool,
 	ch_doorObstruction chan bool,
 	ch_stopButton chan bool,
@@ -29,13 +31,14 @@ func Fsm(ch_arrivalFloor chan int,
 	newFloor := <-ch_arrivalFloor
 	elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 	localElevator.Floor = newFloor
+	elevator_io.SetFloorIndicator(localElevator.Floor)
 
 	// Initialize door
 	elevator_io.SetDoorOpenLamp(false)
 	doorTimer := time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
 	prevObstruction := false
 
-	elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
+	elevator.SendLocalElevatorState(id, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
@@ -69,7 +72,7 @@ func Fsm(ch_arrivalFloor chan int,
 				//localElevator.Behaviour = pair.Behaviour
 				requests.Requests_chooseDirection(&localElevator)
 				//Denne kan nok gjøres til reference:
-				elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
+				//elevator.SendLocalElevatorState(id, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 				localElevator.Elevator_print()
 
 				switch localElevator.Behaviour {
@@ -81,7 +84,7 @@ func Fsm(ch_arrivalFloor chan int,
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					// USE POINTER AND REFERENCE INSTEAD
 					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
-					elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
+					//elevator.SendLocalElevatorState(id, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 				case elevator.EB_Moving:
 					elevator_io.SetMotorDirection(localElevator.Dirn)
@@ -187,7 +190,7 @@ func Fsm(ch_arrivalFloor chan int,
 		} //select
 		if prevLocalElevator != localElevator {
 			prevLocalElevator = localElevator
-			elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
+			elevator.SendLocalElevatorState(id, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 		}
 
 	} //For

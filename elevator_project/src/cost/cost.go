@@ -14,6 +14,7 @@ type HRAInput struct {
 }
 
 func Cost(
+	id string,
 	hallRequests [config.N_FLOORS][config.N_BUTTONS - 1]bool,
 	localElevator map[string]elevator.ElevatorState,
 	externalElevators map[string]elevator.ElevatorState) [][2]bool {
@@ -21,7 +22,7 @@ func Cost(
 	input := HRAInput{
 		HallRequests: hallRequests,
 		StatesofElevators: map[string]elevator.ElevatorState{
-			"self": localElevator["self"],
+			id: localElevator[id],
 		},
 	}
 
@@ -52,5 +53,5 @@ func Cost(
 	}
 
 	//fmt.Println("Output of cost function:", output)
-	return (*output)["self"]
+	return (*output)[id]
 }
