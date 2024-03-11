@@ -9,6 +9,7 @@
 
 ### Linus:
 - die? i cost
+  - lage error-funksjoner istedenfor å ha if-statement/3-linjer hver gang
 ### Simon:
 
 

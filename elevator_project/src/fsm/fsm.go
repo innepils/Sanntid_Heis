@@ -39,6 +39,7 @@ func Fsm(ch_arrivalFloor chan int,
 
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
+		//fmt.Println("FSM RUNNING")
 		select {
 		case localRequests := <-ch_localRequests:
 			fmt.Printf("Entered Local requests in FSM\n")
@@ -102,8 +103,10 @@ func Fsm(ch_arrivalFloor chan int,
 					// USE POINTER AND REFERENCE INSTEAD
 					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
 					if prevObstruction {
+						fmt.Println("New floor door obstruction")
 						prevObstruction = <-ch_doorObstruction
 					}
+					fmt.Println("New floor no door obstruction")
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					localElevator.Behaviour = elevator.EB_DoorOpen
 				}
