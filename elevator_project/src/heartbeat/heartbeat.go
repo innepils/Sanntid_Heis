@@ -3,7 +3,6 @@ package heartbeat
 import (
 	"driver/config"
 	"driver/elevator"
-	"fmt"
 	"time"
 )
 
@@ -52,7 +51,7 @@ func Send(
 		}
 		ch_msgOut <- newHeartbeat
 		time.Sleep(100 * time.Millisecond)
-		fmt.Printf("\n Heartbeat sent:\n")
-		fmt.Println(newHeartbeat)
+		//fmt.Printf("\n Heartbeat sent:\n")
+		//fmt.Println(newHeartbeat)
 	}
 }

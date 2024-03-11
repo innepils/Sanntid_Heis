@@ -122,7 +122,7 @@ func Update(
 					prevHallRequests = a.HallRequests
 					ch_hallRequestsIn <- prevHallRequests
 				}
-				if reflect.DeepEqual(prevAlivePeers, alivePeers) {
+				if !reflect.DeepEqual(prevAlivePeers, alivePeers) {
 					fmt.Println(alivePeers)
 					prevAlivePeers = alivePeers
 					ch_externalElevators <- prevAlivePeers

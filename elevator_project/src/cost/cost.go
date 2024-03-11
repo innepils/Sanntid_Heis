@@ -8,19 +8,28 @@ import (
 	"os/exec"
 )
 
+type HRAInput struct {
+	HallRequests      [config.N_FLOORS][config.N_BUTTONS - 1]bool `json:"hallRequests"`
+	StatesofElevators map[string]elevator.ElevatorState           `json:"states"`
+}
+
 func Cost(
 	hallRequests [config.N_FLOORS][config.N_BUTTONS - 1]bool,
 	localElevator map[string]elevator.ElevatorState,
 	externalElevators map[string]elevator.ElevatorState) [][2]bool {
 
-	input := elevator.HRAInput{
-		HallRequests:  hallRequests,
-		ElevatorState: localElevator,
+	input := HRAInput{
+		HallRequests: hallRequests,
+		StatesofElevators: map[string]elevator.ElevatorState{
+			"self": localElevator["self"],
+		},
 	}
 
 	for key, value := range externalElevators {
-		input.ElevatorState[key] = value
+		input.StatesofElevators[key] = value
+
 	}
+	//fmt.Println("input elevators stae::  ", input.StatesofElevators)
 
 	jsonBytes, err := json.Marshal(input)
 	if err != nil {
@@ -42,5 +51,6 @@ func Cost(
 		//die?
 	}
 
+	//fmt.Println("Output of cost function:", output)
 	return (*output)["self"]
 }

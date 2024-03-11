@@ -6,7 +6,6 @@ import (
 	"driver/cost"
 	"driver/elevator"
 	"driver/elevator_io"
-	"fmt"
 )
 
 func Assigner(
@@ -19,6 +18,7 @@ func Assigner(
 	ch_externalElevators chan map[string]elevator.ElevatorState,
 ) {
 	externalElevators := map[string]elevator.ElevatorState{}
+
 	var allRequests [config.N_FLOORS][config.N_BUTTONS]int
 	for i := range allRequests {
 		for j := range allRequests[i] {
@@ -35,14 +35,16 @@ func Assigner(
 	for {
 		//fmt.Printf("Entered assigner loop")
 		select {
+		// Looks at local buttons and updates request matrix
 		case buttonPressed := <-ch_buttonPressed:
 			if buttonPressed.BtnType == elevator_io.BT_Cab {
 				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = 2
 				backup.SaveBackupToFile("backup.txt", allRequests)
 			} else if allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
-				fmt.Println("req set to 1")
+				//fmt.Println("req set to 1")
 				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = 1
 			}
+		// Data from channel arrives from FSM when local order is complete
 		case completedRequest := <-ch_completedRequests: //THIS NEEDS TO BE REVISED
 			if allRequests[completedRequest.BtnFloor][completedRequest.BtnType] == 3 {
 				allRequests[completedRequest.BtnFloor][completedRequest.BtnType] = 0
@@ -52,8 +54,11 @@ func Assigner(
 			backup.SaveBackupToFile("backup.txt", allRequests)
 
 		case elevatorState := <-ch_elevatorStateToAssigner:
-			fmt.Println("assigner got elev state")
 			localElevatorState = elevatorState
+
+		case currentExternalElevators := <-ch_externalElevators:
+			externalElevators = currentExternalElevators
+
 		/*
 			case updateHallRequest := <-ch_hallRequestsIn:
 				for i := range updateHallRequest {
@@ -103,8 +108,8 @@ func Assigner(
 				}
 		*/
 		case updateHallRequest := <-ch_hallRequestsIn:
-			fmt.Printf("\nRecieved hallrequest in: ")
-			fmt.Println(updateHallRequest)
+			//fmt.Printf("\nRecieved hallrequest in: ")
+			//fmt.Println(updateHallRequest)
 			for i := range updateHallRequest {
 				for j := 0; j < 2; j++ {
 					switch allRequests[i][j] {

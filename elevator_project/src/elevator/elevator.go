@@ -37,11 +37,6 @@ type ElevatorState struct {
 	CabRequests []bool `json:"cabRequests"`
 }
 
-type HRAInput struct {
-	HallRequests  [config.N_FLOORS][config.N_BUTTONS - 1]bool `json:"hallRequests"`
-	ElevatorState map[string]ElevatorState                    `json:"states"`
-}
-
 func ElevBehaviourToString(elevBehaviour ElevatorBehaviour) string {
 	switch elevBehaviour {
 	case EB_Idle:

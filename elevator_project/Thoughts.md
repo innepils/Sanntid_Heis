@@ -13,3 +13,8 @@
 # Channels need(?) Thoughts from Linus
 -> ch_newLocalOrders, for sending orders from the assigner/cost to the local elev. Old orders should be cleared.
 -> 
+
+
+
+# Adrian 11.03
+- Hva om vi bruker id fra main som en variabel i elevatorstate, slik at 

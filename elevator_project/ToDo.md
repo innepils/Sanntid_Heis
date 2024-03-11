@@ -12,7 +12,6 @@
   - lage error-funksjoner istedenfor å ha if-statement/3-linjer hver gang
 ### Simon:
 
-
 ##### Kodekvalitet, hva som må endres
 # Assigner
 - [x] Endre if-statements til switch
@@ -23,6 +22,7 @@
 - [x] Deleted CV
 # Cost
 - [x] changed var-name
+- [x] Foor loop for localeelevator is ridicioulous
 # Elevator
 - [x] Changed name on MAP (elevState) etc.
 - [ ] change functionname from ElevButtonToString to ElevButtonTypeToString??
