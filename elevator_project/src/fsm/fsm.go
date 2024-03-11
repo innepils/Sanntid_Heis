@@ -93,6 +93,7 @@ func Fsm(
 				if requests.Requests_shouldStop(&localElevator) {
 					elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 					elevator_io.SetDoorOpenLamp(true)
+
 					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
 					if prevObstruction {
 						prevObstruction = <-ch_doorObstruction
@@ -114,10 +115,18 @@ func Fsm(
 				if prevObstruction {
 					prevObstruction = <-ch_doorObstruction
 				}
-				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-				elevator_io.SetDoorOpenLamp(false)
 
-				requests.Requests_chooseDirection(&localElevator)
+				// New implementation block
+				prevDirection := localElevator.Dirn
+				requests.Requests_chooseDirection(&localElevator) //but this is old
+				if prevDirection != localElevator.Dirn {
+					fmt.Println("CHANGING DIRECTION")
+					time.Sleep(3 * time.Second)
+				}
+
+				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+
+				elevator_io.SetDoorOpenLamp(false)
 
 				switch localElevator.Behaviour {
 				case elevator.EB_Moving:
