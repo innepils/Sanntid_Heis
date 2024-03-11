@@ -6,6 +6,7 @@ import (
 	"driver/cost"
 	"driver/elevator"
 	"driver/elevator_io"
+	"fmt"
 )
 
 func Assigner(
@@ -32,11 +33,14 @@ func Assigner(
 		}
 	}
 	for {
+		//fmt.Printf("Entered assigner loop")
 		select {
 		case buttonPressed := <-ch_buttonPressed:
 			if buttonPressed.BtnType == elevator_io.BT_Cab {
 				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = 2
+				backup.SaveBackupToFile("backup.txt", allRequests)
 			} else if allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
+				fmt.Println("req set to 1")
 				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = 1
 			}
 		case completedRequest := <-ch_completedRequests: //THIS NEEDS TO BE REVISED
@@ -45,7 +49,10 @@ func Assigner(
 			} else if allRequests[completedRequest.BtnFloor][completedRequest.BtnType] == 2 {
 				allRequests[completedRequest.BtnFloor][completedRequest.BtnType] = 3
 			}
+			backup.SaveBackupToFile("backup.txt", allRequests)
+
 		case elevatorState := <-ch_elevatorStateToAssigner:
+			fmt.Println("assigner got elev state")
 			localElevatorState = elevatorState
 		/*
 			case updateHallRequest := <-ch_hallRequestsIn:
@@ -87,7 +94,7 @@ func Assigner(
 							} else if updateHallRequest[i][j] == 1 {
 								allRequests[i][j] = 2
 							} else if updateHallRequest[i][j] == 2 {
-								allRequests[i][j] = 2
+								//NOP
 							} else if updateHallRequest[i][j] == 3 {
 								allRequests[i][j] = 0
 							}
@@ -96,12 +103,16 @@ func Assigner(
 				}
 		*/
 		case updateHallRequest := <-ch_hallRequestsIn:
+			fmt.Printf("\nRecieved hallrequest in: ")
+			fmt.Println(updateHallRequest)
 			for i := range updateHallRequest {
 				for j := 0; j < 2; j++ {
 					switch allRequests[i][j] {
 					case 0:
 						switch updateHallRequest[i][j] {
-						case 1, 2:
+						case 1:
+							allRequests[i][j] = 1
+						case 2:
 							allRequests[i][j] = 2
 						case 0, 3:
 							// NOP
@@ -124,8 +135,10 @@ func Assigner(
 						switch updateHallRequest[i][j] {
 						case 0, 3:
 							allRequests[i][j] = 0
-						case 1, 2:
+						case 1:
 							allRequests[i][j] = 2
+						case 2:
+							//NOP
 						}
 					}
 				}
@@ -149,7 +162,6 @@ func Assigner(
 			}
 		}
 		ch_hallRequestsOut <- hallRequestsOut
-		backup.SaveBackupToFile("backup.txt", []bool(localElevatorState["self"].CabRequests))
 		assignedHallRequests := cost.Cost(hallRequests, localElevatorState, externalElevators)
 		var localRequests [config.N_FLOORS][config.N_BUTTONS]bool
 		for i := range assignedHallRequests {
@@ -171,3 +183,5 @@ func Assigner(
 		}
 	}
 }
+
+// backup.SaveBackupToFile("backup.txt", []bool(localElevatorState["self"].CabRequests))

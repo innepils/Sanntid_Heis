@@ -9,6 +9,7 @@
  - [ ] Change as much pass-by-value to pass-by-reference. E.g. in elevator.go
 ### Linus:
 - die? i cost
+  - lage error-funksjoner istedenfor å ha if-statement/3-linjer hver gang
 ### Simon:
 
 

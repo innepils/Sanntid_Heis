@@ -22,6 +22,7 @@ func Fsm(ch_arrivalFloor chan int,
 	// Initializing
 	fmt.Printf("*****INITIALIZING ELEVATOR*****\n")
 	localElevator := elevator.UninitializedElevator()
+	prevLocalElevator := localElevator
 
 	// If elevator is between floors, run it downwards until a floor is reached.
 	elevator_io.SetMotorDirection(elevator_io.MD_Down)
@@ -38,6 +39,7 @@ func Fsm(ch_arrivalFloor chan int,
 
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
+		//fmt.Println("FSM RUNNING")
 		select {
 		case localRequests := <-ch_localRequests:
 			fmt.Printf("Entered Local requests in FSM\n")
@@ -60,6 +62,7 @@ func Fsm(ch_arrivalFloor chan int,
 				}
 
 			case elevator.EB_Idle:
+				fmt.Printf("FSM idle")
 				// USE POINTER AND REFERENCE INSTEAD
 				//pair := requests.Requests_chooseDirection(localElevator)
 				//localElevator.Dirn = pair.Dirn
@@ -100,8 +103,10 @@ func Fsm(ch_arrivalFloor chan int,
 					// USE POINTER AND REFERENCE INSTEAD
 					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
 					if prevObstruction {
+						fmt.Println("New floor door obstruction")
 						prevObstruction = <-ch_doorObstruction
 					}
+					fmt.Println("New floor no door obstruction")
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					localElevator.Behaviour = elevator.EB_DoorOpen
 				}
@@ -180,6 +185,10 @@ func Fsm(ch_arrivalFloor chan int,
 		default:
 			// NOP
 		} //select
-		elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
+		if prevLocalElevator != localElevator {
+			prevLocalElevator = localElevator
+			elevator.SendLocalElevatorState(localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
+		}
+
 	} //For
 } //Fsm

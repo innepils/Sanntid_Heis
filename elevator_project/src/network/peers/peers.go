@@ -1,9 +1,13 @@
 package peers
 
 import (
+	"driver/config"
+	"driver/elevator"
+	"driver/heartbeat"
 	"driver/network/conn"
 	"fmt"
 	"net"
+	"reflect"
 	"sort"
 	"time"
 )
@@ -84,4 +88,50 @@ func Receiver(port int, peerUpdateCh chan<- PeerUpdate) {
 			peerUpdateCh <- p
 		}
 	}
+}
+
+func Update(
+	id string,
+	ch_peerUpdate chan PeerUpdate,
+	ch_msgIn chan heartbeat.HeartBeat,
+	ch_hallRequestsIn chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
+	ch_externalElevators chan map[string]elevator.ElevatorState) {
+
+	alivePeers := make(map[string]elevator.ElevatorState)
+	var prevHallRequests [config.N_FLOORS][config.N_BUTTONS - 1]int
+	var prevAlivePeers map[string]elevator.ElevatorState
+	for {
+		select {
+		case peers := <-ch_peerUpdate:
+			for _, peer := range peers.Lost {
+				if _, ok := alivePeers[peer]; ok {
+					delete(alivePeers, peer)
+				}
+			}
+
+			fmt.Printf("\nPeer update:\n")
+			fmt.Printf("  Peers:    %q\n", peers.Peers)
+			fmt.Printf("  New:      %q\n", peers.New)
+			fmt.Printf("  Lost:     %q\n", peers.Lost)
+
+		case a := <-ch_msgIn:
+			if a.SenderID != id {
+				alivePeers[a.SenderID] = a.ElevatorState
+
+				if prevHallRequests != a.HallRequests {
+					prevHallRequests = a.HallRequests
+					ch_hallRequestsIn <- prevHallRequests
+				}
+				if reflect.DeepEqual(prevAlivePeers, alivePeers) {
+					fmt.Println(alivePeers)
+					prevAlivePeers = alivePeers
+					ch_externalElevators <- prevAlivePeers
+				}
+				//fmt.Printf("Received: %#v\n", a)
+			}
+		default:
+			// NOP
+		}
+	}
+
 }
