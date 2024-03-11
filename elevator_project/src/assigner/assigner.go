@@ -6,6 +6,7 @@ import (
 	"driver/cost"
 	"driver/elevator"
 	"driver/elevator_io"
+	"encoding/json"
 )
 
 func Assigner(
@@ -16,16 +17,21 @@ func Assigner(
 	ch_hallRequestsIn chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
 	ch_hallRequestsOut chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
 	ch_elevatorStateToAssigner chan map[string]elevator.ElevatorState,
-	ch_externalElevators chan map[string]elevator.ElevatorState,
+	ch_externalElevators chan []byte,
 ) {
-	externalElevators := map[string]elevator.ElevatorState{}
+
+	emptyElevatorMap := map[string]elevator.ElevatorState{}
+	externalElevators, _ := json.Marshal(emptyElevatorMap)
 
 	var allRequests [config.N_FLOORS][config.N_BUTTONS]int
+	var prevAllRequests [config.N_FLOORS][config.N_BUTTONS]int
 	for i := range allRequests {
 		for j := range allRequests[i] {
 			allRequests[i][j] = 0
+			prevAllRequests[i][j] = 4
 		}
 	}
+
 	var localElevatorState = map[string]elevator.ElevatorState{id: {Behavior: "idle", Floor: 1, Direction: "stop", CabRequests: []bool{true, false, true, false}}}
 	var prevLocalRequests [config.N_FLOORS][config.N_BUTTONS]bool
 	for i := range prevLocalRequests {
@@ -33,6 +39,7 @@ func Assigner(
 			prevLocalRequests[i][j] = false
 		}
 	}
+
 	for {
 		//fmt.Printf("Entered assigner loop")
 		select {
@@ -154,7 +161,6 @@ func Assigner(
 			//NOP
 		}
 
-		elevator.SetAllButtonLights(allRequests)
 		var hallRequestsOut [config.N_FLOORS][config.N_BUTTONS - 1]int
 		var hallRequests [config.N_FLOORS][config.N_BUTTONS - 1]bool
 		for i := range hallRequests {
@@ -186,6 +192,10 @@ func Assigner(
 		if localRequests != prevLocalRequests {
 			ch_localRequests <- localRequests
 			prevLocalRequests = localRequests
+		}
+		if allRequests != prevAllRequests {
+			elevator.SetAllButtonLights(allRequests)
+			prevAllRequests = allRequests
 		}
 	}
 }
