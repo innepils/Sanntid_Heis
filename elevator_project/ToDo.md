@@ -6,7 +6,7 @@
     - Ikke benytt "inline-" kommentering om det ikke er helt nødvendig, altså kommentarer på slutten av en kode linje (til høyre)
 
 ### Adrian:
-
+ - [ ] Change as much pass-by-value to pass-by-reference. E.g. in elevator.go
 ### Linus:
 - die? i cost
 ### Simon:
@@ -31,7 +31,7 @@
 - [ ] print Elevator when it brings new information
 - [x] remove "pair" and use pointers. THIS IS IMPORTANT
 - [x] When switch-case only has one case, should we use if instead? Might be more clear that it is a State-change, if it is a switch-case? NEI tror jeg. Tydeligere med switch
-# Hearteat
+# Heartbeat
 - [ ] See if we can divide into two functions. Should not have a function that does 3 things
 # NETWORK packages
 - [ ] Make some comments explaining the modules (if needed? it is given code.)
