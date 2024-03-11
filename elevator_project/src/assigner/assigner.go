@@ -156,7 +156,7 @@ func Assigner(
 			//NOP
 		}
 
-		//elevator.SetAllButtonLights(allRequests)
+		elevator.SetAllButtonLights(allRequests)
 		var hallRequestsOut [config.N_FLOORS][config.N_BUTTONS - 1]int
 		var hallRequests [config.N_FLOORS][config.N_BUTTONS - 1]bool
 		for i := range hallRequests {
