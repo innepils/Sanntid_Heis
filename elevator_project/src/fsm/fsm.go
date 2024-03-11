@@ -60,19 +60,11 @@ func Fsm(
 						prevObstruction = <-ch_doorObstruction
 					}
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-					// USE POINTER AND REFERENCE INSTEAD
 					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
 				}
 
 			case elevator.EB_Idle:
-				fmt.Printf("FSM idle")
-				// USE POINTER AND REFERENCE INSTEAD
-				//pair := requests.Requests_chooseDirection(localElevator)
-				//localElevator.Dirn = pair.Dirn
-				//localElevator.Behaviour = pair.Behaviour
 				requests.Requests_chooseDirection(&localElevator)
-				//Denne kan nok gjøres til reference:
-				//elevator.SendLocalElevatorState(id, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 				localElevator.Elevator_print()
 
 				switch localElevator.Behaviour {
@@ -82,9 +74,7 @@ func Fsm(
 						prevObstruction = <-ch_doorObstruction
 					}
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-					// USE POINTER AND REFERENCE INSTEAD
 					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
-					//elevator.SendLocalElevatorState(id, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 				case elevator.EB_Moving:
 					elevator_io.SetMotorDirection(localElevator.Dirn)
@@ -103,13 +93,10 @@ func Fsm(
 				if requests.Requests_shouldStop(&localElevator) {
 					elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 					elevator_io.SetDoorOpenLamp(true)
-					// USE POINTER AND REFERENCE INSTEAD
 					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
 					if prevObstruction {
-						fmt.Println("New floor door obstruction")
 						prevObstruction = <-ch_doorObstruction
 					}
-					fmt.Println("New floor no door obstruction")
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					localElevator.Behaviour = elevator.EB_DoorOpen
 				}
@@ -130,10 +117,6 @@ func Fsm(
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				elevator_io.SetDoorOpenLamp(false)
 
-				// USE POINTER AND REFERENCE INSTEAD
-				//pair := requests.Requests_chooseDirection(localElevator)
-				//localElevator.Dirn = pair.Dirn
-				//localElevator.Behaviour = pair.Behaviour
 				requests.Requests_chooseDirection(&localElevator)
 
 				switch localElevator.Behaviour {
@@ -143,6 +126,7 @@ func Fsm(
 			}
 
 		case obstruction := <-ch_doorObstruction:
+			fmt.Printf("Entered obstruction in FSM\n")
 			prevObstruction = obstruction
 
 		case <-ch_stopButton:
@@ -170,13 +154,13 @@ func Fsm(
 				stopButtonPressed = <-ch_stopButton
 
 			}
+
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
 				if prevObstruction {
 					prevObstruction = <-ch_doorObstruction
 				}
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-				// USE POINTER AND REFERENCE INSTEAD
 				requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
 			case elevator.EB_Idle:
 				elevator_io.SetMotorDirection(localElevator.Dirn)
@@ -188,10 +172,10 @@ func Fsm(
 		default:
 			// NOP
 		} //select
+
 		if prevLocalElevator != localElevator {
 			prevLocalElevator = localElevator
 			elevator.SendLocalElevatorState(id, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 		}
-
 	} //For
 } //Fsm
