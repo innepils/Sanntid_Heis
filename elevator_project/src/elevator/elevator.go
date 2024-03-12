@@ -139,8 +139,8 @@ func ElevToElevatorState(id string, localElevator Elevator) map[string]ElevatorS
 func SendLocalElevatorState(
 	id string,
 	localElevator Elevator,
-	ch_elevatorStateToAssigner chan map[string]ElevatorState,
-	ch_elevatorStateToNetwork chan ElevatorState) {
+	ch_elevatorStateToAssigner chan<- map[string]ElevatorState,
+	ch_elevatorStateToNetwork chan<- ElevatorState) {
 
 	elevatorState := ElevToElevatorState(id, localElevator)
 	ch_elevatorStateToAssigner <- elevatorState
