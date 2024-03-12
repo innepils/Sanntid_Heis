@@ -101,7 +101,7 @@ func Requests_shouldStop(e *elevator.Elevator) bool {
 	}
 }
 
-/*
+
 func Requests_clearAtCurrentFloor(e *elevator.Elevator, ch_completedRequests chan<- elevator_io.ButtonEvent) {
 
 	e.Requests[e.Floor][elevator_io.BT_Cab] = false
@@ -133,7 +133,7 @@ func Requests_clearAtCurrentFloor(e *elevator.Elevator, ch_completedRequests cha
 		e.Requests[e.Floor][elevator_io.BT_HallDown] = false
 		ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
 	}
-}*/
+}/*
 
 func Requests_clearAtCurrentFloor(e *elevator.Elevator, ch_completedRequests chan<- elevator_io.ButtonEvent) {
 
@@ -157,3 +157,4 @@ func Requests_clearAtCurrentFloor(e *elevator.Elevator, ch_completedRequests cha
 		ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
 	}
 }
+*/

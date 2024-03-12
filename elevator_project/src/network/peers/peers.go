@@ -102,11 +102,14 @@ func Update(
 	var prevHallRequests [config.N_FLOORS][config.N_BUTTONS - 1]int
 	var prevAlivePeers map[string]elevator.ElevatorState
 	for {
+		//fmt.Println("Alive peers: ", alivePeers)
 		select {
 		case peers := <-ch_peerUpdate:
 			for _, peer := range peers.Lost {
 				if _, ok := alivePeers[peer]; ok {
 					delete(alivePeers, peer)
+					AlivePeersJson, _ := json.Marshal(alivePeers)
+					ch_externalElevators <- AlivePeersJson
 				}
 			}
 
@@ -118,7 +121,7 @@ func Update(
 		case a := <-ch_msgIn:
 			if a.SenderID != id {
 				alivePeers[a.SenderID] = a.ElevatorState
-
+				fmt.Println("Alive Peers: ", alivePeers)
 				if prevHallRequests != a.HallRequests {
 					prevHallRequests = a.HallRequests
 					ch_hallRequestsIn <- prevHallRequests
@@ -127,7 +130,6 @@ func Update(
 					fmt.Println(alivePeers)
 					prevAlivePeers = alivePeers
 					AlivePeersJson, _ := json.Marshal(prevAlivePeers)
-
 					ch_externalElevators <- AlivePeersJson
 				}
 				//fmt.Printf("Received: %#v\n", a)

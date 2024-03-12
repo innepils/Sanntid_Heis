@@ -28,12 +28,12 @@ func Cost(
 
 	var externalElevatorsDecoded map[string]elevator.ElevatorState
 	json.Unmarshal(externalElevators, &externalElevatorsDecoded)
-
+	//fmt.Println("external elevators: ", externalElevatorsDecoded)
 	for key, value := range externalElevatorsDecoded {
 		input.StatesofElevators[key] = value
 
 	}
-	//fmt.Println("input elevators stae::  ", input.StatesofElevators)
+	//fmt.Println("Input elevators: ", input)
 
 	jsonBytes, err := json.Marshal(input)
 	if err != nil {

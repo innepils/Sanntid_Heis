@@ -60,6 +60,7 @@ func SetButtonLamp(button ButtonType, floor int, value bool) {
 }
 
 func SetFloorIndicator(floor int) {
+	fmt.Println("FLOORLIGHT: ", floor)
 	write([4]byte{3, byte(floor), 0, 0})
 }
 

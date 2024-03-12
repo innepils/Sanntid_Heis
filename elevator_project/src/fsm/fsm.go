@@ -117,13 +117,13 @@ func Fsm(
 				}
 
 				// New implementation block
-				prevDirection := localElevator.Dirn
+				//prevDirection := localElevator.Dirn
 				requests.Requests_chooseDirection(&localElevator) //but this is old
-				if prevDirection != localElevator.Dirn {
-					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
-					fmt.Println("CHANGING DIRECTION")
-					time.Sleep(3 * time.Second)
-				}
+				//if prevDirection != localElevator.Dirn {
+				//	requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
+				//	fmt.Println("CHANGING DIRECTION")
+				//	time.Sleep(3 * time.Second)
+				//}
 
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				elevator_io.SetDoorOpenLamp(false)
