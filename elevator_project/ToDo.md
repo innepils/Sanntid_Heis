@@ -32,6 +32,8 @@
 - [ ] print Elevator when it brings new information
 - [x] remove "pair" and use pointers. THIS IS IMPORTANT
 - [x] When switch-case only has one case, should we use if instead? Might be more clear that it is a State-change, if it is a switch-case? NEI tror jeg. Tydeligere med switch
+- [ ] There is a lot of duplicated code, due to the state maching being state-driven. Also the stop-button is really far to long. Hear with the group if/what can be made into routines (functions)
+    - also, delete unnecessary from stop-button if it works (test when all functionality works)
 # Heartbeat
 - [ ] See if we can divide into two functions. Should not have a function that does 3 things
 # NETWORK packages
