@@ -34,9 +34,9 @@ func Send(
 				mtxLock.Lock()
 				elevatorState = newElevatorState
 				mtxLock.Unlock()
-				// Får forslag her om å ta bort default case grunnet:
-				// "should not have an empty default case in a for+select loop; the loop will spin (SA5004)"
-				//default:
+			// Får forslag her om å ta bort default case grunnet:
+			// "should not have an empty default case in a for+select loop; the loop will spin (SA5004)"
+			default:
 				// NOP
 			}
 		}
