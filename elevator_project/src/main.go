@@ -106,7 +106,6 @@ func main() {
 		ch_externalElevators,
 	)
 
-	for {
-	}
+	select {}
 
 }

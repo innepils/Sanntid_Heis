@@ -134,7 +134,7 @@ func BackupProcess(localID string, port string) {
 
 		msg := string(buffer[:n])
 		if msg == localID {
-			println("Primary is alive!")
+			fmt.Println("Primary is alive!")
 			conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 2.5 * time.Millisecond))
 		}
 	}
