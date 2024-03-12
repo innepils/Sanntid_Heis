@@ -13,17 +13,6 @@ type HeartBeat struct {
 	ElevatorState elevator.ElevatorState
 }
 
-// Send heartbeat to network incl. all info
-
-// func createHeartbeat(
-// 	id string,
-// 	ch_hallRequestsOut chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
-// 	ch_elevatorStateToNetwork chan elevator.ElevatorState) HeartBeat {
-// 	for {
-
-// 	}
-// }
-
 func Send(
 	id string,
 	ch_hallRequestsOut chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
@@ -45,7 +34,9 @@ func Send(
 				mtxLock.Lock()
 				elevatorState = newElevatorState
 				mtxLock.Unlock()
-			default:
+				// Får forslag her om å ta bort default case grunnet:
+				// "should not have an empty default case in a for+select loop; the loop will spin (SA5004)"
+				//default:
 				// NOP
 			}
 		}
