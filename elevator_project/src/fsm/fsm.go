@@ -25,6 +25,7 @@ func Fsm(
 	fmt.Printf("*****INITIALIZING ELEVATOR*****\n")
 	localElevator := elevator.UninitializedElevator()
 	prevLocalElevator := localElevator
+	prevObstruction := false
 
 	// If elevator is between floors, run it downwards until a floor is reached.
 	elevator_io.SetMotorDirection(elevator_io.MD_Down)
@@ -36,13 +37,11 @@ func Fsm(
 	// Initialize door
 	elevator_io.SetDoorOpenLamp(false)
 	doorTimer := time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
-	prevObstruction := false
 
 	elevator.SendLocalElevatorState(id, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
-		//fmt.Println("FSM RUNNING")
 		select {
 		case localRequests := <-ch_localRequests:
 			fmt.Printf("Entered Local requests in FSM\n")
