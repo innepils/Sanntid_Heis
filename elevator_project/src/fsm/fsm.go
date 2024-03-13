@@ -205,6 +205,7 @@ func Fsm(
 
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
+		ch_FSMLifeLine <- 1
 		select {
 		case localRequests := <-ch_localRequests:
 			fmt.Printf("Entered Local requests in FSM\n")
