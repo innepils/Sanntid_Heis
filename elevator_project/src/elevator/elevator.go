@@ -1,7 +1,6 @@
 package elevator
 
 import (
-	"driver/backup"
 	"driver/config"
 	"driver/elevator_io"
 	"fmt"
@@ -43,18 +42,7 @@ func UninitializedElevator() Elevator {
 		Floor:     -1,
 		Dirn:      elevator_io.MD_Stop,
 		Behaviour: EB_Idle,
-		Requests:  SetCabRequestsFromFile("backup.txt"),
 	}
-}
-
-func SetCabRequestsFromFile(filename string) [config.N_FLOORS][config.N_BUTTONS]bool {
-	var returnRequests [config.N_FLOORS][config.N_BUTTONS]bool
-	cabRequests := backup.LoadBackupFromFile(filename)
-
-	for i := 0; i < config.N_FLOORS; i++ {
-		returnRequests[i][elevator_io.BT_Cab] = cabRequests[i]
-	}
-	return returnRequests
 }
 
 func GetCabRequests(elevator Elevator) []bool {
