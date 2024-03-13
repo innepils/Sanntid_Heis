@@ -102,12 +102,13 @@ func Update(
 	var prevHallRequests [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType
 	var prevAlivePeers map[string]elevator.ElevatorState
 	for {
-		//fmt.Println("Alive peers: ", alivePeers)
+		// fmt.Println("Alive peers: ", alivePeers)
 		select {
 		case peers := <-ch_peerUpdate:
 			for _, peer := range peers.Lost {
 				if _, ok := alivePeers[peer]; ok {
 					delete(alivePeers, peer)
+					// fmt.Println("Alive peers after delete: ", alivePeers)
 					AlivePeersJson, _ := json.Marshal(alivePeers)
 					ch_externalElevators <- AlivePeersJson
 				}
@@ -120,6 +121,12 @@ func Update(
 
 		case hb := <-ch_msgIn:
 			if hb.SenderID != id {
+				if !reflect.DeepEqual(alivePeers[hb.SenderID], hb.ElevatorState) {
+					alivePeers[hb.SenderID] = hb.ElevatorState
+					// fmt.Println(alivePeers)
+					AlivePeersJson, _ := json.Marshal(alivePeers)
+					ch_externalElevators <- AlivePeersJson
+				}
 				alivePeers[hb.SenderID] = hb.ElevatorState
 				// fmt.Println("Alive Peers: ", alivePeers)
 				if prevHallRequests != hb.HallRequests {
@@ -127,7 +134,7 @@ func Update(
 					ch_hallRequestsIn <- prevHallRequests
 				}
 				if !reflect.DeepEqual(prevAlivePeers, alivePeers) {
-					// fmt.Println(alivePeers)
+					fmt.Println(alivePeers)
 					prevAlivePeers = alivePeers
 					AlivePeersJson, _ := json.Marshal(prevAlivePeers)
 					ch_externalElevators <- AlivePeersJson
