@@ -124,24 +124,27 @@ func main() {
 		ch_externalElevators,
 		ch_peersLifeLine,
 	)
-
-	select {
-	case <-ch_FSMLifeline:
-		lifeLines[FSMLifelineIndex] = time.Now()
-	case <-ch_assignerLifeLine:
-		lifeLines[assignerLifeLineIndex] = time.Now()
-	case <-ch_heartbeatLifeLine:
-		lifeLines[heartbeatLifeLineIndex] = time.Now()
-	case <-ch_peersLifeLine:
-		lifeLines[peersLifeLineIndex] = time.Now()
-		for _, lifeLine := range lifeLines {
-			if lifeLine.Add(10 * time.Second).Before(time.Now()) {
-				return
-			}
+	for{
+		select {
+		case <-ch_FSMLifeline:
+			lifeLines[FSMLifelineIndex] = time.Now()
+		case <-ch_assignerLifeLine:
+			lifeLines[assignerLifeLineIndex] = time.Now()
+		case <-ch_heartbeatLifeLine:
+			lifeLines[heartbeatLifeLineIndex] = time.Now()
+		case <-ch_peersLifeLine:
+			lifeLines[peersLifeLineIndex] = time.Now()
+		default:
+			// NOP
 		}
+		// for _, lifeLine := range lifeLines {
+		// 	if lifeLine.Add(10 * time.Second).Before(time.Now()) {
+		// 		fmt.Println("Lifeline")
+		// 		return
+		// 	}
+		// }
 	}
 }
-
 // func RecoverMe() {
 //     defer func() {
 //         if r := recover(); r != nil {
