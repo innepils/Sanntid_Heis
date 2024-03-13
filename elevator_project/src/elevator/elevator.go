@@ -65,7 +65,7 @@ func SendLocalElevatorState(
 	ch_elevatorStateToNetwork <- elevatorState[id]
 }
 
-func SetAllButtonLights(requests [config.N_FLOORS][config.N_BUTTONS]int) {
+func SetAllButtonLights(requests [config.N_FLOORS][config.N_BUTTONS]RequestType) {
 	for i := range requests {
 		for j := range requests[i] {
 			if requests[i][j] == 2 {
