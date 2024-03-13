@@ -19,7 +19,7 @@ func Fsm(
 	ch_completedRequests 		chan<- elevator_io.ButtonEvent,
 	ch_elevatorStateToAssigner 	chan<- map[string]elevator.ElevatorState,
 	ch_elevatorStateToNetwork 	chan<- elevator.ElevatorState,
-) {
+){
 
 	// Initializing
 	fmt.Printf("*****INITIALIZING ELEVATOR*****\n")

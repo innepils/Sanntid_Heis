@@ -92,11 +92,11 @@ func Receiver(port int, peerUpdateCh chan<- PeerUpdate) {
 }
 
 func Update(
-	id string,
-	ch_peerUpdate chan PeerUpdate,
-	ch_msgIn chan heartbeat.HeartBeat,
-	ch_hallRequestsIn chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
-	ch_externalElevators chan []byte) {
+	id 						string,
+	ch_peerUpdate 			chan PeerUpdate,
+	ch_msgIn 				chan heartbeat.HeartBeat,
+	ch_hallRequestsIn 		chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
+	ch_externalElevators 	chan []byte) {
 
 	alivePeers := make(map[string]elevator.ElevatorState)
 	var prevHallRequests [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType
@@ -119,18 +119,18 @@ func Update(
 			fmt.Printf("  New:      %q\n", peers.New)
 			fmt.Printf("  Lost:     %q\n", peers.Lost)
 
-		case hb := <-ch_msgIn:
-			if hb.SenderID != id {
-				if !reflect.DeepEqual(alivePeers[hb.SenderID], hb.ElevatorState) {
-					alivePeers[hb.SenderID] = hb.ElevatorState
+		case heartbeat := <-ch_msgIn:
+			if heartbeat.SenderID != id {
+				if !reflect.DeepEqual(alivePeers[heartbeat.SenderID], heartbeat.ElevatorState) {
+					alivePeers[heartbeat.SenderID] = heartbeat.ElevatorState
 					// fmt.Println(alivePeers)
 					AlivePeersJson, _ := json.Marshal(alivePeers)
 					ch_externalElevators <- AlivePeersJson
 				}
-				alivePeers[hb.SenderID] = hb.ElevatorState
+				alivePeers[heartbeat.SenderID] = heartbeat.ElevatorState
 				// fmt.Println("Alive Peers: ", alivePeers)
-				if prevHallRequests != hb.HallRequests {
-					prevHallRequests = hb.HallRequests
+				if prevHallRequests != heartbeat.HallRequests {
+					prevHallRequests = heartbeat.HallRequests
 					ch_hallRequestsIn <- prevHallRequests
 				}
 				if !reflect.DeepEqual(prevAlivePeers, alivePeers) {

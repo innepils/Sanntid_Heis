@@ -20,7 +20,7 @@ func RequestAssigner(
 	ch_externalElevators <-chan []byte,
 	ch_hallRequestsOut chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
 	ch_localRequests chan<- [config.N_FLOORS][config.N_BUTTONS]bool,
-) {
+){
 
 	var (
 		idleTimeOut        *time.Timer
@@ -38,7 +38,7 @@ func RequestAssigner(
 
 	for i := range allRequests {
 		for j := range allRequests[i] {
-			allRequests[i][j] = elevator.NoOrder
+			allRequests[i][j] = elevator.NoRequest
 			prevAllRequests[i][j] = 4
 			prevLocalRequests[i][j] = false
 		}
@@ -51,18 +51,18 @@ func RequestAssigner(
 		case buttonPressed := <-ch_buttonPressed:
 			// Gets button presses and registers the requests
 			if buttonPressed.BtnType == elevator_io.BT_Cab {
-				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = elevator.ConfirmedOrder
+				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = elevator.ConfirmedRequest
 				backup.SaveBackupToFile("backup.txt", allRequests)
-			} else if allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] != elevator.ConfirmedOrder {
+			} else if allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] != elevator.ConfirmedRequest {
 				//fmt.Println("req set to 1")
-				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = elevator.NewOrder
+				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = elevator.NewRequest
 			}
 		case completedRequest := <-ch_completedRequests:
 			// Completed requests from FSM
-			if allRequests[completedRequest.BtnFloor][completedRequest.BtnType] == elevator.CompletedOrder {
-				allRequests[completedRequest.BtnFloor][completedRequest.BtnType] = elevator.NoOrder
-			} else if allRequests[completedRequest.BtnFloor][completedRequest.BtnType] == elevator.ConfirmedOrder {
-				allRequests[completedRequest.BtnFloor][completedRequest.BtnType] = elevator.CompletedOrder
+			if allRequests[completedRequest.BtnFloor][completedRequest.BtnType] == elevator.CompletedRequest {
+				allRequests[completedRequest.BtnFloor][completedRequest.BtnType] = elevator.NoRequest
+			} else if allRequests[completedRequest.BtnFloor][completedRequest.BtnType] == elevator.ConfirmedRequest {
+				allRequests[completedRequest.BtnFloor][completedRequest.BtnType] = elevator.CompletedRequest
 			}
 			backup.SaveBackupToFile("backup.txt", allRequests)
 
@@ -78,36 +78,36 @@ func RequestAssigner(
 			for i := range updateHallRequest {
 				for j := 0; j < 2; j++ {
 					switch allRequests[i][j] {
-					case elevator.NoOrder:
+					case elevator.NoRequest:
 						switch updateHallRequest[i][j] {
-						case elevator.NewOrder:
-							allRequests[i][j] = elevator.NewOrder
-						case elevator.ConfirmedOrder:
-							allRequests[i][j] = elevator.ConfirmedOrder
-						case elevator.NoOrder, elevator.CompletedOrder:
+						case elevator.NewRequest:
+							allRequests[i][j] = elevator.NewRequest
+						case elevator.ConfirmedRequest:
+							allRequests[i][j] = elevator.ConfirmedRequest
+						case elevator.NoRequest, elevator.CompletedRequest:
 							// NOP
 						}
-					case elevator.NewOrder:
+					case elevator.NewRequest:
 						switch updateHallRequest[i][j] {
-						case elevator.NewOrder, elevator.ConfirmedOrder:
-							allRequests[i][j] = elevator.ConfirmedOrder
-						case elevator.NoOrder, elevator.CompletedOrder:
+						case elevator.NewRequest, elevator.ConfirmedRequest:
+							allRequests[i][j] = elevator.ConfirmedRequest
+						case elevator.NoRequest, elevator.CompletedRequest:
 							// NOP
 						}
-					case elevator.ConfirmedOrder:
+					case elevator.ConfirmedRequest:
 						switch updateHallRequest[i][j] {
-						case elevator.CompletedOrder:
-							allRequests[i][j] = elevator.CompletedOrder
-						case elevator.NoOrder, elevator.NewOrder, elevator.ConfirmedOrder:
+						case elevator.CompletedRequest:
+							allRequests[i][j] = elevator.CompletedRequest
+						case elevator.NoRequest, elevator.NewRequest, elevator.ConfirmedRequest:
 							// NOP
 						}
-					case elevator.CompletedOrder:
+					case elevator.CompletedRequest:
 						switch updateHallRequest[i][j] {
-						case elevator.NoOrder, elevator.CompletedOrder:
-							allRequests[i][j] = elevator.NoOrder
-						case elevator.NewOrder:
-							allRequests[i][j] = elevator.ConfirmedOrder
-						case elevator.ConfirmedOrder:
+						case elevator.NoRequest, elevator.CompletedRequest:
+							allRequests[i][j] = elevator.NoRequest
+						case elevator.NewRequest:
+							allRequests[i][j] = elevator.ConfirmedRequest
+						case elevator.ConfirmedRequest:
 							//NOP
 						}
 					}
@@ -121,7 +121,7 @@ func RequestAssigner(
 		for i := 0; i < config.N_FLOORS; i++ {
 			for j := 0; j < config.N_BUTTONS-1; j++ {
 				hallRequestsOut[i][j] = allRequests[i][j]
-				if allRequests[i][j] == elevator.ConfirmedOrder {
+				if allRequests[i][j] == elevator.ConfirmedRequest {
 					hallRequests[i][j] = true
 				} else {
 					hallRequests[i][j] = false
@@ -133,7 +133,7 @@ func RequestAssigner(
 		for i := 0; i < config.N_FLOORS; i++ {
 			copy(localRequests[i][:2], assignedHallRequests[i][:])
 
-			if allRequests[i][2] == elevator.ConfirmedOrder {
+			if allRequests[i][2] == elevator.ConfirmedRequest {
 				localRequests[i][2] = true
 			} else {
 				localRequests[i][2] = false
@@ -156,7 +156,7 @@ func RequestAssigner(
 			requestFlag := true
 			for i := 0; i < config.N_FLOORS; i++ {
 				for j := 0; j < config.N_BUTTONS; j++ {
-					if allRequests[i][j] == elevator.ConfirmedOrder {
+					if allRequests[i][j] == elevator.ConfirmedRequest {
 						requestFlag = false
 					}
 				}
@@ -170,7 +170,7 @@ func RequestAssigner(
 			fmt.Printf("TIMED OUT!!!!\n")
 			for i := 0; i < config.N_FLOORS; i++ {
 				for j := 0; j < config.N_BUTTONS; j++ {
-					if allRequests[i][j] == elevator.ConfirmedOrder {
+					if allRequests[i][j] == elevator.ConfirmedRequest {
 						localRequests[i][j] = true
 					} else {
 						localRequests[i][j] = false
