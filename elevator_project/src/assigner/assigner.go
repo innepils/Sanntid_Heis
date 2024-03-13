@@ -47,7 +47,7 @@ func RequestAssigner(
 	idleTimeOut = time.NewTimer(time.Duration(10) * time.Second)
 
 	for {
-		//fmt.Printf("Entered assigner loop")
+		// fmt.Println("Entered assigner loop")
 		ch_assignerLifeLine <- 1
 		select {
 		case buttonPressed := <-ch_buttonPressed:
@@ -78,7 +78,7 @@ func RequestAssigner(
 			//fmt.Printf("\nRecieved hallrequest in: ")
 			//fmt.Println(updateHallRequest)
 			for floor := range updateHallRequest {
-				for btn := 0; btn < config.N_BUTTONS; btn++ {
+				for btn := 0; btn < config.N_BUTTONS-1; btn++ {
 					switch allRequests[floor][btn] {
 					case elevator.NoRequest:
 						switch updateHallRequest[floor][btn] {
