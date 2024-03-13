@@ -124,6 +124,9 @@ func main() {
 		ch_externalElevators,
 		ch_peersLifeLine,
 	)
+	for i := range lifeLines{
+		lifeLines[i] = time.Now()
+	}
 	for{
 		select {
 		case <-ch_FSMLifeline:
@@ -137,12 +140,12 @@ func main() {
 		default:
 			// NOP
 		}
-		// for _, lifeLine := range lifeLines {
-		// 	if lifeLine.Add(10 * time.Second).Before(time.Now()) {
-		// 		fmt.Println("Lifeline")
-		// 		return
-		// 	}
-		// }
+		for _, lifeLine := range lifeLines {
+			if lifeLine.Add(time.Duration(10) * time.Second).Before(time.Now()) {
+				fmt.Println("Lifeline")
+				return
+			}
+		}
 	}
 }
 // func RecoverMe() {

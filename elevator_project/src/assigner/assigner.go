@@ -47,7 +47,7 @@ func RequestAssigner(
 	idleTimeOut = time.NewTimer(time.Duration(10) * time.Second)
 
 	for {
-		//fmt.Printf("Entered assigner loop")
+		// fmt.Println("Entered assigner loop")
 		ch_assignerLifeLine <- 1
 		select {
 		case buttonPressed := <-ch_buttonPressed:

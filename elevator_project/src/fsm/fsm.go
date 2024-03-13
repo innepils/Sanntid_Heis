@@ -9,7 +9,6 @@ import (
 	"time"
 )
 
-/*
 // One single function for the Final State Machine, to be run as a goroutine from main
 func Fsm(
 	id string,
@@ -44,6 +43,7 @@ func Fsm(
 
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
+		// fmt.Println("FSM loop")
 		ch_FSMLifeLine <- 1
 		select {
 		case localRequests := <-ch_localRequests:
@@ -168,8 +168,8 @@ func Fsm(
 		}
 	} //For
 } //Fsm
-*/
 
+/*
 // One single function for the Final State Machine, to be run as a goroutine from main
 func Fsm(
 	id string,
