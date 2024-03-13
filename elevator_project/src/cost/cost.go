@@ -33,14 +33,14 @@ func Cost(
 		input.StatesofElevators[key] = value
 
 	}
-	fmt.Println("Input elevators: ", input)
+	// fmt.Println("Input elevators: ", input)
 
 	jsonBytes, err := json.Marshal(input)
 	if err != nil {
 		fmt.Println("json.Marshal error: ", err)
 	}
 
-	ret, err := exec.Command("./hall_request_assigner/hall_request_assigner.exe", "-i", string(jsonBytes)).CombinedOutput()
+	ret, err := exec.Command("./hall_request_assigner/hall_request_assigner", "-i", string(jsonBytes)).CombinedOutput()
 	if err != nil {
 		fmt.Println("exec.Command error: ", err)
 		fmt.Println(string(ret))
