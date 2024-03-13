@@ -41,14 +41,14 @@ func main() {
 	fmt.Println("\n--- Initialized local elevator " + id + " with port " + port + " ---\n")
 
 	// Request assigner channels (Recieve updates on the ID's of of the peers that are alive on the network)
-	ch_peerUpdate := make(chan peers.PeerUpdate, 1)
-	ch_peerTxEnable := make(chan bool, 1)
-	ch_msgOut := make(chan heartbeat.HeartBeat, 1)
-	ch_msgIn := make(chan heartbeat.HeartBeat, 1)
-	ch_completedRequests := make(chan elevator_io.ButtonEvent, 1)
-	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 1)
-	ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 1)
-	ch_externalElevators := make(chan []byte, 1)
+	ch_peerUpdate 			:= make(chan peers.PeerUpdate, 1)
+	ch_peerTxEnable 		:= make(chan bool, 1)
+	ch_msgOut 				:= make(chan heartbeat.HeartBeat, 1)
+	ch_msgIn 				:= make(chan heartbeat.HeartBeat, 1)
+	ch_completedRequests 	:= make(chan elevator_io.ButtonEvent, 1)
+	ch_hallRequestsIn 		:= make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 1)
+	ch_hallRequestsOut 		:= make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 1)
+	ch_externalElevators 	:= make(chan []byte, 1)
 
 	// Channels for local elevator
 	ch_arrivalFloor := make(chan int, 1)

@@ -60,23 +60,23 @@ func Fsm(
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 
 				if requests.Here(&localElevator) && (localElevator.Dirn == elevator_io.MD_Stop) {
-					fmt.Println("In first door open case, AFTER IF. Direction is:", elevator.ElevDirnToString(localElevator.Dirn),elevator.ElevBehaviourToString(localElevator.Behaviour))
+					fmt.Println("In first door open case, AFTER IF. Direction is:", elevator.ElevDirnToString(localElevator.Dirn), elevator.ElevBehaviourToString(localElevator.Behaviour))
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
 				}
 				localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
-				fmt.Println("In first door open case, END of the case. Direction is:", elevator.ElevDirnToString(localElevator.Dirn),elevator.ElevBehaviourToString(localElevator.Behaviour))
+				fmt.Println("In first door open case, END of the case. Direction is:", elevator.ElevDirnToString(localElevator.Dirn), elevator.ElevBehaviourToString(localElevator.Behaviour))
 
 			case elevator.EB_Idle:
 				requests.ChooseDirnAndBehaviour(&localElevator)
-				fmt.Println("In idle case. Direction is:", elevator.ElevDirnToString(localElevator.Dirn),elevator.ElevBehaviourToString(localElevator.Behaviour))
+				fmt.Println("In idle case. Direction is:", elevator.ElevDirnToString(localElevator.Dirn), elevator.ElevBehaviourToString(localElevator.Behaviour))
 
 				switch localElevator.Behaviour {
 				case elevator.EB_Moving:
 					elevator_io.SetMotorDirection(localElevator.Dirn)
-					fmt.Println("In Moving-case. Direction is:", elevator.ElevDirnToString(localElevator.Dirn),elevator.ElevBehaviourToString(localElevator.Behaviour))
+					fmt.Println("In Moving-case. Direction is:", elevator.ElevDirnToString(localElevator.Dirn), elevator.ElevBehaviourToString(localElevator.Behaviour))
 
 				case elevator.EB_DoorOpen:
-					fmt.Println("In second door open case. Direction is:", elevator.ElevDirnToString(localElevator.Dirn),elevator.ElevBehaviourToString(localElevator.Behaviour))
+					fmt.Println("In second door open case. Direction is:", elevator.ElevDirnToString(localElevator.Dirn), elevator.ElevBehaviourToString(localElevator.Behaviour))
 					elevator_io.SetDoorOpenLamp(true)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
@@ -172,16 +172,16 @@ func Fsm(
 
 // One single function for the Final State Machine, to be run as a goroutine from main
 func Fsm(
-	id 							string,
-	ch_arrivalFloor 			<-chan int,
-	ch_localRequests 			<-chan [config.N_FLOORS][config.N_BUTTONS]bool,
-	ch_doorObstruction 			<-chan bool,
-	ch_stopButton 				<-chan bool,
-	ch_completedRequests 		chan<- elevator_io.ButtonEvent,
-	ch_elevatorStateToAssigner 	chan<- map[string]elevator.ElevatorState,
-	ch_elevatorStateToNetwork 	chan<- elevator.ElevatorState,
+	id string,
+	ch_arrivalFloor <-chan int,
+	ch_localRequests <-chan [config.N_FLOORS][config.N_BUTTONS]bool,
+	ch_doorObstruction <-chan bool,
+	ch_stopButton <-chan bool,
+	ch_completedRequests chan<- elevator_io.ButtonEvent,
+	ch_elevatorStateToAssigner chan<- map[string]elevator.ElevatorState,
+	ch_elevatorStateToNetwork chan<- elevator.ElevatorState,
 	ch_FSMLifeLine chan<- int,
-){
+) {
 
 	// Initializing
 	fmt.Printf("*****INITIALIZING ELEVATOR*****\n")
@@ -219,8 +219,8 @@ func Fsm(
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				}
-				localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
-			
+				//localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
+
 			case elevator.EB_Idle:
 				if requests.Here(&localElevator) && (localElevator.Dirn == elevator_io.MD_Stop) {
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
@@ -228,17 +228,16 @@ func Fsm(
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					localElevator.Behaviour = elevator.EB_DoorOpen
 
-					localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
-				}else{
+					//localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
+				} else {
 					// See if requests are elsewhere
 					requests.ChooseDirnAndBehaviour(&localElevator)
-					if (localElevator.Behaviour == elevator.EB_Moving){
+					if localElevator.Behaviour == elevator.EB_Moving {
 						elevator_io.SetMotorDirection(localElevator.Dirn)
 					}
 				}
-			
 
-			} //switch e.behaviour   
+			} //switch e.behaviour
 
 		case newFloor := <-ch_arrivalFloor:
 			fmt.Printf("Entered new floor in FSM\n")
@@ -256,7 +255,7 @@ func Fsm(
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					localElevator.Behaviour = elevator.EB_DoorOpen
 
-					localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
+					//localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 				}
 			case elevator.EB_DoorOpen, elevator.EB_Idle:
 				//NOP
@@ -271,19 +270,24 @@ func Fsm(
 			case elevator.EB_Idle, elevator.EB_Moving:
 				//NOP
 			case elevator.EB_DoorOpen:
-				// This "if" happens when hallButton in direction was cleared at new floor, 
+				// This "if" happens when hallButton in direction was cleared at new floor,
 				// 	but should wait longer if hallButton in other direction should also be cleared:
 				if requests.Here(&localElevator) {
 					requests.AnnounceDirectionChange(&localElevator)
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
 					time.Sleep(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				}
-				localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
+				//localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
+				if prevObstruction {
+					fmt.Println("Door is obstructed")
+					prevObstruction = <-ch_doorObstruction
+					time.Sleep(time.Duration(config.DoorOpenDurationSec) * time.Second)
+				}
 				elevator_io.SetDoorOpenLamp(false)
 
 				//Decides further action:
 				requests.ChooseDirnAndBehaviour(&localElevator)
-				if (localElevator.Behaviour == elevator.EB_Moving) {
+				if localElevator.Behaviour == elevator.EB_Moving {
 					elevator_io.SetMotorDirection(localElevator.Dirn)
 				}
 			}
@@ -296,7 +300,7 @@ func Fsm(
 			fmt.Printf("Entered Stop Button in FSM\n")
 			localElevator.Elevator_print()
 
-			if (localElevator.Behaviour == elevator.EB_Moving) {
+			if localElevator.Behaviour == elevator.EB_Moving {
 				elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 			}
 
@@ -324,5 +328,3 @@ func Fsm(
 		}
 	} //For
 } //Fsm
-
-
