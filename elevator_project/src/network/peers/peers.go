@@ -118,12 +118,12 @@ func Update(
 			fmt.Printf("  New:      %q\n", peers.New)
 			fmt.Printf("  Lost:     %q\n", peers.Lost)
 
-		case a := <-ch_msgIn:
-			if a.SenderID != id {
-				alivePeers[a.SenderID] = a.ElevatorState
+		case hb := <-ch_msgIn:
+			if hb.SenderID != id {
+				alivePeers[hb.SenderID] = hb.ElevatorState
 				fmt.Println("Alive Peers: ", alivePeers)
-				if prevHallRequests != a.HallRequests {
-					prevHallRequests = a.HallRequests
+				if prevHallRequests != hb.HallRequests {
+					prevHallRequests = hb.HallRequests
 					ch_hallRequestsIn <- prevHallRequests
 				}
 				if !reflect.DeepEqual(prevAlivePeers, alivePeers) {
