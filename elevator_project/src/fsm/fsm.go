@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+/*
 // One single function for the Final State Machine, to be run as a goroutine from main
 func Fsm(
 	id string,
@@ -168,8 +169,8 @@ func Fsm(
 		}
 	} //For
 } //Fsm
+*/
 
-/*
 // One single function for the Final State Machine, to be run as a goroutine from main
 func Fsm(
 	id string,
@@ -328,4 +329,3 @@ func Fsm(
 		}
 	} //For
 } //Fsm
-*/
