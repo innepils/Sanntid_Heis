@@ -43,6 +43,7 @@ func UninitializedElevator() Elevator {
 		Floor:     -1,
 		Dirn:      elevator_io.MD_Stop,
 		Behaviour: EB_Idle,
+		// Requests are received from assigner.
 	}
 }
 
@@ -51,7 +52,6 @@ func GetCabRequests(elevator Elevator) []bool {
 	for i, row := range elevator.Requests {
 		cabRequests[i] = row[len(row)-1]
 	}
-
 	return cabRequests
 }
 
