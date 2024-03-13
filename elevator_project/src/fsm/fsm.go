@@ -11,7 +11,7 @@ import (
 
 // One single function for the Final State Machine, to be run as a goroutine from main
 func Fsm(
-	id string,
+	id 							string,
 	ch_arrivalFloor 			<-chan int,
 	ch_localRequests 			<-chan [config.N_FLOORS][config.N_BUTTONS]bool,
 	ch_doorObstruction 			<-chan bool,
@@ -51,21 +51,29 @@ func Fsm(
 
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
-				if requests.Here(&localElevator) && localElevator.Dirn == elevator_io.MD_Stop {
-					elevator_io.SetDoorOpenLamp(true)
-					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+				fmt.Println("In first door open case, BEFORE IF. Direction is:", elevator.ElevDirnToString(localElevator.Dirn), elevator.ElevBehaviourToString(localElevator.Behaviour))
+
+				elevator_io.SetDoorOpenLamp(true)
+				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+
+				if requests.Here(&localElevator) && (localElevator.Dirn == elevator_io.MD_Stop) {
+					fmt.Println("In first door open case, AFTER IF. Direction is:", elevator.ElevDirnToString(localElevator.Dirn),elevator.ElevBehaviourToString(localElevator.Behaviour))
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
-					localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 				}
+				localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
+				fmt.Println("In first door open case, END of the case. Direction is:", elevator.ElevDirnToString(localElevator.Dirn),elevator.ElevBehaviourToString(localElevator.Behaviour))
 
 			case elevator.EB_Idle:
 				requests.ChooseDirnAndBehaviour(&localElevator)
+				fmt.Println("In idle case. Direction is:", elevator.ElevDirnToString(localElevator.Dirn),elevator.ElevBehaviourToString(localElevator.Behaviour))
 
 				switch localElevator.Behaviour {
 				case elevator.EB_Moving:
 					elevator_io.SetMotorDirection(localElevator.Dirn)
+					fmt.Println("In Moving-case. Direction is:", elevator.ElevDirnToString(localElevator.Dirn),elevator.ElevBehaviourToString(localElevator.Behaviour))
 
 				case elevator.EB_DoorOpen:
+					fmt.Println("In second door open case. Direction is:", elevator.ElevDirnToString(localElevator.Dirn),elevator.ElevBehaviourToString(localElevator.Behaviour))
 					elevator_io.SetDoorOpenLamp(true)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)

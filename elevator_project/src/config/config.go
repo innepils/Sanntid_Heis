@@ -22,7 +22,7 @@ const (
 	DefaultPortBcast  int = 22018
 
 	// Backup-configuration
-	BackupPort = ":22019"
+	BackupPort = "22019"
 	BackupSendAddr    = "255.255.255.255:" + BackupPort
 	PrimaryAliveSec   = 1
 )

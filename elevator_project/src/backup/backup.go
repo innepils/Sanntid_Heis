@@ -93,7 +93,7 @@ func BackupProcess(localID string, port string) { //name change: ListenForPrimar
 	localState := ""
 	fmt.Println(localState)
 	fmt.Printf("---------BACKUP PHASE---------\n")
-	receiveUDPAddr, err := net.ResolveUDPAddr("udp", config.BackupPort)
+	receiveUDPAddr, err := net.ResolveUDPAddr("udp", config.BackupSendAddr)
 	if err != nil {
 		fmt.Println(err)
 		return
