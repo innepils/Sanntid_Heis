@@ -92,16 +92,19 @@ func Receiver(port int, peerUpdateCh chan<- PeerUpdate) {
 }
 
 func Update(
-	id 						string,
-	ch_peerUpdate 			chan PeerUpdate,
-	ch_msgIn 				chan heartbeat.HeartBeat,
-	ch_hallRequestsIn 		chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
-	ch_externalElevators 	chan []byte) {
+	id string,
+	ch_peerUpdate <-chan PeerUpdate,
+	ch_msgIn <-chan heartbeat.HeartBeat,
+	ch_hallRequestsIn chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
+	ch_externalElevators chan<- []byte,
+	ch_peersLifeLine chan<- int,
+) {
 
 	alivePeers := make(map[string]elevator.ElevatorState)
 	var prevHallRequests [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType
 	var prevAlivePeers map[string]elevator.ElevatorState
 	for {
+		ch_peersLifeLine <- 1
 		// fmt.Println("Alive peers: ", alivePeers)
 		select {
 		case peers := <-ch_peerUpdate:
