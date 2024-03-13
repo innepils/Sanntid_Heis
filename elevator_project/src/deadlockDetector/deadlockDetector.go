@@ -1,6 +1,7 @@
 package deadlockdetector
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -37,9 +38,9 @@ func DeadlockDetector(
 		default:
 			// NOP
 		}
-		for _, lifeLine := range lifeLines {
+		for locked, lifeLine := range lifeLines {
 			if lifeLine.Add(time.Duration(10) * time.Second).Before(time.Now()) {
-				panic("DEADLOCK DETECTED")
+				panic(fmt.Sprintf("DEADLOCK DETECTED IN PROCESS ", locked))
 			}
 		}
 	}
