@@ -28,26 +28,26 @@ func main() {
 	fmt.Println("\n--- Initialized local elevator " + id + " with port " + port + " ---\n")
 
 	// Request assigner channels (Recieve updates on the ID's of of the peers that are alive on the network)
-	ch_peerUpdate := make(chan peers.PeerUpdate, 100)
-	ch_peerTxEnable := make(chan bool, 100)
-	ch_msgOut := make(chan heartbeat.HeartBeat, 100)
-	ch_msgIn := make(chan heartbeat.HeartBeat, 100)
-	ch_completedRequests := make(chan elevator_io.ButtonEvent, 100)
-	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 100)
-	ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 100)
-	ch_externalElevators := make(chan []byte, 100)
+	ch_peerUpdate 				:= make(chan peers.PeerUpdate, 100)
+	ch_peerTxEnable 			:= make(chan bool, 100)
+	ch_msgOut 					:= make(chan heartbeat.HeartBeat, 100)
+	ch_msgIn 					:= make(chan heartbeat.HeartBeat, 100)
+	ch_completedRequests 		:= make(chan elevator_io.ButtonEvent, 100)
+	ch_hallRequestsIn 			:= make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 100)
+	ch_hallRequestsOut 			:= make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 100)
+	ch_externalElevators 		:= make(chan []byte, 100)
 
 	// Channels for local elevator
-	ch_arrivalFloor := make(chan int, 100)
-	ch_buttonPressed := make(chan elevator_io.ButtonEvent, 100)
-	ch_localRequests := make(chan [config.N_FLOORS][config.N_BUTTONS]bool, 100)
-	ch_doorObstruction := make(chan bool, 100)
-	ch_stopButton := make(chan bool, 100)
-	ch_elevatorStateToAssigner := make(chan map[string]elevator.ElevatorState, 5)
-	ch_elevatorStateToNetwork := make(chan elevator.ElevatorState, 5)
+	ch_arrivalFloor 			:= make(chan int, 100)
+	ch_buttonPressed 			:= make(chan elevator_io.ButtonEvent, 100)
+	ch_localRequests 			:= make(chan [config.N_FLOORS][config.N_BUTTONS]bool, 100)
+	ch_doorObstruction 			:= make(chan bool, 100)
+	ch_stopButton 				:= make(chan bool, 100)
+	ch_elevatorStateToAssigner 	:= make(chan map[string]elevator.ElevatorState, 5)
+	ch_elevatorStateToNetwork 	:= make(chan elevator.ElevatorState, 5)
 
 	go backup.LoadBackupFromFile("backup.txt", ch_buttonPressed)
-	
+
 	// Goroutines for sending and recieving messages
 	go bcast.Transmitter(config.DefaultPortBcast, ch_msgOut)
 	go bcast.Receiver(config.DefaultPortBcast, ch_msgIn)

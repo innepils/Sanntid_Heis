@@ -12,6 +12,7 @@ const (
 	N_FLOORS            int = 4
 	N_BUTTONS           int = 3
 	DoorOpenDurationSec int = 3
+	
 	// Network-configuration
 	DefaultPortPeer   int = 22017
 	DefaultPortBcast  int = 22018
