@@ -53,9 +53,6 @@ func main() {
 	go peers.Transmitter(config.DefaultPortPeer, id, ch_peerTxEnable)
 	go peers.Receiver(config.DefaultPortPeer, ch_peerUpdate)
 
-	// Load backup
-	go backup.LoadBackupFromFile("backup.txt", ch_buttonPressed)
-
 	// elevator_io goroutines
 	go elevator_io.PollButtons(ch_buttonPressed)
 	go elevator_io.PollFloorSensor(ch_arrivalFloor)
