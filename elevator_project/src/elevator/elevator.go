@@ -26,17 +26,58 @@ const (
 type Elevator struct {
 	Floor     int
 	Dirn      elevator_io.MotorDirection
-	Requests  [config.N_FLOORS][config.N_BUTTONS]bool
 	Behaviour ElevatorBehaviour
+	Requests  [config.N_FLOORS][config.N_BUTTONS]bool
 }
 
 type ElevatorState struct {
-	Behavior    string `json:"behaviour"`
 	Floor       int    `json:"floor"`
 	Direction   string `json:"direction"`
+	Behavior    string `json:"behaviour"`
 	CabRequests []bool `json:"cabRequests"`
 }
 
+func UninitializedElevator() Elevator {
+	return Elevator{
+		Floor:     -1,
+		Dirn:      elevator_io.MD_Stop,
+		Behaviour: EB_Idle,
+	}
+}
+
+func GetCabRequests(elevator Elevator) []bool {
+	cabRequests := make([]bool, len(elevator.Requests))
+	for i, row := range elevator.Requests {
+		cabRequests[i] = row[len(row)-1]
+	}
+
+	return cabRequests
+}
+
+func SendLocalElevatorState(
+	id string,
+	localElevator Elevator,
+	ch_elevatorStateToAssigner chan<- map[string]ElevatorState,
+	ch_elevatorStateToNetwork chan<- ElevatorState) {
+
+	elevatorState := ElevToElevatorState(id, localElevator)
+	ch_elevatorStateToAssigner <- elevatorState
+	ch_elevatorStateToNetwork <- elevatorState[id]
+}
+
+func SetAllButtonLights(requests [config.N_FLOORS][config.N_BUTTONS]int) {
+	for i := range requests {
+		for j := range requests[i] {
+			if requests[i][j] == 2 {
+				elevator_io.SetButtonLamp(elevator_io.ButtonType(j), i, true)
+			} else {
+				elevator_io.SetButtonLamp(elevator_io.ButtonType(j), i, false)
+			}
+		}
+	}
+}
+
+// Functions for changing datatype
 func ElevBehaviourToString(elevBehaviour ElevatorBehaviour) string {
 	switch elevBehaviour {
 	case EB_Idle:
@@ -63,19 +104,32 @@ func ElevDirnToString(elevDirection elevator_io.MotorDirection) string {
 	}
 }
 
-func ElevButtonToString(buttonType elevator_io.ButtonType) string {
-	switch buttonType {
-	case elevator_io.BT_HallUp:
-		return "HallUp"
-	case elevator_io.BT_HallDown:
-		return "HallDown"
-	case elevator_io.BT_Cab:
-		return "Cab"
-	default:
-		return "Unknown"
+/*
+	func ElevButtonToString(buttonType elevator_io.ButtonType) string {
+		switch buttonType {
+		case elevator_io.BT_HallUp:
+			return "HallUp"
+		case elevator_io.BT_HallDown:
+			return "HallDown"
+		case elevator_io.BT_Cab:
+			return "Cab"
+		default:
+			return "Unknown"
+		}
+	}
+*/
+func ElevToElevatorState(id string, localElevator Elevator) map[string]ElevatorState {
+	return map[string]ElevatorState{
+		id: {
+			Floor:       localElevator.Floor,
+			Direction:   strings.ToLower(ElevDirnToString(localElevator.Dirn)),
+			Behavior:    strings.ReplaceAll(strings.ToLower(ElevBehaviourToString(localElevator.Behaviour)[3:]), "open", "Open"),
+			CabRequests: GetCabRequests(localElevator),
+		},
 	}
 }
 
+// Printing
 func (es *Elevator) Elevator_print() {
 	fmt.Println("  +--------------------+")
 	fmt.Printf(
@@ -106,55 +160,4 @@ func (es *Elevator) Elevator_print() {
 		fmt.Println("|")
 	}
 	fmt.Println("  +--------------------+")
-}
-
-func UninitializedElevator() Elevator {
-	return Elevator{
-		Floor:     -1,
-		Dirn:      elevator_io.MD_Stop,
-		Behaviour: EB_Idle,
-	}
-}
-
-func GetCabRequests(elevator Elevator) []bool {
-	cabRequests := make([]bool, len(elevator.Requests))
-	for i, row := range elevator.Requests {
-		cabRequests[i] = row[len(row)-1]
-	}
-
-	return cabRequests
-}
-
-func ElevToElevatorState(id string, localElevator Elevator) map[string]ElevatorState {
-	return map[string]ElevatorState{
-		id: {
-			Behavior:    strings.ReplaceAll(strings.ToLower(ElevBehaviourToString(localElevator.Behaviour)[3:]), "open", "Open"),
-			Floor:       localElevator.Floor,
-			Direction:   strings.ToLower(ElevDirnToString(localElevator.Dirn)),
-			CabRequests: GetCabRequests(localElevator),
-		},
-	}
-}
-
-func SendLocalElevatorState(
-	id string,
-	localElevator Elevator,
-	ch_elevatorStateToAssigner chan map[string]ElevatorState,
-	ch_elevatorStateToNetwork chan ElevatorState) {
-
-	elevatorState := ElevToElevatorState(id, localElevator)
-	ch_elevatorStateToAssigner <- elevatorState
-	ch_elevatorStateToNetwork <- elevatorState[id]
-}
-
-func SetAllButtonLights(requests [config.N_FLOORS][config.N_BUTTONS]int) {
-	for i := range requests {
-		for j := range requests[i] {
-			if requests[i][j] == 2 {
-				elevator_io.SetButtonLamp(elevator_io.ButtonType(j), i, true)
-			} else {
-				elevator_io.SetButtonLamp(elevator_io.ButtonType(j), i, false)
-			}
-		}
-	}
 }

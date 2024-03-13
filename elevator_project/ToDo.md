@@ -4,6 +4,8 @@
     - det viktigste er at kommentaren skal gi ytterligere informasjon, ikke gjengi direkte hva koden sier.
       - Slik kommentering (sistnevnte) er verre enn ingen kommentering.
     - Ikke benytt "inline-" kommentering om det ikke er helt nødvendig, altså kommentarer på slutten av en kode linje (til høyre)
+- Er visst dårlig å sende channelse fra funksjon til funksjon. De kanalene som bare brukes mellom assigner og fsm (for eksempel); kan de lages lokalt i fsm istedenfor? Altså mindre channel-passing
+- Se over hvilke moduler som importerer andre, direkte import-cycle går ikke an men vi bør unngå en unødvendig link frem og tilbake mellom moduler om det er mulig.
 
 ### Adrian:
  - [ ] Change as much pass-by-value to pass-by-reference. E.g. in elevator.go
@@ -25,7 +27,7 @@
 - [x] Foor loop for localeelevator is ridicioulous
 # Elevator
 - [x] Changed name on MAP (elevState) etc.
-- [ ] change functionname from ElevButtonToString to ElevButtonTypeToString??
+- [ ] change functionname from ElevButtonToString to ElevButtonTypeToString?? Brukes den i det hele tatt?
 # Elevator_io
 - [ ] Should short one-letter variable names be renamed? It is given code..
 # FSM
