@@ -119,18 +119,18 @@ func Update(
 			fmt.Printf("  New:      %q\n", peers.New)
 			fmt.Printf("  Lost:     %q\n", peers.Lost)
 
-		case hb := <-ch_msgIn:
-			if hb.SenderID != id {
-				if !reflect.DeepEqual(alivePeers[hb.SenderID], hb.ElevatorState) {
-					alivePeers[hb.SenderID] = hb.ElevatorState
+		case heartbeat := <-ch_msgIn:
+			if heartbeat.SenderID != id {
+				if !reflect.DeepEqual(alivePeers[heartbeat.SenderID], heartbeat.ElevatorState) {
+					alivePeers[heartbeat.SenderID] = heartbeat.ElevatorState
 					// fmt.Println(alivePeers)
 					AlivePeersJson, _ := json.Marshal(alivePeers)
 					ch_externalElevators <- AlivePeersJson
 				}
-				alivePeers[hb.SenderID] = hb.ElevatorState
+				alivePeers[heartbeat.SenderID] = heartbeat.ElevatorState
 				// fmt.Println("Alive Peers: ", alivePeers)
-				if prevHallRequests != hb.HallRequests {
-					prevHallRequests = hb.HallRequests
+				if prevHallRequests != heartbeat.HallRequests {
+					prevHallRequests = heartbeat.HallRequests
 					ch_hallRequestsIn <- prevHallRequests
 				}
 				if !reflect.DeepEqual(prevAlivePeers, alivePeers) {

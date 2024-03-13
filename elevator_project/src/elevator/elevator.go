@@ -56,10 +56,10 @@ func GetCabRequests(elevator Elevator) []bool {
 }
 
 func SendLocalElevatorState(
-	id string,
-	localElevator Elevator,
-	ch_elevatorStateToAssigner chan<- map[string]ElevatorState,
-	ch_elevatorStateToNetwork chan<- ElevatorState) {
+	id 							string,
+	localElevator 				Elevator,
+	ch_elevatorStateToAssigner 	chan<- map[string]ElevatorState,
+	ch_elevatorStateToNetwork 	chan<- ElevatorState) {
 
 	elevatorState := ElevToElevatorState(id, localElevator)
 	ch_elevatorStateToAssigner <- elevatorState
