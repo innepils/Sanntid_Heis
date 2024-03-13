@@ -12,13 +12,6 @@ import (
 	"time"
 )
 
-const (
-	sendAddr       = "255.255.255.255:20019"
-	receiveAddr    = ":" + "20019"
-	baseStatusMsg  = "heartbeat"
-	heartbeatSleep = 1000
-)
-
 func KillSelf(localID string, port string) { //unused
 	StartBackupProcess(localID, port)
 	panic("Program terminated")
@@ -27,7 +20,7 @@ func KillSelf(localID string, port string) { //unused
 func SaveBackupToFile(filename string, allRequests [config.N_FLOORS][config.N_BUTTONS]elevator.RequestType) {
 	var cabRequests [config.N_FLOORS]bool
 	for request := range allRequests {
-		if allRequests[request][2] == elevator.Confirmed {
+		if allRequests[request][2] == elevator.ConfirmedOrder {
 			cabRequests[request] = true
 		} else {
 			cabRequests[request] = false
@@ -47,7 +40,7 @@ func SaveBackupToFile(filename string, allRequests [config.N_FLOORS][config.N_BU
 }
 
 func LoadBackupFromFile(filename string, ch_buttonPressed chan elevator_io.ButtonEvent) {
-	var data [4]bool
+	var data [config.N_FLOORS]bool
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -73,7 +66,7 @@ func StartBackupProcess(localID string, port string) {
 }
 
 func ReportPrimaryAlive(localID string) {
-	sendUDPAddr, err := net.ResolveUDPAddr("udp", sendAddr)
+	sendUDPAddr, err := net.ResolveUDPAddr("udp", config.BackupSendAddr)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -92,7 +85,7 @@ func ReportPrimaryAlive(localID string) {
 			fmt.Println("Primary failed to send heartbeat:", err)
 			return
 		}
-		time.Sleep(heartbeatSleep * time.Millisecond)
+		time.Sleep(config.HeartbeatSleepSec * time.Second)
 	}
 }
 
@@ -100,7 +93,7 @@ func BackupProcess(localID string, port string) { //name change: ListenForPrimar
 	localState := ""
 	fmt.Println(localState)
 	fmt.Printf("---------BACKUP PHASE---------\n")
-	receiveUDPAddr, err := net.ResolveUDPAddr("udp", receiveAddr)
+	receiveUDPAddr, err := net.ResolveUDPAddr("udp", config.BackupReceiveAddr)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -111,7 +104,7 @@ func BackupProcess(localID string, port string) { //name change: ListenForPrimar
 		return
 	}
 	defer conn.Close()
-	conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 5 * time.Millisecond))
+	conn.SetReadDeadline(time.Now().Add(config.HeartbeatSleepSec * 5 * time.Second))
 	for {
 		buffer := make([]byte, 1024)
 		//conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 2.5 * time.Millisecond))
@@ -133,7 +126,7 @@ func BackupProcess(localID string, port string) { //name change: ListenForPrimar
 		msg := string(buffer[:n])
 		if msg == localID {
 			fmt.Println("Primary is alive!")
-			conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 2.5 * time.Millisecond))
+			conn.SetReadDeadline(time.Now().Add(config.HeartbeatSleepSec * 2500 * time.Millisecond))
 		}
 	}
 }

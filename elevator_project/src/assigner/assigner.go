@@ -38,19 +38,12 @@ func RequestAssigner(
 
 	for i := range allRequests {
 		for j := range allRequests[i] {
-			allRequests[i][j] = 0
+			allRequests[i][j] = elevator.NoOrder
 			prevAllRequests[i][j] = 4
 			prevLocalRequests[i][j] = false
 		}
 	}
 	idleTimeOut = time.NewTimer(time.Duration(10) * time.Second)
-	//var localElevatorState = map[string]elevator.ElevatorState{id: {Behavior: "idle", Floor: 1, Direction: "stop", CabRequests: []bool{true, false, true, false}}}
-	//var prevLocalRequests [config.N_FLOORS][config.N_BUTTONS]bool
-	// for i := range prevLocalRequests {
-	// 	for j := range prevLocalRequests[i] {
-	// 		prevLocalRequests[i][j] = false
-	// 	}
-	// }
 
 	for {
 		//fmt.Printf("Entered assigner loop")
@@ -58,18 +51,18 @@ func RequestAssigner(
 		case buttonPressed := <-ch_buttonPressed:
 			// Gets button presses and registers the requests
 			if buttonPressed.BtnType == elevator_io.BT_Cab {
-				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = 2
+				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = elevator.ConfirmedOrder
 				backup.SaveBackupToFile("backup.txt", allRequests)
-			} else if allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] != 2 {
+			} else if allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] != elevator.ConfirmedOrder {
 				//fmt.Println("req set to 1")
-				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = 1
+				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = elevator.NewOrder
 			}
 		case completedRequest := <-ch_completedRequests:
 			// Completed requests from FSM
-			if allRequests[completedRequest.BtnFloor][completedRequest.BtnType] == 3 {
-				allRequests[completedRequest.BtnFloor][completedRequest.BtnType] = 0
-			} else if allRequests[completedRequest.BtnFloor][completedRequest.BtnType] == 2 {
-				allRequests[completedRequest.BtnFloor][completedRequest.BtnType] = 3
+			if allRequests[completedRequest.BtnFloor][completedRequest.BtnType] == elevator.CompletedOrder {
+				allRequests[completedRequest.BtnFloor][completedRequest.BtnType] = elevator.NoOrder
+			} else if allRequests[completedRequest.BtnFloor][completedRequest.BtnType] == elevator.ConfirmedOrder {
+				allRequests[completedRequest.BtnFloor][completedRequest.BtnType] = elevator.CompletedOrder
 			}
 			backup.SaveBackupToFile("backup.txt", allRequests)
 
@@ -79,89 +72,42 @@ func RequestAssigner(
 		case currentExternalElevators := <-ch_externalElevators:
 			externalElevators = currentExternalElevators
 
-			// case updateHallRequest := <-ch_hallRequestsIn:
-			// for i := range updateHallRequest {
-			// 	for j := 0; j < 2; j++ {
-			// 		if allRequests[i][j] == 0 {
-			// 			if updateHallRequest[i][j] == 0 {
-			// 				//NOP
-			// 			} else if updateHallRequest[i][j] == 1 {
-			// 				allRequests[i][j] = 2
-			// 			} else if updateHallRequest[i][j] == 2 {
-			// 				allRequests[i][j] = 2
-			// 			} else if updateHallRequest[i][j] == 3 {
-			// 				//NOP
-			// 			}
-			// 		} else if allRequests[i][j] == 1 {
-			// 			if updateHallRequest[i][j] == 0 {
-			// 				//NOP
-			// 			} else if updateHallRequest[i][j] == 1 {
-			// 				allRequests[i][j] = 2
-			// 			} else if updateHallRequest[i][j] == 2 {
-			// 				allRequests[i][j] = 2
-			// 			} else if updateHallRequest[i][j] == 3 {
-			// 				//NOP
-			// 			}
-			// 		} else if allRequests[i][j] == 2 {
-			// 			if updateHallRequest[i][j] == 0 {
-			// 				//NOP
-			// 			} else if updateHallRequest[i][j] == 1 {
-			// 				//NOP
-			// 			} else if updateHallRequest[i][j] == 2 {
-			// 				//NOP
-			// 			} else if updateHallRequest[i][j] == 3 {
-			// 				allRequests[i][j] = 3
-			// 			}
-			// 		} else if allRequests[i][j] == 3 {
-			// 			if updateHallRequest[i][j] == 0 {
-			// 				allRequests[i][j] = 0
-			// 			} else if updateHallRequest[i][j] == 1 {
-			// 				allRequests[i][j] = 2
-			// 			} else if updateHallRequest[i][j] == 2 {
-			// 				//NOP
-			// 			} else if updateHallRequest[i][j] == 3 {
-			// 				allRequests[i][j] = 0
-			// 			}
-			// 		}
-			// 	}
-			// }
-
 		case updateHallRequest := <-ch_hallRequestsIn:
 			//fmt.Printf("\nRecieved hallrequest in: ")
 			//fmt.Println(updateHallRequest)
 			for i := range updateHallRequest {
 				for j := 0; j < 2; j++ {
 					switch allRequests[i][j] {
-					case 0:
+					case elevator.NoOrder:
 						switch updateHallRequest[i][j] {
-						case 1:
-							allRequests[i][j] = 1
-						case 2:
-							allRequests[i][j] = 2
-						case 0, 3:
+						case elevator.NewOrder:
+							allRequests[i][j] = elevator.NewOrder
+						case elevator.ConfirmedOrder:
+							allRequests[i][j] = elevator.ConfirmedOrder
+						case elevator.NoOrder, elevator.CompletedOrder:
 							// NOP
 						}
-					case 1:
+					case elevator.NewOrder:
 						switch updateHallRequest[i][j] {
-						case 1, 2:
-							allRequests[i][j] = 2
-						case 0, 3:
+						case elevator.NewOrder, elevator.ConfirmedOrder:
+							allRequests[i][j] = elevator.ConfirmedOrder
+						case elevator.NoOrder, elevator.CompletedOrder:
 							// NOP
 						}
-					case 2:
+					case elevator.ConfirmedOrder:
 						switch updateHallRequest[i][j] {
-						case 3:
-							allRequests[i][j] = 3
-						case 0, 1, 2:
+						case elevator.CompletedOrder:
+							allRequests[i][j] = elevator.CompletedOrder
+						case elevator.NoOrder, elevator.NewOrder, elevator.ConfirmedOrder:
 							// NOP
 						}
-					case 3:
+					case elevator.CompletedOrder:
 						switch updateHallRequest[i][j] {
-						case 0, 3:
-							allRequests[i][j] = 0
-						case 1:
-							allRequests[i][j] = 2
-						case 2:
+						case elevator.NoOrder, elevator.CompletedOrder:
+							allRequests[i][j] = elevator.NoOrder
+						case elevator.NewOrder:
+							allRequests[i][j] = elevator.ConfirmedOrder
+						case elevator.ConfirmedOrder:
 							//NOP
 						}
 					}
@@ -175,7 +121,7 @@ func RequestAssigner(
 		for i := 0; i < config.N_FLOORS; i++ {
 			for j := 0; j < config.N_BUTTONS-1; j++ {
 				hallRequestsOut[i][j] = allRequests[i][j]
-				if allRequests[i][j] == 2 {
+				if allRequests[i][j] == elevator.ConfirmedOrder {
 					hallRequests[i][j] = true
 				} else {
 					hallRequests[i][j] = false
@@ -187,7 +133,7 @@ func RequestAssigner(
 		for i := 0; i < config.N_FLOORS; i++ {
 			copy(localRequests[i][:2], assignedHallRequests[i][:])
 
-			if allRequests[i][2] == 2 {
+			if allRequests[i][2] == elevator.ConfirmedOrder {
 				localRequests[i][2] = true
 			} else {
 				localRequests[i][2] = false
@@ -205,18 +151,18 @@ func RequestAssigner(
 		}
 
 		if localElevatorState[id].Behavior != "idle" {
-			idleTimeOut.Reset(10 * time.Second)
+			idleTimeOut.Reset(time.Duration(config.IdleTimeOutDurationSec) * time.Second)
 		} else {
 			requestFlag := true
 			for i := 0; i < config.N_FLOORS; i++ {
 				for j := 0; j < config.N_BUTTONS; j++ {
-					if allRequests[i][j] == 2 {
+					if allRequests[i][j] == elevator.ConfirmedOrder {
 						requestFlag = false
 					}
 				}
 			}
 			if requestFlag {
-				idleTimeOut.Reset(10 * time.Second)
+				idleTimeOut.Reset(time.Duration(config.IdleTimeOutDurationSec) * time.Second)
 			}
 		}
 		select {
@@ -224,7 +170,7 @@ func RequestAssigner(
 			fmt.Printf("TIMED OUT!!!!\n")
 			for i := 0; i < config.N_FLOORS; i++ {
 				for j := 0; j < config.N_BUTTONS; j++ {
-					if allRequests[i][j] == 2 {
+					if allRequests[i][j] == elevator.ConfirmedOrder {
 						localRequests[i][j] = true
 					} else {
 						localRequests[i][j] = false
