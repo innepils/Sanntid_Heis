@@ -30,14 +30,14 @@ func main() {
 	elevator_io.Init("localhost:"+port, config.N_FLOORS)
 	fmt.Println("\n--- Initialized elevator " + id + " with port " + port + " ---\n")
 
-	// Assigner channels (Recieve updates on the ID's of of the peers that are alive on the network)
+	// Request assigner channels (Recieve updates on the ID's of of the peers that are alive on the network)
 	ch_peerUpdate := make(chan peers.PeerUpdate, 100)
 	ch_peerTxEnable := make(chan bool, 100)
 	ch_msgOut := make(chan heartbeat.HeartBeat, 100)
 	ch_msgIn := make(chan heartbeat.HeartBeat, 100)
 	ch_completedRequests := make(chan elevator_io.ButtonEvent, 100)
-	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int, 100)
-	ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]int, 100)
+	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 100)
+	ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 100)
 	ch_externalElevators := make(chan []byte, 100)
 
 	// Channels for local elevator
@@ -78,15 +78,15 @@ func main() {
 	)
 
 	// Assigner goroutine
-	go assigner.Assigner(
+	go assigner.RequestAssigner(
 		id,
 		ch_buttonPressed,
 		ch_completedRequests,
-		ch_localRequests,
-		ch_hallRequestsIn,
-		ch_hallRequestsOut,
 		ch_elevatorStateToAssigner,
+		ch_hallRequestsIn,
 		ch_externalElevators,
+		ch_hallRequestsOut,
+		ch_localRequests,
 	)
 
 	go backup.ReportPrimaryAlive(id)
