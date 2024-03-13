@@ -19,11 +19,11 @@ func KillSelf(localID string, port string) { //unused
 
 func SaveBackupToFile(filename string, allRequests [config.N_FLOORS][config.N_BUTTONS]elevator.RequestType) {
 	var cabRequests [config.N_FLOORS]bool
-	for request := range allRequests {
-		if allRequests[request][2] == elevator.ConfirmedRequest {
-			cabRequests[request] = true
+	for floor := range allRequests {
+		if allRequests[floor][config.N_BUTTONS-1] == elevator.ConfirmedRequest {
+			cabRequests[floor] = true
 		} else {
-			cabRequests[request] = false
+			cabRequests[floor] = false
 		}
 	}
 	file, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
@@ -85,7 +85,7 @@ func ReportPrimaryAlive(localID string) {
 			fmt.Println("Primary failed to send heartbeat:", err)
 			return
 		}
-		time.Sleep(config.HeartbeatSleepSec * time.Second)
+		time.Sleep(config.PrimaryAliveSec * time.Second)
 	}
 }
 
@@ -93,7 +93,7 @@ func BackupProcess(localID string, port string) { //name change: ListenForPrimar
 	localState := ""
 	fmt.Println(localState)
 	fmt.Printf("---------BACKUP PHASE---------\n")
-	receiveUDPAddr, err := net.ResolveUDPAddr("udp", config.BackupReceiveAddr)
+	receiveUDPAddr, err := net.ResolveUDPAddr("udp", config.BackupPort)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -104,7 +104,7 @@ func BackupProcess(localID string, port string) { //name change: ListenForPrimar
 		return
 	}
 	defer conn.Close()
-	conn.SetReadDeadline(time.Now().Add(config.HeartbeatSleepSec * 5 * time.Second))
+	conn.SetReadDeadline(time.Now().Add(config.PrimaryAliveSec * 5 * time.Second))
 	for {
 		buffer := make([]byte, 1024)
 		//conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 2.5 * time.Millisecond))
@@ -126,7 +126,7 @@ func BackupProcess(localID string, port string) { //name change: ListenForPrimar
 		msg := string(buffer[:n])
 		if msg == localID {
 			fmt.Println("Primary is alive!")
-			conn.SetReadDeadline(time.Now().Add(config.HeartbeatSleepSec * 2500 * time.Millisecond))
+			conn.SetReadDeadline(time.Now().Add(config.PrimaryAliveSec* 5 * time.Second))
 		}
 	}
 }
