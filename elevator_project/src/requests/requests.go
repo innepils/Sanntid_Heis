@@ -155,7 +155,6 @@ func ShouldStop(e *elevator.Elevator) bool {
 	}
 }
 
-// This is a revised version of the one that should erase the edge-condition but also be more effective code (hopefully)
 func ClearAtCurrentFloor(e *elevator.Elevator, ch_completedRequests chan<- elevator_io.ButtonEvent) {
 
 	e.Requests[e.Floor][elevator_io.BT_Cab] = false
