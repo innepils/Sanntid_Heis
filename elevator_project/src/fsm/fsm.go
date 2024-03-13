@@ -66,7 +66,7 @@ func Fsm(
 
 			case elevator.EB_Idle:
 				requests.ChooseDirection(&localElevator)
-				localElevator.Elevator_print()
+				//localElevator.Elevator_print()
 
 				switch localElevator.Behaviour {
 				case elevator.EB_Moving:
@@ -167,6 +167,7 @@ func Fsm(
 				stopButtonPressed = <-ch_stopButton
 			}
 
+			// Makes sure the elevator keeps going after when stopButton is no longer active.
 			switch localElevator.Behaviour {
 			case elevator.EB_Moving:
 				elevator_io.SetMotorDirection(localElevator.Dirn)
@@ -197,6 +198,7 @@ func Fsm(
 
 func holdDoorOpenIfObstruction(prevObstruction *bool, doorTimer *time.Timer, ch_doorObstruction <-chan bool) {
 	if *prevObstruction {
+		fmt.Println("Door is obstructed")
 		*prevObstruction = <-ch_doorObstruction
 		doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 	}
