@@ -200,8 +200,13 @@ func Requests_clearAtCurrentFloor(e *elevator.Elevator, ch_completedRequests cha
 		}
 
 	case elevator_io.MD_Down:
-		e.Requests[e.Floor][elevator_io.BT_HallDown] = false
-		ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
+		if e.Requests[e.Floor][elevator_io.BT_HallDown] {
+			e.Requests[e.Floor][elevator_io.BT_HallDown] = false
+			ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
+		} else if e.Requests[e.Floor][elevator_io.BT_HallUp] {
+			e.Requests[e.Floor][elevator_io.BT_HallUp] = false
+			ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallUp}
+		}
 
 	case elevator_io.MD_Stop:
 		e.Requests[e.Floor][elevator_io.BT_HallUp] = false

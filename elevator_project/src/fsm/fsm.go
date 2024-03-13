@@ -52,14 +52,9 @@ func Fsm(
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
 
-				// MULIG DETTE SKAPER PROBLEMER FOR EDGE-CASEN - legg på sjekk om DIRN=STOP?
-				// Det vil i såfall fungere som "clearImmediately"
 				if requests.Requests_here(&localElevator) && localElevator.Dirn == elevator_io.MD_Stop {
-
 					elevator_io.SetDoorOpenLamp(true)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-
-					// Hvis ikke sjekk om DIRN=STOP så vil denne fjerne knapp ned men før det har gått 3 sekunder
 					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
 
 					if prevObstruction {
@@ -108,7 +103,6 @@ func Fsm(
 					if prevObstruction {
 						prevObstruction = <-ch_doorObstruction
 						doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-
 					}
 					localElevator.Behaviour = elevator.EB_DoorOpen
 				}
@@ -121,19 +115,9 @@ func Fsm(
 
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
-
-				//Gets next direction and behaviour
-				// prevDirection := localElevator.Dirn
-				// requests.Requests_chooseDirection(&localElevator)
-				// fmt.Println("PREV DIRECTION: ", elevator.ElevDirnToString(prevDirection))
-				// fmt.Println("LOCALELEVATOR DIRECTION: ", elevator.ElevDirnToString(localElevator.Dirn))
-				// fmt.Println("LOCALELEVATOR BEHAVIOR: ", elevator.ElevBehaviourToString(localElevator.Behaviour))
-				//If directionchange is neeeded
 				if requests.Requests_here(&localElevator) {
 					requests.Requests_announceDirectionChange(&localElevator)
-					// ClearAtFloor
 					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
-					// Keep the door open 3 more secs.
 					time.Sleep(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				}
 
