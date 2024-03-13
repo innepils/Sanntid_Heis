@@ -100,7 +100,6 @@ func Requests_shouldStop(e *elevator.Elevator) bool {
 		return true
 	}
 }
-
 /*
 // This is the one that is OLD but works except the one edge case.
 

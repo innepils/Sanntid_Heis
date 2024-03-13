@@ -9,7 +9,7 @@ import (
 
 type (
 	ElevatorBehaviour int
-	requestType       int
+	RequestType       int
 )
 
 const (
@@ -17,10 +17,10 @@ const (
 	EB_DoorOpen ElevatorBehaviour = 1
 	EB_Moving   ElevatorBehaviour = 2
 
-	NoRequest        requestType = 0
-	NewRequest       requestType = 1
-	ConfirmedRequest requestType = 2
-	CompletedRequest requestType = 3
+	None      RequestType = 0
+	New       RequestType = 1
+	Confirmed RequestType = 2
+	Completed RequestType = 3
 )
 
 type Elevator struct {
