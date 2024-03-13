@@ -44,14 +44,14 @@ func LoadBackupFromFile(filename string, ch_buttonPressed chan elevator_io.Butto
 
 	file, err := os.Open(filename)
 	if err != nil {
-		fmt.Println("Eroor decoding data from backup")
+		fmt.Println("Error decoding data from backup")
 	}
 	defer file.Close()
 
 	decoder := gob.NewDecoder(file)
 	err = decoder.Decode(&data)
 	if err != nil {
-		fmt.Println("Eroor decoding data from backup")
+		fmt.Println("Error decoding data from backup")
 	}
 
 	for i, element := range data {
