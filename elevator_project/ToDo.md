@@ -12,6 +12,14 @@
 ### Linus:
 - die? i cost
   - lage error-funksjoner istedenfor å ha if-statement/3-linjer hver gang
+- assigner linje 42, hva er 4?
+- assigner linje 79 og for loops generelt, skal vi ha i og j, eller floor og byttontype?
+- backup function SaveBackupToFile. Skal vi ha floor og byttontype der det står request og 2?
+- config linje 24. "BackupRecieveAddr" (vi endret fra "recieveAddr"), skal den være "DefaultPortBackup"?
+- backup linje 129, må den være 2.5 sekunder? Den er 5 sekunder lenger opp på linje 107.
+- 
+
+
 ### Simon:
 
 ##### Kodekvalitet, hva som må endres
