@@ -11,6 +11,18 @@ import (
 	"driver/network/bcast"
 	"driver/network/peers"
 	"fmt"
+	"time"
+)
+
+const (
+	FSMLifelineIndex       int = 0
+	assignerLifeLineIndex  int = 1
+	heartbeatLifeLineIndex int = 2
+	peersLifeLineIndex     int = 3
+)
+
+var (
+	lifeLines [4]time.Time
 )
 
 func main() {
@@ -18,7 +30,7 @@ func main() {
 
 	// Initialize elevator ID and port from command line: 'go run main.go -id=any_id -port=server_port'
 	id, port := config.InitializeConfig()
-
+	// defer backup.StartBackupProcess(id, port)
 	// Start backup process, halts the progression of the program while it is the backup
 	backup.BackupProcess(id, port)
 	fmt.Println("Primary started.")
@@ -28,23 +40,29 @@ func main() {
 	fmt.Println("\n--- Initialized local elevator " + id + " with port " + port + " ---\n")
 
 	// Request assigner channels (Recieve updates on the ID's of of the peers that are alive on the network)
-	ch_peerUpdate 				:= make(chan peers.PeerUpdate,1)
-	ch_peerTxEnable 			:= make(chan bool,1)
-	ch_msgOut 					:= make(chan heartbeat.HeartBeat,1)
-	ch_msgIn 					:= make(chan heartbeat.HeartBeat,1)
-	ch_completedRequests 		:= make(chan elevator_io.ButtonEvent,1)
-	ch_hallRequestsIn 			:= make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,1)
-	ch_hallRequestsOut 			:= make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,1)
-	ch_externalElevators 		:= make(chan []byte,1)
+	ch_peerUpdate := make(chan peers.PeerUpdate, 1)
+	ch_peerTxEnable := make(chan bool, 1)
+	ch_msgOut := make(chan heartbeat.HeartBeat, 1)
+	ch_msgIn := make(chan heartbeat.HeartBeat, 1)
+	ch_completedRequests := make(chan elevator_io.ButtonEvent, 1)
+	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 1)
+	ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 1)
+	ch_externalElevators := make(chan []byte, 1)
 
 	// Channels for local elevator
-	ch_arrivalFloor 			:= make(chan int,1)
-	ch_buttonPressed 			:= make(chan elevator_io.ButtonEvent,1)
-	ch_localRequests 			:= make(chan [config.N_FLOORS][config.N_BUTTONS]bool,1)
-	ch_doorObstruction 			:= make(chan bool,1)
-	ch_stopButton 				:= make(chan bool,1)
-	ch_elevatorStateToAssigner 	:= make(chan map[string]elevator.ElevatorState, 1)
-	ch_elevatorStateToNetwork 	:= make(chan elevator.ElevatorState, 1)
+	ch_arrivalFloor := make(chan int, 1)
+	ch_buttonPressed := make(chan elevator_io.ButtonEvent, 1)
+	ch_localRequests := make(chan [config.N_FLOORS][config.N_BUTTONS]bool, 1)
+	ch_doorObstruction := make(chan bool, 1)
+	ch_stopButton := make(chan bool, 1)
+	ch_elevatorStateToAssigner := make(chan map[string]elevator.ElevatorState, 1)
+	ch_elevatorStateToNetwork := make(chan elevator.ElevatorState, 1)
+
+	//Life line for goroutines
+	ch_FSMLifeline := make(chan int, 1)
+	ch_assignerLifeLine := make(chan int, 1)
+	ch_heartbeatLifeLine := make(chan int, 1)
+	ch_peersLifeLine := make(chan int, 1)
 
 	go backup.LoadBackupFromFile("backup.txt", ch_buttonPressed)
 
@@ -71,6 +89,7 @@ func main() {
 		ch_completedRequests,
 		ch_elevatorStateToAssigner,
 		ch_elevatorStateToNetwork,
+		ch_FSMLifeline,
 	)
 
 	// Assigner goroutine
@@ -83,15 +102,17 @@ func main() {
 		ch_externalElevators,
 		ch_hallRequestsOut,
 		ch_localRequests,
+		ch_assignerLifeLine,
 	)
 
-	go backup.ReportPrimaryAlive(id)
+	//go backup.ReportPrimaryAlive(id)
 
 	go heartbeat.Send(
 		id,
 		ch_hallRequestsOut,
 		ch_elevatorStateToNetwork,
 		ch_msgOut,
+		ch_heartbeatLifeLine,
 	)
 
 	go peers.Update(
@@ -100,8 +121,22 @@ func main() {
 		ch_msgIn,
 		ch_hallRequestsIn,
 		ch_externalElevators,
+		ch_peersLifeLine,
 	)
 
-	select {}
-
+	select {
+	case <-ch_FSMLifeline:
+		lifeLines[FSMLifelineIndex] = time.Now()
+	case <-ch_assignerLifeLine:
+		lifeLines[assignerLifeLineIndex] = time.Now()
+	case <-ch_heartbeatLifeLine:
+		lifeLines[heartbeatLifeLineIndex] = time.Now()
+	case <-ch_peersLifeLine:
+		lifeLines[peersLifeLineIndex] = time.Now()
+		for _, lifeLine := range lifeLines {
+			if lifeLine.Add(10 * time.Second).Before(time.Now()) {
+				return
+			}
+		}
+	}
 }
