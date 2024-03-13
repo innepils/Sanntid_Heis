@@ -2,6 +2,7 @@ package backup
 
 import (
 	"driver/config"
+	"driver/elevator"
 	"encoding/gob"
 	"fmt"
 	"net"
@@ -17,15 +18,15 @@ const (
 	heartbeatSleep = 1000
 )
 
-func KillSelf(localID string, port string) {
+func KillSelf(localID string, port string) { //unused
 	StartBackupProcess(localID, port)
 	panic("Program terminated")
 }
 
-func SaveBackupToFile(filename string, allRequests [config.N_FLOORS][config.N_BUTTONS]int) {
+func SaveBackupToFile(filename string, allRequests [config.N_FLOORS][config.N_BUTTONS]elevator.RequestType) {
 	var cabRequests [config.N_FLOORS]bool
 	for request := range allRequests {
-		if allRequests[request][2] == 2 {
+		if allRequests[request][2] == elevator.Confirmed {
 			cabRequests[request] = true
 		} else {
 			cabRequests[request] = false
@@ -37,7 +38,6 @@ func SaveBackupToFile(filename string, allRequests [config.N_FLOORS][config.N_BU
 	}
 	defer file.Close()
 
-	// Encode the array using a gob encoder
 	encoder := gob.NewEncoder(file)
 	err = encoder.Encode(cabRequests)
 	if err != nil {
@@ -48,14 +48,12 @@ func SaveBackupToFile(filename string, allRequests [config.N_FLOORS][config.N_BU
 func LoadBackupFromFile(filename string) [config.N_FLOORS]bool {
 	var data [4]bool
 
-	// Open the file for reading
 	file, err := os.Open(filename)
 	if err != nil {
 		fmt.Println("Eroor decoding data from backup")
 	}
 	defer file.Close()
 
-	// Decode the data using a gob decoder
 	decoder := gob.NewDecoder(file)
 	err = decoder.Decode(&data)
 	if err != nil {
@@ -98,7 +96,7 @@ func ReportPrimaryAlive(localID string) {
 	}
 }
 
-func BackupProcess(localID string, port string) {
+func BackupProcess(localID string, port string) { //name change: ListenForPrimary ???
 	localState := ""
 	fmt.Println(localState)
 	fmt.Printf("---------BACKUP PHASE---------\n")
@@ -134,7 +132,7 @@ func BackupProcess(localID string, port string) {
 
 		msg := string(buffer[:n])
 		if msg == localID {
-			println("Primary is alive!")
+			fmt.Println("Primary is alive!")
 			conn.SetReadDeadline(time.Now().Add(heartbeatSleep * 2.5 * time.Millisecond))
 		}
 	}
