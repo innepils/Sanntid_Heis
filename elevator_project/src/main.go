@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+
 	fmt.Printf("\n\n************* NEW RUN *************\n\n")
 
 	// Initialize elevator ID and port from command line: 'go run main.go -id=any_id -port=server_port'
