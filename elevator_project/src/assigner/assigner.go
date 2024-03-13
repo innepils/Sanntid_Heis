@@ -20,7 +20,7 @@ func RequestAssigner(
 	ch_externalElevators <-chan []byte,
 	ch_hallRequestsOut chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
 	ch_localRequests chan<- [config.N_FLOORS][config.N_BUTTONS]bool,
-){
+) {
 
 	var (
 		idleTimeOut        *time.Timer
@@ -36,11 +36,11 @@ func RequestAssigner(
 	// emptyElevatorMap = map[string]elevator.ElevatorState{}
 	externalElevators, _ := json.Marshal(emptyElevatorMap)
 
-	for i := range allRequests {
-		for j := range allRequests[i] {
-			allRequests[i][j] = elevator.NoRequest
-			prevAllRequests[i][j] = 4
-			prevLocalRequests[i][j] = false
+	for floor := range allRequests {
+		for btn := range allRequests[floor] {
+			allRequests[floor][btn] = elevator.NoRequest
+			prevAllRequests[floor][btn] = elevator.UndefinedRequest
+			prevLocalRequests[floor][btn] = false
 		}
 	}
 	idleTimeOut = time.NewTimer(time.Duration(10) * time.Second)
@@ -75,38 +75,38 @@ func RequestAssigner(
 		case updateHallRequest := <-ch_hallRequestsIn:
 			//fmt.Printf("\nRecieved hallrequest in: ")
 			//fmt.Println(updateHallRequest)
-			for i := range updateHallRequest {
-				for j := 0; j < 2; j++ {
-					switch allRequests[i][j] {
+			for floor := range updateHallRequest {
+				for btn := 0; btn < config.N_BUTTONS; btn++ {
+					switch allRequests[floor][btn] {
 					case elevator.NoRequest:
-						switch updateHallRequest[i][j] {
+						switch updateHallRequest[floor][btn] {
 						case elevator.NewRequest:
-							allRequests[i][j] = elevator.NewRequest
+							allRequests[floor][btn] = elevator.NewRequest
 						case elevator.ConfirmedRequest:
-							allRequests[i][j] = elevator.ConfirmedRequest
+							allRequests[floor][btn] = elevator.ConfirmedRequest
 						case elevator.NoRequest, elevator.CompletedRequest:
 							// NOP
 						}
 					case elevator.NewRequest:
-						switch updateHallRequest[i][j] {
+						switch updateHallRequest[floor][btn] {
 						case elevator.NewRequest, elevator.ConfirmedRequest:
-							allRequests[i][j] = elevator.ConfirmedRequest
+							allRequests[floor][btn] = elevator.ConfirmedRequest
 						case elevator.NoRequest, elevator.CompletedRequest:
 							// NOP
 						}
 					case elevator.ConfirmedRequest:
-						switch updateHallRequest[i][j] {
+						switch updateHallRequest[floor][btn] {
 						case elevator.CompletedRequest:
-							allRequests[i][j] = elevator.CompletedRequest
+							allRequests[floor][btn] = elevator.CompletedRequest
 						case elevator.NoRequest, elevator.NewRequest, elevator.ConfirmedRequest:
 							// NOP
 						}
 					case elevator.CompletedRequest:
-						switch updateHallRequest[i][j] {
+						switch updateHallRequest[floor][btn] {
 						case elevator.NoRequest, elevator.CompletedRequest:
-							allRequests[i][j] = elevator.NoRequest
+							allRequests[floor][btn] = elevator.NoRequest
 						case elevator.NewRequest:
-							allRequests[i][j] = elevator.ConfirmedRequest
+							allRequests[floor][btn] = elevator.ConfirmedRequest
 						case elevator.ConfirmedRequest:
 							//NOP
 						}
@@ -118,25 +118,25 @@ func RequestAssigner(
 			//NOP
 		}
 
-		for i := 0; i < config.N_FLOORS; i++ {
-			for j := 0; j < config.N_BUTTONS-1; j++ {
-				hallRequestsOut[i][j] = allRequests[i][j]
-				if allRequests[i][j] == elevator.ConfirmedRequest {
-					hallRequests[i][j] = true
+		for floor := 0; floor < config.N_FLOORS; floor++ {
+			for btn := 0; btn < config.N_BUTTONS-1; btn++ {
+				hallRequestsOut[floor][btn] = allRequests[floor][btn]
+				if allRequests[floor][btn] == elevator.ConfirmedRequest {
+					hallRequests[floor][btn] = true
 				} else {
-					hallRequests[i][j] = false
+					hallRequests[floor][btn] = false
 				}
 			}
 		}
 		ch_hallRequestsOut <- hallRequestsOut
 		assignedHallRequests := cost.Cost(id, hallRequests, localElevatorState, externalElevators)
-		for i := 0; i < config.N_FLOORS; i++ {
-			copy(localRequests[i][:2], assignedHallRequests[i][:])
+		for floor := 0; floor < config.N_FLOORS; floor++ {
+			copy(localRequests[floor][:2], assignedHallRequests[floor][:])
 
-			if allRequests[i][2] == elevator.ConfirmedRequest {
-				localRequests[i][2] = true
+			if allRequests[floor][elevator_io.BT_Cab] == elevator.ConfirmedRequest {
+				localRequests[floor][elevator_io.BT_Cab] = true
 			} else {
-				localRequests[i][2] = false
+				localRequests[floor][elevator_io.BT_Cab] = false
 			}
 		}
 
@@ -154,9 +154,9 @@ func RequestAssigner(
 			idleTimeOut.Reset(time.Duration(config.IdleTimeOutDurationSec) * time.Second)
 		} else {
 			requestFlag := true
-			for i := 0; i < config.N_FLOORS; i++ {
-				for j := 0; j < config.N_BUTTONS; j++ {
-					if allRequests[i][j] == elevator.ConfirmedRequest {
+			for floor := 0; floor < config.N_FLOORS; floor++ {
+				for btn := 0; btn < config.N_BUTTONS; btn++ {
+					if allRequests[floor][btn] == elevator.ConfirmedRequest {
 						requestFlag = false
 					}
 				}
@@ -168,12 +168,12 @@ func RequestAssigner(
 		select {
 		case <-idleTimeOut.C:
 			fmt.Printf("TIMED OUT!!!!\n")
-			for i := 0; i < config.N_FLOORS; i++ {
-				for j := 0; j < config.N_BUTTONS; j++ {
-					if allRequests[i][j] == elevator.ConfirmedRequest {
-						localRequests[i][j] = true
+			for floor := 0; floor < config.N_FLOORS; floor++ {
+				for btn := 0; btn < config.N_BUTTONS; btn++ {
+					if allRequests[floor][btn] == elevator.ConfirmedRequest {
+						localRequests[floor][btn] = true
 					} else {
-						localRequests[i][j] = false
+						localRequests[floor][btn] = false
 					}
 				}
 			}
