@@ -154,9 +154,8 @@ func Fsm(
 
 			case elevator.EB_Moving:
 				elevator_io.SetMotorDirection(elevator_io.MD_Stop)
-				localElevator.Behaviour = elevator.EB_Idle
+				// localElevator.Behaviour = elevator.EB_Idle
 			}
-
 			// Loops as long as something (true) is received on the stopbutton-channel.
 			stopButtonPressed := true
 			for stopButtonPressed {
@@ -165,8 +164,8 @@ func Fsm(
 			}
 
 			switch localElevator.Behaviour {
-			case elevator.EB_Idle:
-				requests.Requests_chooseDirection(&localElevator)
+			case elevator.EB_Moving:
+				// requests.Requests_chooseDirection(&localElevator)
 				elevator_io.SetMotorDirection(localElevator.Dirn)
 
 			case elevator.EB_DoorOpen:
