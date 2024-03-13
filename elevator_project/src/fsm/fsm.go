@@ -52,20 +52,20 @@ func Fsm(
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
 
-				if requests.Requests_here(&localElevator) && localElevator.Dirn == elevator_io.MD_Stop {
+				if requests.Here(&localElevator) && localElevator.Dirn == elevator_io.MD_Stop {
 					elevator_io.SetDoorOpenLamp(true)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
+					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
 
-					if prevObstruction {
-						prevObstruction = <-ch_doorObstruction
-						doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-					}
-
+					// if prevObstruction {
+					// 	prevObstruction = <-ch_doorObstruction
+					// 	doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+					// }
+					holdDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 				}
 
 			case elevator.EB_Idle:
-				requests.Requests_chooseDirection(&localElevator)
+				requests.ChooseDirection(&localElevator)
 				localElevator.Elevator_print()
 
 				switch localElevator.Behaviour {
@@ -76,12 +76,13 @@ func Fsm(
 					elevator_io.SetDoorOpenLamp(true)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 
-					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
+					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
 
-					if prevObstruction {
-						prevObstruction = <-ch_doorObstruction
-						doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-					}
+					// if prevObstruction {
+					// 	prevObstruction = <-ch_doorObstruction
+					// 	doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+					// }
+					holdDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 				}
 
 			} //switch e.behaviour*/
@@ -95,15 +96,16 @@ func Fsm(
 
 			switch localElevator.Behaviour {
 			case elevator.EB_Moving:
-				if requests.Requests_shouldStop(&localElevator) {
+				if requests.ShouldStop(&localElevator) {
 					elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 					elevator_io.SetDoorOpenLamp(true)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
-					if prevObstruction {
-						prevObstruction = <-ch_doorObstruction
-						doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-					}
+					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
+					// if prevObstruction {
+					// 	prevObstruction = <-ch_doorObstruction
+					// 	doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+					// }
+					holdDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 					localElevator.Behaviour = elevator.EB_DoorOpen
 				}
 			}
@@ -115,17 +117,19 @@ func Fsm(
 
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
-				if requests.Requests_here(&localElevator) {
-					requests.Requests_announceDirectionChange(&localElevator)
-					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
+				if requests.Here(&localElevator) {
+					requests.AnnounceDirectionChange(&localElevator)
+					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
 					time.Sleep(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				}
 
-				if prevObstruction {
-					prevObstruction = <-ch_doorObstruction
-					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-				}
-				requests.Requests_chooseDirection(&localElevator)
+				// if prevObstruction {
+				// 	prevObstruction = <-ch_doorObstruction
+				// 	doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+				// }
+				holdDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
+
+				requests.ChooseDirection(&localElevator)
 				elevator_io.SetDoorOpenLamp(false)
 
 				switch localElevator.Behaviour {
@@ -147,14 +151,14 @@ func Fsm(
 				elevator_io.SetDoorOpenLamp(true)
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 
-				if prevObstruction {
-					prevObstruction = <-ch_doorObstruction
-					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-				}
+				// if prevObstruction {
+				// 	prevObstruction = <-ch_doorObstruction
+				// 	doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+				// }
+				holdDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 
 			case elevator.EB_Moving:
 				elevator_io.SetMotorDirection(elevator_io.MD_Stop)
-				localElevator.Behaviour = elevator.EB_Idle
 			}
 
 			// Loops as long as something (true) is received on the stopbutton-channel.
@@ -165,18 +169,18 @@ func Fsm(
 			}
 
 			switch localElevator.Behaviour {
-			case elevator.EB_Idle:
-				requests.Requests_chooseDirection(&localElevator)
+			case elevator.EB_Moving:
 				elevator_io.SetMotorDirection(localElevator.Dirn)
 
 			case elevator.EB_DoorOpen:
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-				requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
+				requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
 
-				if prevObstruction {
-					prevObstruction = <-ch_doorObstruction
-					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-				}
+				// if prevObstruction {
+				// 	prevObstruction = <-ch_doorObstruction
+				// 	doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+				// }
+				holdDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 			}
 			localElevator.Elevator_print()
 
@@ -191,3 +195,10 @@ func Fsm(
 		}
 	} //For
 } //Fsm
+
+func holdDoorOpenIfObstruction(prevObstruction *bool, doorTimer *time.Timer, ch_doorObstruction <-chan bool) {
+	if *prevObstruction {
+		*prevObstruction = <-ch_doorObstruction
+		doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+	}
+}
