@@ -2,7 +2,6 @@ package backup
 
 import (
 	"driver/config"
-	"driver/elevator_io"
 	"encoding/gob"
 	"fmt"
 	"net"
@@ -46,13 +45,13 @@ func SaveBackupToFile(filename string, allRequests [config.N_FLOORS][config.N_BU
 	}
 }
 
-func LoadBackupFromFile(filename string, ch_buttonPressed chan elevator_io.ButtonEvent) {
+func LoadBackupFromFile(filename string) [config.N_FLOORS]bool {
 	var data [4]bool
 
 	// Open the file for reading
 	file, err := os.Open(filename)
 	if err != nil {
-		return
+		fmt.Println("Eroor decoding data from backup")
 	}
 	defer file.Close()
 
@@ -60,14 +59,15 @@ func LoadBackupFromFile(filename string, ch_buttonPressed chan elevator_io.Butto
 	decoder := gob.NewDecoder(file)
 	err = decoder.Decode(&data)
 	if err != nil {
-		return
+		fmt.Println("Eroor decoding data from backup")
 	}
-
-	for i, element := range data {
-		if element {
-			ch_buttonPressed <- elevator_io.ButtonEvent{BtnFloor: i, BtnType: elevator_io.BT_Cab}
-		}
-	}
+	return data
+	/*
+		for i, element := range data {
+			if element {
+				ch_buttonPressed <- elevator_io.ButtonEvent{BtnFloor: i, BtnType: elevator_io.BT_Cab}
+			}
+		}*/
 }
 
 func StartBackupProcess(localID string, port string) {
