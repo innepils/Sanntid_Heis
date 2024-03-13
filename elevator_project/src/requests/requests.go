@@ -88,7 +88,8 @@ func ChooseDirnAndBehaviour(e *elevator.Elevator) {
 		e.Dirn = elevator_io.MD_Stop
 		e.Behaviour = elevator.EB_Idle
 	}
-}*/
+}
+*/
 
 func ChooseDirnAndBehaviour(e *elevator.Elevator) {
 	switch e.Dirn {
