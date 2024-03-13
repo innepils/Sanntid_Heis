@@ -20,7 +20,7 @@ func RequestAssigner(
 	ch_externalElevators <-chan []byte,
 	ch_hallRequestsOut chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
 	ch_localRequests chan<- [config.N_FLOORS][config.N_BUTTONS]bool,
-) {
+){
 
 	var (
 		idleTimeOut        *time.Timer
