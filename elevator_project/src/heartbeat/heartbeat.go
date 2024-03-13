@@ -13,17 +13,6 @@ type HeartBeat struct {
 	ElevatorState elevator.ElevatorState
 }
 
-// Send heartbeat to network incl. all info
-
-// func createHeartbeat(
-// 	id string,
-// 	ch_hallRequestsOut chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
-// 	ch_elevatorStateToNetwork chan elevator.ElevatorState) HeartBeat {
-// 	for {
-
-// 	}
-// }
-
 func Send(
 	id string,
 	ch_hallRequestsOut chan [config.N_FLOORS][config.N_BUTTONS - 1]int,
