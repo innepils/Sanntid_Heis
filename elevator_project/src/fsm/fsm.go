@@ -127,13 +127,16 @@ func Fsm(
 				//Gets next direction and behaviour
 				prevDirection := localElevator.Dirn
 				requests.Requests_chooseDirection(&localElevator)
-
+				fmt.Println("PREV DIRECTION: ", elevator.ElevDirnToString(prevDirection))
+				fmt.Println("LOCALELEVATOR DIRECTION: ", elevator.ElevDirnToString(localElevator.Dirn))
+				fmt.Println("LOCALELEVATOR BEHAVIOR: ", elevator.ElevBehaviourToString(localElevator.Behaviour))
 				//If directionchange is neeeded
 				if localElevator.Dirn != prevDirection {
 					// Announce change
 					requests.Requests_announceDirectionChange(&localElevator)
 					// ClearAtFloor
 					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
+					requests.Requests_chooseDirection(&localElevator)
 					// Keep the door open 3 more secs.
 					time.Sleep(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				}
@@ -204,6 +207,7 @@ func Fsm(
 		if prevLocalElevator != localElevator {
 			prevLocalElevator = localElevator
 			elevator.SendLocalElevatorState(id, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
+			localElevator.Elevator_print()
 		}
 	} //For
 } //Fsm

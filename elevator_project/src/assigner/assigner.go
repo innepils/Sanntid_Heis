@@ -204,7 +204,7 @@ func RequestAssigner(
 			prevAllRequests = allRequests
 		}
 
-		if localElevatorState[id].Behavior != "Idle" {
+		if localElevatorState[id].Behavior != "idle" {
 			idleTimeOut.Reset(10 * time.Second)
 		} else {
 			requestFlag := true
