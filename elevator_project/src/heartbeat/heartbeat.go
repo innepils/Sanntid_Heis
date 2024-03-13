@@ -49,7 +49,7 @@ func Send(
 		}
 		mtxLock.Unlock()
 		ch_msgOut <- newHeartbeat
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(time.Duration(config.HeartbeatSleepMillisec) * time.Millisecond)
 		//fmt.Printf("\n Heartbeat sent:\n")
 		//fmt.Println(newHeartbeat)
 	}

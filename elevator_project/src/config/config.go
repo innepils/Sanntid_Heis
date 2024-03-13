@@ -14,15 +14,17 @@ const (
 	DoorOpenDurationSec    int = 3
 	IdleTimeOutDurationSec int = 10
 
+	// Heartbeat-configuration
+	HeartbeatSleepMillisec int = 100
+
 	// Network-configuration
 	DefaultPortPeer   int = 22017
 	DefaultPortBcast  int = 22018
-	DefaultPortBackup int = 22019
 
 	// Backup-configuration
-	BackupSendAddr    = "255.255.255.255:20019"
-	BackupReceiveAddr = ":" + "20019"
-	HeartbeatSleepSec = 1
+	BackupPort = ":22019"
+	BackupSendAddr    = "255.255.255.255:" + BackupPort
+	PrimaryAliveSec   = 1
 )
 
 func InitializeConfig() (string, string) {
