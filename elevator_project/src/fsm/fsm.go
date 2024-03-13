@@ -11,15 +11,16 @@ import (
 
 // One single function for the Final State Machine, to be run as a goroutine from main
 func Fsm(
-	id 							string,
-	ch_arrivalFloor 			<-chan int,
-	ch_localRequests 			<-chan [config.N_FLOORS][config.N_BUTTONS]bool,
-	ch_doorObstruction 			<-chan bool,
-	ch_stopButton 				<-chan bool,
-	ch_completedRequests 		chan<- elevator_io.ButtonEvent,
-	ch_elevatorStateToAssigner 	chan<- map[string]elevator.ElevatorState,
-	ch_elevatorStateToNetwork 	chan<- elevator.ElevatorState,
-){
+	id string,
+	ch_arrivalFloor <-chan int,
+	ch_localRequests <-chan [config.N_FLOORS][config.N_BUTTONS]bool,
+	ch_doorObstruction <-chan bool,
+	ch_stopButton <-chan bool,
+	ch_completedRequests chan<- elevator_io.ButtonEvent,
+	ch_elevatorStateToAssigner chan<- map[string]elevator.ElevatorState,
+	ch_elevatorStateToNetwork chan<- elevator.ElevatorState,
+	ch_FSMLifeLine chan<- int,
+) {
 
 	// Initializing
 	fmt.Printf("*****INITIALIZING ELEVATOR*****\n")
@@ -42,6 +43,7 @@ func Fsm(
 
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
+		ch_FSMLifeLine <- 1
 		select {
 		case localRequests := <-ch_localRequests:
 			fmt.Printf("Entered Local requests in FSM\n")

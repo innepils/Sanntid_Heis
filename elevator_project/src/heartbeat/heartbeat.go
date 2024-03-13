@@ -14,11 +14,12 @@ type HeartBeat struct {
 }
 
 func Send(
-	id 							string,
-	ch_hallRequestsOut 			chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
-	ch_elevatorStateToNetwork 	chan elevator.ElevatorState,
-	ch_msgOut 					chan HeartBeat,
-	){
+	id string,
+	ch_hallRequestsOut <-chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
+	ch_elevatorStateToNetwork <-chan elevator.ElevatorState,
+	ch_msgOut chan<- HeartBeat,
+	ch_heartbeatLifeLine chan<- int,
+) {
 
 	var mtxLock sync.Mutex
 	var hallRequests [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType = <-ch_hallRequestsOut
@@ -41,6 +42,7 @@ func Send(
 		}
 	}()
 	for {
+		ch_heartbeatLifeLine <- 1
 		mtxLock.Lock()
 		newHeartbeat := HeartBeat{
 			SenderID:      id,
