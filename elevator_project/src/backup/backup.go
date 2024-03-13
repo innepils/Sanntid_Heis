@@ -20,7 +20,7 @@ func KillSelf(localID string, port string) { //unused
 func SaveBackupToFile(filename string, allRequests [config.N_FLOORS][config.N_BUTTONS]elevator.RequestType) {
 	var cabRequests [config.N_FLOORS]bool
 	for request := range allRequests {
-		if allRequests[request][2] == elevator.ConfirmedOrder {
+		if allRequests[request][2] == elevator.ConfirmedRequest {
 			cabRequests[request] = true
 		} else {
 			cabRequests[request] = false

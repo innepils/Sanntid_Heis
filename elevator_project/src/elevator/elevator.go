@@ -18,10 +18,10 @@ const (
 	EB_DoorOpen ElevatorBehaviour = 1
 	EB_Moving   ElevatorBehaviour = 2
 
-	NoOrder        RequestType = 0
-	NewOrder       RequestType = 1
-	ConfirmedOrder RequestType = 2
-	CompletedOrder RequestType = 3
+	NoRequest        RequestType = 0
+	NewRequest       RequestType = 1
+	ConfirmedRequest RequestType = 2
+	CompletedRequest RequestType = 3
 )
 
 type Elevator struct {
