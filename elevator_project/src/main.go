@@ -47,7 +47,7 @@ func main() {
 	ch_elevatorStateToNetwork := make(chan elevator.ElevatorState, 5)
 
 	go backup.LoadBackupFromFile("backup.txt", ch_buttonPressed)
-	
+
 	// Goroutines for sending and recieving messages
 	go bcast.Transmitter(config.DefaultPortBcast, ch_msgOut)
 	go bcast.Receiver(config.DefaultPortBcast, ch_msgIn)
