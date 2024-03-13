@@ -4,6 +4,7 @@ import (
 	"driver/assigner"
 	"driver/backup"
 	"driver/config"
+	deadlockdetector "driver/deadlockDetector"
 	"driver/elevator"
 	"driver/elevator_io"
 	"driver/fsm"
@@ -11,18 +12,6 @@ import (
 	"driver/network/bcast"
 	"driver/network/peers"
 	"fmt"
-	"time"
-)
-
-const (
-	FSMLifelineIndex       int = 0
-	assignerLifeLineIndex  int = 1
-	heartbeatLifeLineIndex int = 2
-	peersLifeLineIndex     int = 3
-)
-
-var (
-	lifeLines [4]time.Time
 )
 
 func main() {
@@ -31,24 +20,20 @@ func main() {
 
 	// Initialize elevator ID and port from command line: 'go run main.go -id=any_id -port=server_port'
 	id, port := config.InitializeConfig()
-	// defer backup.StartBackupProcess(id, port)
-	// Start backup process, halts the progression of the program while it is the backup
-	//backup.BackupProcess(id, port)
-	//fmt.Println("Primary started.")
 
 	// Initialize local elevator
 	elevator_io.Init("localhost:"+port, config.N_FLOORS)
 	fmt.Println("\n--- Initialized local elevator " + id + " with port " + port + " ---\n")
 
 	// Request assigner channels (Recieve updates on the ID's of of the peers that are alive on the network)
-	ch_peerUpdate 			:= make(chan peers.PeerUpdate, 1)
-	ch_peerTxEnable 		:= make(chan bool, 1)
-	ch_msgOut 				:= make(chan heartbeat.HeartBeat, 1)
-	ch_msgIn 				:= make(chan heartbeat.HeartBeat, 1)
-	ch_completedRequests 	:= make(chan elevator_io.ButtonEvent, 1)
-	ch_hallRequestsIn 		:= make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 1)
-	ch_hallRequestsOut 		:= make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 1)
-	ch_externalElevators 	:= make(chan []byte, 1)
+	ch_peerUpdate := make(chan peers.PeerUpdate, 1)
+	ch_peerTxEnable := make(chan bool, 1)
+	ch_msgOut := make(chan heartbeat.HeartBeat, 1)
+	ch_msgIn := make(chan heartbeat.HeartBeat, 1)
+	ch_completedRequests := make(chan elevator_io.ButtonEvent, 1)
+	ch_hallRequestsIn := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 1)
+	ch_hallRequestsOut := make(chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType, 1)
+	ch_externalElevators := make(chan []byte, 1)
 
 	// Channels for local elevator
 	ch_arrivalFloor := make(chan int, 1)
@@ -106,8 +91,6 @@ func main() {
 		ch_assignerLifeLine,
 	)
 
-	//go backup.ReportPrimaryAlive(id)
-
 	go heartbeat.Send(
 		id,
 		ch_hallRequestsOut,
@@ -124,34 +107,12 @@ func main() {
 		ch_externalElevators,
 		ch_peersLifeLine,
 	)
-	for i := range lifeLines{
-		lifeLines[i] = time.Now()
-	}
-	for{
-		select {
-		case <-ch_FSMLifeline:
-			lifeLines[FSMLifelineIndex] = time.Now()
-		case <-ch_assignerLifeLine:
-			lifeLines[assignerLifeLineIndex] = time.Now()
-		case <-ch_heartbeatLifeLine:
-			lifeLines[heartbeatLifeLineIndex] = time.Now()
-		case <-ch_peersLifeLine:
-			lifeLines[peersLifeLineIndex] = time.Now()
-		default:
-			// NOP
-		}
-		for _, lifeLine := range lifeLines {
-			if lifeLine.Add(time.Duration(10) * time.Second).Before(time.Now()) {
-				fmt.Println("Lifeline")
-				return
-			}
-		}
-	}
+
+	go deadlockdetector.DeadlockDetector(
+		ch_FSMLifeline,
+		ch_assignerLifeLine,
+		ch_heartbeatLifeLine,
+		ch_peersLifeLine,
+	)
+
 }
-// func RecoverMe() {
-//     defer func() {
-//         if r := recover(); r != nil {
-//             fmt.Println("Recovered in f", r)
-//         }
-//     }()
-// }
