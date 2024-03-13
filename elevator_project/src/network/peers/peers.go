@@ -121,7 +121,7 @@ func Update(
 		case hb := <-ch_msgIn:
 			if hb.SenderID != id {
 				alivePeers[hb.SenderID] = hb.ElevatorState
-				fmt.Println("Alive Peers: ", alivePeers)
+				// fmt.Println("Alive Peers: ", alivePeers)
 				if prevHallRequests != hb.HallRequests {
 					prevHallRequests = hb.HallRequests
 					ch_hallRequestsIn <- prevHallRequests
