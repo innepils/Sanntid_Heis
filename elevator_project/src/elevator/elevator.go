@@ -18,6 +18,7 @@ const (
 	EB_DoorOpen ElevatorBehaviour = 1
 	EB_Moving   ElevatorBehaviour = 2
 
+	UndefinedRequest RequestType = -1
 	NoRequest        RequestType = 0
 	NewRequest       RequestType = 1
 	ConfirmedRequest RequestType = 2
@@ -56,10 +57,10 @@ func GetCabRequests(elevator Elevator) []bool {
 }
 
 func SendLocalElevatorState(
-	id 							string,
-	localElevator 				Elevator,
-	ch_elevatorStateToAssigner 	chan<- map[string]ElevatorState,
-	ch_elevatorStateToNetwork 	chan<- ElevatorState) {
+	id string,
+	localElevator Elevator,
+	ch_elevatorStateToAssigner chan<- map[string]ElevatorState,
+	ch_elevatorStateToNetwork chan<- ElevatorState) {
 
 	elevatorState := ElevToElevatorState(id, localElevator)
 	ch_elevatorStateToAssigner <- elevatorState
