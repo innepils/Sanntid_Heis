@@ -104,9 +104,7 @@ func Fsm(
 					elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 					elevator_io.SetDoorOpenLamp(true)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-
 					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
-
 					if prevObstruction {
 						prevObstruction = <-ch_doorObstruction
 						doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
@@ -125,18 +123,16 @@ func Fsm(
 			case elevator.EB_DoorOpen:
 
 				//Gets next direction and behaviour
-				prevDirection := localElevator.Dirn
-				requests.Requests_chooseDirection(&localElevator)
-				fmt.Println("PREV DIRECTION: ", elevator.ElevDirnToString(prevDirection))
-				fmt.Println("LOCALELEVATOR DIRECTION: ", elevator.ElevDirnToString(localElevator.Dirn))
-				fmt.Println("LOCALELEVATOR BEHAVIOR: ", elevator.ElevBehaviourToString(localElevator.Behaviour))
+				// prevDirection := localElevator.Dirn
+				// requests.Requests_chooseDirection(&localElevator)
+				// fmt.Println("PREV DIRECTION: ", elevator.ElevDirnToString(prevDirection))
+				// fmt.Println("LOCALELEVATOR DIRECTION: ", elevator.ElevDirnToString(localElevator.Dirn))
+				// fmt.Println("LOCALELEVATOR BEHAVIOR: ", elevator.ElevBehaviourToString(localElevator.Behaviour))
 				//If directionchange is neeeded
-				if localElevator.Dirn != prevDirection {
-					// Announce change
+				if requests.Requests_here(&localElevator) {
 					requests.Requests_announceDirectionChange(&localElevator)
 					// ClearAtFloor
 					requests.Requests_clearAtCurrentFloor(&localElevator, ch_completedRequests)
-					requests.Requests_chooseDirection(&localElevator)
 					// Keep the door open 3 more secs.
 					time.Sleep(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				}
@@ -145,7 +141,7 @@ func Fsm(
 					prevObstruction = <-ch_doorObstruction
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				}
-
+				requests.Requests_chooseDirection(&localElevator)
 				elevator_io.SetDoorOpenLamp(false)
 
 				switch localElevator.Behaviour {

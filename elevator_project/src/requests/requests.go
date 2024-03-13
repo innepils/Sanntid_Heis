@@ -100,6 +100,7 @@ func Requests_shouldStop(e *elevator.Elevator) bool {
 		return true
 	}
 }
+
 /*
 // This is the one that is OLD but works except the one edge case.
 
@@ -178,6 +179,7 @@ func Requests_clearAtCurrentFloor(e *elevator.Elevator, ch_completedRequests cha
 		ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
 	}
 }
+
 */
 
 // This is a revised version of the one that should erase the edge-condition but also be more effective code (hopefully)
@@ -189,8 +191,13 @@ func Requests_clearAtCurrentFloor(e *elevator.Elevator, ch_completedRequests cha
 	switch e.Dirn {
 
 	case elevator_io.MD_Up:
-		e.Requests[e.Floor][elevator_io.BT_HallUp] = false
-		ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallUp}
+		if e.Requests[e.Floor][elevator_io.BT_HallUp] {
+			e.Requests[e.Floor][elevator_io.BT_HallUp] = false
+			ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallUp}
+		} else if e.Requests[e.Floor][elevator_io.BT_HallDown] {
+			e.Requests[e.Floor][elevator_io.BT_HallDown] = false
+			ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
+		}
 
 	case elevator_io.MD_Down:
 		e.Requests[e.Floor][elevator_io.BT_HallDown] = false
