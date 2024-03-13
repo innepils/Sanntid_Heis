@@ -21,8 +21,8 @@ func main() {
 	id, port := config.InitializeConfig()
 
 	// Start backup process, halts the progression of the program while it is the backup
-	backup.BackupProcess(id, port)
-	fmt.Println("Primary started.")
+	//backup.BackupProcess(id, port)
+	//fmt.Println("Primary started.")
 
 	// Initialize local elevator
 	elevator_io.Init("localhost:"+port, config.N_FLOORS)
@@ -103,6 +103,16 @@ func main() {
 		ch_externalElevators,
 	)
 
+	//go RecoverMe()
+	
 	select {}
 
 }
+
+// func RecoverMe() {
+//     defer func() {
+//         if r := recover(); r != nil {
+//             fmt.Println("Recovered in f", r)
+//         }
+//     }()
+// }
