@@ -59,7 +59,7 @@ func Fsm(
 				}
 
 			case elevator.EB_Idle:
-				requests.ChooseDirection(&localElevator)
+				requests.ChooseDirnAndBehaviour(&localElevator)
 
 				switch localElevator.Behaviour {
 				case elevator.EB_Moving:
@@ -106,7 +106,7 @@ func Fsm(
 				}
 				localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 				elevator_io.SetDoorOpenLamp(false)
-				requests.ChooseDirection(&localElevator)
+				requests.ChooseDirnAndBehaviour(&localElevator)
 
 				switch localElevator.Behaviour {
 				case elevator.EB_Moving:
