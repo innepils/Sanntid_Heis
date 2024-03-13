@@ -5,6 +5,7 @@ import (
 	"driver/elevator_io"
 	"fmt"
 	"strings"
+	"time"
 )
 
 type (
@@ -77,6 +78,26 @@ func SetAllButtonLights(requests [config.N_FLOORS][config.N_BUTTONS]RequestType)
 	}
 }
 
+func (e *Elevator) HoldDoorOpenIfObstruction(
+	prevObstruction *bool,
+	doorTimer *time.Timer,
+	ch_doorObstruction <-chan bool,
+) {
+	if *prevObstruction {
+		fmt.Println("Door is obstructed")
+		*prevObstruction = <-ch_doorObstruction
+		doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+	}
+}
+
+func (e *Elevator) StallWhileStopButtonActive(ch_stopButton <-chan bool) {
+	stopButtonPressed := true
+	for stopButtonPressed {
+		stopButtonPressed = false
+		stopButtonPressed = <-ch_stopButton
+	}
+}
+
 // Functions for changing datatype
 func ElevBehaviourToString(elevBehaviour ElevatorBehaviour) string {
 	switch elevBehaviour {
@@ -116,15 +137,15 @@ func ElevToElevatorState(id string, localElevator Elevator) map[string]ElevatorS
 }
 
 // Printing
-func (es *Elevator) Elevator_print() {
+func (e *Elevator) Elevator_print() {
 	fmt.Println("  +--------------------+")
 	fmt.Printf(
 		"  |floor = %-2d          |\n"+
 			"  |dirn  = %-12.12s|\n"+
 			"  |behav = %-12.12s|\n",
-		es.Floor,
-		ElevDirnToString(es.Dirn),
-		ElevBehaviourToString(es.Behaviour),
+		e.Floor,
+		ElevDirnToString(e.Dirn),
+		ElevBehaviourToString(e.Behaviour),
 	)
 	fmt.Println("  +--------------------+")
 	fmt.Println("  |  | up  | dn  | cab |")
@@ -136,7 +157,7 @@ func (es *Elevator) Elevator_print() {
 				(f == 0 && btnType == elevator_io.BT_HallDown) {
 				fmt.Print("|     ")
 			} else {
-				if es.Requests[f][btn] {
+				if e.Requests[f][btn] {
 					fmt.Print("|  #  ")
 				} else {
 					fmt.Print("|  -  ")

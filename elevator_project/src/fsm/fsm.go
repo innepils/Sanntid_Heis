@@ -51,22 +51,15 @@ func Fsm(
 
 			switch localElevator.Behaviour {
 			case elevator.EB_DoorOpen:
-
 				if requests.Here(&localElevator) && localElevator.Dirn == elevator_io.MD_Stop {
 					elevator_io.SetDoorOpenLamp(true)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
-
-					// if prevObstruction {
-					// 	prevObstruction = <-ch_doorObstruction
-					// 	doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-					// }
-					holdDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
+					localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 				}
 
 			case elevator.EB_Idle:
 				requests.ChooseDirection(&localElevator)
-				//localElevator.Elevator_print()
 
 				switch localElevator.Behaviour {
 				case elevator.EB_Moving:
@@ -75,16 +68,9 @@ func Fsm(
 				case elevator.EB_DoorOpen:
 					elevator_io.SetDoorOpenLamp(true)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
-
-					// if prevObstruction {
-					// 	prevObstruction = <-ch_doorObstruction
-					// 	doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-					// }
-					holdDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
+					localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 				}
-
 			} //switch e.behaviour*/
 
 		case newFloor := <-ch_arrivalFloor:
@@ -101,11 +87,7 @@ func Fsm(
 					elevator_io.SetDoorOpenLamp(true)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
-					// if prevObstruction {
-					// 	prevObstruction = <-ch_doorObstruction
-					// 	doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-					// }
-					holdDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
+					localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 					localElevator.Behaviour = elevator.EB_DoorOpen
 				}
 			}
@@ -122,15 +104,9 @@ func Fsm(
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
 					time.Sleep(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				}
-
-				// if prevObstruction {
-				// 	prevObstruction = <-ch_doorObstruction
-				// 	doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-				// }
-				holdDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
-
-				requests.ChooseDirection(&localElevator)
+				localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 				elevator_io.SetDoorOpenLamp(false)
+				requests.ChooseDirection(&localElevator)
 
 				switch localElevator.Behaviour {
 				case elevator.EB_Moving:
@@ -150,22 +126,13 @@ func Fsm(
 			case elevator.EB_DoorOpen:
 				elevator_io.SetDoorOpenLamp(true)
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-
-				// if prevObstruction {
-				// 	prevObstruction = <-ch_doorObstruction
-				// 	doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-				// }
-				holdDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
+				localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 
 			case elevator.EB_Moving:
 				elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 			}
-			// Loops as long as something (true) is received on the stopbutton-channel.
-			stopButtonPressed := true
-			for stopButtonPressed {
-				stopButtonPressed = false
-				stopButtonPressed = <-ch_stopButton
-			}
+
+			localElevator.StallWhileStopButtonActive(ch_stopButton)
 
 			// Makes sure the elevator keeps going after when stopButton is no longer active.
 			switch localElevator.Behaviour {
@@ -175,12 +142,7 @@ func Fsm(
 			case elevator.EB_DoorOpen:
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
-
-				// if prevObstruction {
-				// 	prevObstruction = <-ch_doorObstruction
-				// 	doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-				// }
-				holdDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
+				localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 			}
 			localElevator.Elevator_print()
 
@@ -195,11 +157,3 @@ func Fsm(
 		}
 	} //For
 } //Fsm
-
-func holdDoorOpenIfObstruction(prevObstruction *bool, doorTimer *time.Timer, ch_doorObstruction <-chan bool) {
-	if *prevObstruction {
-		fmt.Println("Door is obstructed")
-		*prevObstruction = <-ch_doorObstruction
-		doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-	}
-}
