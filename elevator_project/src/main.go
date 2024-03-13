@@ -90,7 +90,7 @@ func main() {
 		ch_localRequests,
 		ch_assignerLifeLine,
 	)
-
+	
 	go heartbeat.Send(
 		id,
 		ch_hallRequestsOut,
@@ -114,5 +114,5 @@ func main() {
 		ch_heartbeatLifeLine,
 		ch_peersLifeLine,
 	)
-
+	select{}
 }

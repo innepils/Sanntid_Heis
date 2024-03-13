@@ -1,6 +1,7 @@
 package deadlockdetector
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -39,6 +40,7 @@ func DeadlockDetector(
 		}
 		for _, lifeLine := range lifeLines {
 			if lifeLine.Add(time.Duration(10) * time.Second).Before(time.Now()) {
+				fmt.Println("Deadlock!!!")
 				panic("DEADLOCK DETECTED")
 			}
 		}
