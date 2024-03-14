@@ -1,4 +1,4 @@
-package deadlockdetector
+package deadlock
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ var (
 	deadlocks [4]time.Time
 )
 
-func DeadlockDetector(
+func Detector(
 	ch_FSMDeadlock 			<-chan int,
 	ch_assignerDeadlock 	<-chan int,
 	ch_heartbeatDeadlock 	<-chan int,

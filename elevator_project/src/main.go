@@ -4,7 +4,7 @@ import (
 	"driver/assigner"
 	"driver/backup"
 	"driver/config"
-	deadlockdetector "driver/deadlockDetector"
+	"driver/deadlock"
 	"driver/elevator"
 	"driver/elevator_io"
 	"driver/fsm"
@@ -102,7 +102,7 @@ func main() {
 		ch_peersDeadlock,
 	)
 
-	go deadlockdetector.DeadlockDetector(
+	go deadlock.Detector(
 		ch_FSMDeadlock,
 		ch_assignerDeadlock,
 		ch_heartbeatDeadlock,
