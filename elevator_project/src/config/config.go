@@ -15,7 +15,7 @@ const (
 	IdleTimeOutDurationSec int = 10
 
 	// Heartbeat-configuration
-	HeartbeatSleepMillisec int = 100
+	HeartbeatSleepMillisec int = 10
 
 	// Network-configuration
 	DefaultPortPeer   int = 22017
