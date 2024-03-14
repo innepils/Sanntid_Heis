@@ -13,21 +13,13 @@ const (
 	N_BUTTONS              int = 3
 	DoorOpenDurationSec    int = 3
 	IdleTimeOutDurationSec int = 10
-
-	// Heartbeat-configuration
-	HeartbeatSleepMillisec int = 100
-
+	
 	// Network-configuration
-	Default
 	DefaultPortPeer		int = 22017
 	DefaultPortBcast  	int = 22018
 	elevatorServerPort	string = "15657"
-	BroadcastAddr		string = "255.255.255.255" 
+	HeartbeatSleepMillisec int = 100
 	
-
-	// Backup-configuration
-	BackupPort = "22019"
-	BackupSendAddr    = BroadcastAddr + ":" + BackupPort
 )
 
 func InitializeIDandPort() (string, string) {
