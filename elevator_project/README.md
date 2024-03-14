@@ -39,9 +39,11 @@ Information can be found [here](https://github.com/TTK4145/driver-go).
 ### FSM
 
 The FSM is event-driven, and after initializing the local elevator it checks for following events:
- - Arrival at new floor
  - Recieved request from assigner
- - 
+ - Arrival at new floor
+ - Door timer timed out
+ - Door obstructed
+ - Stop-button pressed
 
 ### Hall Request Assigner
 
@@ -54,3 +56,10 @@ Information can be found [here](https://github.com/TTK4145/Project-resources/tre
 Most of the documentation can be found [here](https://github.com/TTK4145/Network-go).
 
 ### Requests
+
+This package is based on [this](https://github.com/TTK4145/Project-resources/blob/master/elev_algo/requests.c), but modified to fit the projects event-driven FSM. 
+The most important changes are:
+- The elevator is taken is passed-by-reference, to avoid uneccessary opying and making a duplicate ("pair") of the elvator.
+- The function ClearAtCurrentFloor was modified so that if both hall-orders at a floor is active, they are not cleared at the same time, to fulfill the project specifiactions.
+- The function "AnnounceDirectionChange" is added to fulfill the project specifiactions.
+- The function ClearImmidiately was removed as it was no longer needed.
