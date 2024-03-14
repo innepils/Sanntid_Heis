@@ -5,11 +5,11 @@ The project runs **n** elevator in parallell across **m** floors using a peer to
 ## Setting up and running the project
 
 The main program is run using run.sh while in it's directory.
-Before running set the permissions using
+Before running, set the permissions using
 ```
 chmod +x run.sh
 ```
-Then run the main program with
+then run the main program with
 
 ```
 ./run.sh
@@ -17,7 +17,7 @@ Then run the main program with
 
 To exit, close the terminal by holding down ctrl+c. 
 
-## Module dscription
+## Module descriptions
 
 ### Assigner
 
