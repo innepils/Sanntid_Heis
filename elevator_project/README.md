@@ -29,7 +29,7 @@ This saves the local cab calls to file and also supports extracting it from file
 
 ### Cost
 
-This utilises the "[HallRequestAssigner](#hall-request-assigner)" to calculate witch requests our local elevator should serve.
+This utilizes the "[HallRequestAssigner](#hall-request-assigner)" to calculate witch requests our local elevator should serve.
 
 ### Deadlock detector
 
@@ -59,6 +59,6 @@ Sets up the struct which is broadcasted to the network, containing information a
 
 Most of the documentation can be found [here](https://github.com/TTK4145/Network-go).
 
-In the handed out peers.go we have aded functionality to continuously update the alivePeers to be used in [cost](#cost). To avoid concurrency issues while reading and writing to the map both in peers and [assigner](#assigner)], we serialize the maps into JSON using Marshal and Unmarshal. 
+In the handed out peers.go we have aded functionality to continuously update the alivePeers to be used in [cost](#cost). To avoid concurrency issues while reading and writing to the map both in peers and [assigner](#assigner), we serialize the maps into JSON using Marshal and Unmarshal. 
 
 ### Requests
