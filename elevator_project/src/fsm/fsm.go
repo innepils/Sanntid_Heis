@@ -8,9 +8,8 @@ import (
 	"time"
 )
 
-// One single function for the Final State Machine of the elevator
 func FSM(
-	id 							string,
+	nodeID 						string,
 	ch_arrivalFloor 			<-chan int,
 	ch_localRequests 			<-chan [config.N_FLOORS][config.N_BUTTONS]bool,
 	ch_doorObstruction 			<-chan bool,
@@ -21,7 +20,7 @@ func FSM(
 	ch_FSMDeadlock 				chan<- int,
 ) {
 
-	// Initializing
+	// Initilalizing variables
 	localElevator := elevator.UninitializedElevator()
 	prevLocalElevator := localElevator
 	prevObstruction := false
@@ -37,9 +36,9 @@ func FSM(
 	elevator_io.SetDoorOpenLamp(false)
 	doorTimer := time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
 
-	elevator.SendLocalElevatorState(id, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
+	elevator.SendLocalElevatorState(nodeID, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
-	// "For-Select" to supervise the different channels/events that changes the FSM
+	// "For-Select" to supervise the different channels/events
 	for {
 		ch_FSMDeadlock <- 1
 		select {
@@ -54,7 +53,6 @@ func FSM(
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				}
-
 			case elevator.EB_Idle:
 				if requests.Here(&localElevator) && (localElevator.Dirn == elevator_io.MD_Stop) {
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
@@ -62,13 +60,12 @@ func FSM(
 					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					localElevator.Behaviour = elevator.EB_DoorOpen
 				} else {
-					// See if requests are elsewhere
 					requests.ChooseDirnAndBehaviour(&localElevator)
 					if localElevator.Behaviour == elevator.EB_Moving {
 						elevator_io.SetMotorDirection(localElevator.Dirn)
 					}
 				}
-			} //switch e.behaviour
+			}
 
 		case newFloor := <-ch_arrivalFloor:
 			localElevator.Floor = newFloor
@@ -85,7 +82,7 @@ func FSM(
 				}
 			case elevator.EB_DoorOpen, elevator.EB_Idle:
 				//NOP
-			}
+			} 
 
 		// This channel "transmits" when door timeouts.
 		case <-doorTimer.C:
@@ -93,8 +90,6 @@ func FSM(
 			case elevator.EB_Idle, elevator.EB_Moving:
 				//NOP
 			case elevator.EB_DoorOpen:
-				// This "if" happens when hallButton in direction was cleared at new floor,
-				// 	but should wait longer if hallButton in other direction should also be cleared:
 				if requests.Here(&localElevator) {
 					requests.AnnounceDirectionChange(&localElevator)
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
@@ -112,12 +107,11 @@ func FSM(
 				}
 				elevator_io.SetDoorOpenLamp(false)
 
-				//Decides further action:
 				requests.ChooseDirnAndBehaviour(&localElevator)
 				if localElevator.Behaviour == elevator.EB_Moving {
 					elevator_io.SetMotorDirection(localElevator.Dirn)
 				}
-			}
+			} //switch localElevator.behaviour
 
 		case obstruction := <-ch_doorObstruction:
 			prevObstruction = obstruction
@@ -126,28 +120,27 @@ func FSM(
 			if localElevator.Behaviour == elevator.EB_Moving {
 				elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 			}
-			// Keeps the elevator and fsm stalled while stopButton is active
+			// Keeps the elevator and FSM stalled while stopButton is pressed
 			stopButtonPressed := true
 			for stopButtonPressed {
 				ch_FSMDeadlock <- 1
 				stopButtonPressed = false
 				stopButtonPressed = <-ch_stopButton
 			}
-			// Makes sure the elevator keeps going when stopButton is no longer active.
 			switch localElevator.Behaviour {
 			case elevator.EB_Moving:
 				elevator_io.SetMotorDirection(localElevator.Dirn)
 
 			case elevator.EB_DoorOpen:
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-			}
+			} //switch localElevator.behaviour
 		default:
 			// NOP
 		} //select
 
 		if prevLocalElevator != localElevator {
 			prevLocalElevator = localElevator
-			elevator.SendLocalElevatorState(id, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
+			elevator.SendLocalElevatorState(nodeID, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 		}
 	} //For
 } //FSM
