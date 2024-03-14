@@ -19,7 +19,7 @@ func RequestAssigner(
 	ch_externalElevators 		<-chan []byte,
 	ch_hallRequestsOut 			chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
 	ch_localRequests 			chan<- [config.N_FLOORS][config.N_BUTTONS]bool,
-	ch_assignerDeadlock 		chan<- int,
+	ch_assignerDeadlock 		chan<- string,
 ) {
 
 	var (
@@ -46,7 +46,7 @@ func RequestAssigner(
 	idleTimeOut = time.NewTimer(time.Duration(10) * time.Second)
 
 	for {
-		ch_assignerDeadlock <- 1
+		ch_assignerDeadlock <- "Request Assigner Alive"
 		select {
 		case buttonPressed := <-ch_buttonPressed:
 			if buttonPressed.BtnType == elevator_io.BT_Cab {

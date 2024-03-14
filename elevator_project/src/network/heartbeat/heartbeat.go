@@ -18,7 +18,7 @@ func Send(
 	ch_hallRequestsOut 		  	<-chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
 	ch_elevatorStateToNetwork	<-chan elevator.ElevatorState,
 	ch_msgOut 					chan<- HeartBeat,
-	ch_heartbeatDeadlock 	  	chan<- int,
+	ch_heartbeatDeadlock 	  	chan<- string,
 ) {
 	var (
 		mtxLock 		sync.Mutex
@@ -45,7 +45,7 @@ func Send(
 	}()
 
 	for {
-		ch_heartbeatDeadlock <- 1
+		ch_heartbeatDeadlock <- "Heartbeat Alive"
 		mtxLock.Lock()
 		newHeartbeat := HeartBeat{
 			SenderID:      nodeID,

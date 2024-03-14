@@ -16,10 +16,10 @@ const (
 var deadlocks [4]time.Time
 
 func Detector(
-	ch_FSMDeadlock 			<-chan int,
-	ch_assignerDeadlock 	<-chan int,
-	ch_heartbeatDeadlock 	<-chan int,
-	ch_peersDeadlock 		<-chan int,
+	ch_FSMDeadlock 			<-chan string,
+	ch_assignerDeadlock 	<-chan string,
+	ch_heartbeatDeadlock 	<-chan string,
+	ch_peersDeadlock 		<-chan string,
 ) {
 	for i := range deadlocks {
 		deadlocks[i] = time.Now()
