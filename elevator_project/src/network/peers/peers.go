@@ -92,26 +92,28 @@ func Receiver(port int, peerUpdateCh chan<- PeerUpdate) {
 }
 
 func Update(
-	id string,
-	ch_peerUpdate <-chan PeerUpdate,
-	ch_msgIn <-chan heartbeat.HeartBeat,
-	ch_hallRequestsIn chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
+	id 					 string,
+	ch_peerUpdate 		 <-chan PeerUpdate,
+	ch_msgIn 			 <-chan heartbeat.HeartBeat,
+	ch_hallRequestsIn 	 chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
 	ch_externalElevators chan<- []byte,
-	ch_peersLifeLine chan<- int,
-) {
+	ch_peersLifeLine 	 chan<- int,
+){
 
 	alivePeers := make(map[string]elevator.ElevatorState)
-	var prevHallRequests [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType
-	var prevAlivePeers map[string]elevator.ElevatorState
+
+	var (
+		prevHallRequests [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType
+		prevAlivePeers map[string]elevator.ElevatorState
+	)
+
 	for {
-		ch_peersLifeLine <- 1
-		// fmt.Println("Alive peers: ", alivePeers)
+		ch_peersDeadlock <- 1
 		select {
 		case peers := <-ch_peerUpdate:
 			for _, peer := range peers.Lost {
 				if _, ok := alivePeers[peer]; ok {
 					delete(alivePeers, peer)
-					// fmt.Println("Alive peers after delete: ", alivePeers)
 					AlivePeersJson, _ := json.Marshal(alivePeers)
 					ch_externalElevators <- AlivePeersJson
 				}
@@ -126,12 +128,11 @@ func Update(
 			if heartbeat.SenderID != id {
 				if !reflect.DeepEqual(alivePeers[heartbeat.SenderID], heartbeat.ElevatorState) {
 					alivePeers[heartbeat.SenderID] = heartbeat.ElevatorState
-					// fmt.Println(alivePeers)
 					AlivePeersJson, _ := json.Marshal(alivePeers)
 					ch_externalElevators <- AlivePeersJson
 				}
 				alivePeers[heartbeat.SenderID] = heartbeat.ElevatorState
-				// fmt.Println("Alive Peers: ", alivePeers)
+
 				if prevHallRequests != heartbeat.HallRequests {
 					prevHallRequests = heartbeat.HallRequests
 					ch_hallRequestsIn <- prevHallRequests
@@ -142,7 +143,6 @@ func Update(
 					AlivePeersJson, _ := json.Marshal(prevAlivePeers)
 					ch_externalElevators <- AlivePeersJson
 				}
-				//fmt.Printf("Received: %#v\n", a)
 			}
 		default:
 			// NOP
