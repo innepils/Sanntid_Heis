@@ -9,11 +9,6 @@ import (
 	"os"
 )
 
-func KillSelf(localID string, port string) { //unused
-	// StartBackupProcess(localID, port)
-	panic("Program terminated")
-}
-
 func SaveBackupToFile(filename string, allRequests [config.N_FLOORS][config.N_BUTTONS]elevator.RequestType) {
 	var cabRequests [config.N_FLOORS]bool
 	for floor := range allRequests {
