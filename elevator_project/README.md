@@ -4,13 +4,18 @@ The project runs **n** elevator in parallell across **m** floors using a peer to
 
 ## Setting up and running the project
 
-The project is run using the run.sh file by writing
+The main program is run using run.sh while in it's directory.
+Before running set the permissions using
+```
+chmod +x run.sh
+```
+Then run the main program with
 
 ```
 ./run.sh
 ```
 
-while in the directory where the file is located.
+To exit, close the terminal by holding down ctrl+c. 
 
 ## Module dscription
 
@@ -41,9 +46,12 @@ This detects if [FSM](#fsm), [assigner](#assigner), [peers](#network) or [heartb
 The documentation can be found [here](https://github.com/TTK4145/Project-resources/tree/master/cost_fns/hall_request_assigner).
 
 ### Heartbeat
+Sets up the struct which is broadcasted to the network, containing information about new hall requests and state from [assigner](#assigner) each local elevator. 
 
 ### Network
 
 Most of the documentation can be found [here](https://github.com/TTK4145/Network-go).
+
+In the handed out peers.go we have aded functionality to continuously update the alivePeers to be used in [cost](#cost). To avoid concurrency issues while reading and writing to the map both in peers and [assigner](#assigner)], we serialize the maps into JSON using Marshal and Unmarshal. 
 
 ### Requests
