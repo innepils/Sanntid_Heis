@@ -9,6 +9,18 @@
 
 ### Adrian:
  - [ ] Change as much pass-by-value to pass-by-reference. E.g. in elevator.go
+ - lifeline-channel bytte navn?
+- bruke bool/true istedenfor for magic number
+- obstruction 2 ganger?
+- fjerne ALT av prints? spesielt elevator_print?
+- er processPairs ubrukt nå?
+  -primaryAlive ubrukt
+- KillSElf i backup
+- id er lite forklarene, burde det vræe nodeID elns?
+- Se over import-paths. Noen som tar inn "for mye". eller noen som går på kryss og tvers?
+- Error funksjon (ta inn error), return panic elsn
+- InitializeConfig har et dårlig navn og er på feil plass? Også LocalIP. Magisk 15657
+- Deadlockdetector navn på module og funkjson
 ### Linus:
 - die? i cost
   - lage error-funksjoner istedenfor å ha if-statement/3-linjer hver gang
@@ -31,7 +43,7 @@
 - [x] Changed name on MAP (elevState) etc.
 - [ ] change functionname from ElevButtonToString to ElevButtonTypeToString?? Brukes den i det hele tatt?
 # Elevator_io
-- [ ] Should short one-letter variable names be renamed? It is given code..
+- [x] Should short one-letter variable names be renamed? It is given code..
 # FSM
 - [ ] print Elevator when it brings new information
 - [x] remove "pair" and use pointers. THIS IS IMPORTANT
@@ -54,9 +66,9 @@
 
 # No calls are lost
   - [] Test forskjellige failures som: losing network entirely, software-crash (watchdog?), obstruction, tap av strøm til både motor og hele noden.
-    - [ ] Ved restart (etter crash) hentes cab-orders inn igjen.
+    - [x] Ved restart (etter crash) hentes cab-orders inn igjen.
     - [x] Når en node er alene på nettverket, skal den fortsatte å fullføre ordre, samt ta nye.
-    - [ ] Noden skal IKKE måtte restartes manuelt. (Bør implementere restart i software ved ingen ordre og alene på nettverket.)
+    - [x] Noden skal IKKE måtte restartes manuelt. (Bør implementere restart i software ved ingen ordre og alene på nettverket.)
 
 # The light and buttons should function as expected
   - [x] Hall call button henter en heis.
@@ -77,7 +89,7 @@
   ### Secondary requirements ###
   # Calls should be served as efficiently as possible.
   - [x] Implementere en fungerende cost-funksjon.
-  - [ ] Gjøre koden mer effektiv, bruke pekere, ikke kopiere structs om unødvendig, osv.
+  - [x] Gjøre koden mer effektiv, bruke pekere, ikke kopiere structs om unødvendig, osv.
 
 
   ##### LOVLIGE ANTAGELSER #####

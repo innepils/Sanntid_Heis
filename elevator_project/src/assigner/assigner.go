@@ -7,7 +7,6 @@ import (
 	"driver/elevator"
 	"driver/elevator_io"
 	"encoding/json"
-	"fmt"
 	"time"
 )
 
@@ -50,7 +49,6 @@ func RequestAssigner(
 		ch_assignerDeadlock <- 1
 		select {
 		case buttonPressed := <-ch_buttonPressed:
-			// Gets button presses and registers the requests
 			if buttonPressed.BtnType == elevator_io.BT_Cab {
 				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = elevator.ConfirmedRequest
 				backup.SaveBackupToFile("backup.txt", allRequests)
@@ -58,7 +56,6 @@ func RequestAssigner(
 				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = elevator.NewRequest
 			}
 		case completedRequest := <-ch_completedRequests:
-			// Completed requests from FSM
 			if allRequests[completedRequest.BtnFloor][completedRequest.BtnType] == elevator.CompletedRequest {
 				allRequests[completedRequest.BtnFloor][completedRequest.BtnType] = elevator.NoRequest
 			} else if allRequests[completedRequest.BtnFloor][completedRequest.BtnType] == elevator.ConfirmedRequest {
@@ -138,7 +135,7 @@ func RequestAssigner(
 			}
 		}
 
-		// checks if changes were made, and if so,
+		// checks if changes were made, and if so, share those changes
 		if localRequests != prevLocalRequests {
 			ch_localRequests <- localRequests
 			prevLocalRequests = localRequests
@@ -148,6 +145,7 @@ func RequestAssigner(
 			prevAllRequests = allRequests
 		}
 
+		//if an elevator is idle in more than 'IdleTimeOuutDurationSec' while there are orders, it will take them.
 		if localElevatorState[id].Behavior != "idle" {
 			idleTimeOut.Reset(time.Duration(config.IdleTimeOutDurationSec) * time.Second)
 		} else {
@@ -165,7 +163,6 @@ func RequestAssigner(
 		}
 		select {
 		case <-idleTimeOut.C:
-			fmt.Printf("TIMED OUT!!!!\n")
 			for floor := 0; floor < config.N_FLOORS; floor++ {
 				for btn := 0; btn < config.N_BUTTONS; btn++ {
 					if allRequests[floor][btn] == elevator.ConfirmedRequest {
