@@ -35,61 +35,6 @@ func Here(e *elevator.Elevator) bool {
 	}
 	return false
 }
-/*
-func ChooseDirnAndBehaviour(e *elevator.Elevator) {
-	switch e.Dirn {
-	case elevator_io.MD_Up:
-		if Above(e) {
-			e.Dirn = elevator_io.MD_Up
-			e.Behaviour = elevator.EB_Moving
-		} else if Here(e) {
-			e.Dirn = elevator_io.MD_Down
-			e.Behaviour = elevator.EB_DoorOpen
-		} else if Below(e) {
-			e.Dirn = elevator_io.MD_Down
-			e.Behaviour = elevator.EB_Moving
-		} else {
-			e.Dirn = elevator_io.MD_Stop
-			e.Behaviour = elevator.EB_Idle
-		}
-
-	case elevator_io.MD_Down:
-		if Below(e) {
-			e.Dirn = elevator_io.MD_Down
-			e.Behaviour = elevator.EB_Moving
-		} else if Here(e) {
-			e.Dirn = elevator_io.MD_Up
-			e.Behaviour = elevator.EB_DoorOpen
-		} else if Above(e) {
-			e.Dirn = elevator_io.MD_Up
-			e.Behaviour = elevator.EB_Moving
-		} else {
-			e.Dirn = elevator_io.MD_Stop
-			e.Behaviour = elevator.EB_Idle
-		}
-
-	case elevator_io.MD_Stop:
-
-		if Here(e) {
-			e.Dirn = elevator_io.MD_Stop
-			e.Behaviour = elevator.EB_DoorOpen
-		} else if Above(e) {
-			e.Dirn = elevator_io.MD_Up
-			e.Behaviour = elevator.EB_Moving
-		} else if Below(e) {
-			e.Dirn = elevator_io.MD_Down
-			e.Behaviour = elevator.EB_Moving
-		} else {
-			e.Dirn = elevator_io.MD_Stop
-			e.Behaviour = elevator.EB_Idle
-		}
-
-	default:
-		e.Dirn = elevator_io.MD_Stop
-		e.Behaviour = elevator.EB_Idle
-	}
-}
-*/
 
 func ChooseDirnAndBehaviour(e *elevator.Elevator) {
 	switch e.Dirn {

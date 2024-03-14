@@ -24,15 +24,14 @@ const (
 	// Backup-configuration
 	BackupPort = "22019"
 	BackupSendAddr    = "255.255.255.255:" + BackupPort
-	PrimaryAliveSec   = 1
 )
 
 func InitializeConfig() (string, string) {
-	var id, port string
-	flag.StringVar(&id, "id", getDefaultID(), "ID of this peer")
+	var nodeID, port string
+	flag.StringVar(&nodeID, "id", getDefaultID(), "ID of this peer")
 	flag.StringVar(&port, "port", "15657", "Port of this peer")
 	flag.Parse()
-	return id, port
+	return nodeID, port
 }
 
 func getDefaultID() string {

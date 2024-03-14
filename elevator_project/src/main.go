@@ -16,7 +16,7 @@ import (
 
 func main() {
 	// Initialize elevator ID and port from command line: 'go run main.go -id=any_id -port=server_port'
-	id, port := config.InitializeConfig()
+	nodeID, port := config.InitializeConfig()
 
 	// Initialize local elevator
 	elevator_io.Init("localhost:"+port, config.N_FLOORS)
@@ -41,7 +41,7 @@ func main() {
 	ch_elevatorStateToAssigner 	:= make(chan map[string]elevator.ElevatorState, 1)
 	ch_elevatorStateToNetwork 	:= make(chan elevator.ElevatorState, 1)
 
-	//Life line for goroutines
+	// Channels for deadlock for goroutines
 	ch_FSMDeadlock 				:= make(chan int, 1)
 	ch_assignerDeadlock 		:= make(chan int, 1)
 	ch_heartbeatDeadlock 		:= make(chan int, 1)
@@ -53,7 +53,7 @@ func main() {
 	go bcast.Transmitter(config.DefaultPortBcast, ch_msgOut)
 	go bcast.Receiver(config.DefaultPortBcast, ch_msgIn)
 
-	go peers.Transmitter(config.DefaultPortPeer, id, ch_peerTxEnable)
+	go peers.Transmitter(config.DefaultPortPeer, nodeID, ch_peerTxEnable)
 	go peers.Receiver(config.DefaultPortPeer, ch_peerUpdate)
 
 	// elevator_io goroutines
@@ -64,7 +64,7 @@ func main() {
 
 	// Finite state machine goroutine
 	go fsm.Fsm(
-		id,
+		nodeID,
 		ch_arrivalFloor,
 		ch_localRequests,
 		ch_doorObstruction,
@@ -77,7 +77,7 @@ func main() {
 
 	// Assigner goroutine
 	go assigner.RequestAssigner(
-		id,
+		nodeID,
 		ch_buttonPressed,
 		ch_completedRequests,
 		ch_elevatorStateToAssigner,
@@ -89,7 +89,7 @@ func main() {
 	)
 	
 	go heartbeat.Send(
-		id,
+		nodeID,
 		ch_hallRequestsOut,
 		ch_elevatorStateToNetwork,
 		ch_msgOut,
@@ -97,7 +97,7 @@ func main() {
 	)
 
 	go peers.Update(
-		id,
+		nodeID,
 		ch_peerUpdate,
 		ch_msgIn,
 		ch_hallRequestsIn,
