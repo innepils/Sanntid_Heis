@@ -66,7 +66,7 @@ func main() {
 	go elevator_io.PollStopButton(ch_stopButton)
 
 	// Finite state machine goroutine
-	go fsm.Fsm(
+	go fsm.FSM(
 		id,
 		ch_arrivalFloor,
 		ch_localRequests,

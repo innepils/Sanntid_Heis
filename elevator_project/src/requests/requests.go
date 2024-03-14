@@ -7,9 +7,9 @@ import (
 )
 
 func Above(e *elevator.Elevator) bool {
-	for f := e.Floor + 1; f < config.N_FLOORS; f++ {
+	for floor := e.Floor + 1; floor < config.N_FLOORS; floor++ {
 		for btn := 0; btn < config.N_BUTTONS; btn++ {
-			if e.Requests[f][btn] {
+			if e.Requests[floor][btn] {
 				return true
 			}
 		}
@@ -17,9 +17,9 @@ func Above(e *elevator.Elevator) bool {
 	return false
 }
 func Below(e *elevator.Elevator) bool {
-	for f := 0; f < e.Floor; f++ {
+	for floor := 0; floor < e.Floor; floor++ {
 		for btn := 0; btn < config.N_BUTTONS; btn++ {
-			if e.Requests[f][btn] {
+			if e.Requests[floor][btn] {
 				return true
 			}
 		}
@@ -35,61 +35,6 @@ func Here(e *elevator.Elevator) bool {
 	}
 	return false
 }
-/*
-func ChooseDirnAndBehaviour(e *elevator.Elevator) {
-	switch e.Dirn {
-	case elevator_io.MD_Up:
-		if Above(e) {
-			e.Dirn = elevator_io.MD_Up
-			e.Behaviour = elevator.EB_Moving
-		} else if Here(e) {
-			e.Dirn = elevator_io.MD_Down
-			e.Behaviour = elevator.EB_DoorOpen
-		} else if Below(e) {
-			e.Dirn = elevator_io.MD_Down
-			e.Behaviour = elevator.EB_Moving
-		} else {
-			e.Dirn = elevator_io.MD_Stop
-			e.Behaviour = elevator.EB_Idle
-		}
-
-	case elevator_io.MD_Down:
-		if Below(e) {
-			e.Dirn = elevator_io.MD_Down
-			e.Behaviour = elevator.EB_Moving
-		} else if Here(e) {
-			e.Dirn = elevator_io.MD_Up
-			e.Behaviour = elevator.EB_DoorOpen
-		} else if Above(e) {
-			e.Dirn = elevator_io.MD_Up
-			e.Behaviour = elevator.EB_Moving
-		} else {
-			e.Dirn = elevator_io.MD_Stop
-			e.Behaviour = elevator.EB_Idle
-		}
-
-	case elevator_io.MD_Stop:
-
-		if Here(e) {
-			e.Dirn = elevator_io.MD_Stop
-			e.Behaviour = elevator.EB_DoorOpen
-		} else if Above(e) {
-			e.Dirn = elevator_io.MD_Up
-			e.Behaviour = elevator.EB_Moving
-		} else if Below(e) {
-			e.Dirn = elevator_io.MD_Down
-			e.Behaviour = elevator.EB_Moving
-		} else {
-			e.Dirn = elevator_io.MD_Stop
-			e.Behaviour = elevator.EB_Idle
-		}
-
-	default:
-		e.Dirn = elevator_io.MD_Stop
-		e.Behaviour = elevator.EB_Idle
-	}
-}
-*/
 
 func ChooseDirnAndBehaviour(e *elevator.Elevator) {
 	switch e.Dirn {
@@ -156,12 +101,10 @@ func ShouldStop(e *elevator.Elevator) bool {
 }
 
 func ClearAtCurrentFloor(e *elevator.Elevator, ch_completedRequests chan<- elevator_io.ButtonEvent) {
-
 	e.Requests[e.Floor][elevator_io.BT_Cab] = false
 	ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_Cab}
 
 	switch e.Dirn {
-
 	case elevator_io.MD_Up:
 		if e.Requests[e.Floor][elevator_io.BT_HallUp] {
 			e.Requests[e.Floor][elevator_io.BT_HallUp] = false
@@ -170,7 +113,6 @@ func ClearAtCurrentFloor(e *elevator.Elevator, ch_completedRequests chan<- eleva
 			e.Requests[e.Floor][elevator_io.BT_HallDown] = false
 			ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
 		}
-
 	case elevator_io.MD_Down:
 		if e.Requests[e.Floor][elevator_io.BT_HallDown] {
 			e.Requests[e.Floor][elevator_io.BT_HallDown] = false
@@ -179,7 +121,6 @@ func ClearAtCurrentFloor(e *elevator.Elevator, ch_completedRequests chan<- eleva
 			e.Requests[e.Floor][elevator_io.BT_HallUp] = false
 			ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallUp}
 		}
-
 	case elevator_io.MD_Stop:
 		e.Requests[e.Floor][elevator_io.BT_HallUp] = false
 		ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallUp}
@@ -190,7 +131,7 @@ func ClearAtCurrentFloor(e *elevator.Elevator, ch_completedRequests chan<- eleva
 
 func AnnounceDirectionChange(e *elevator.Elevator) {
 	println("***** CHANGING DIRCETION *****")
-
+	
 	if e.Dirn == elevator_io.MD_Up {
 		println("***** GOING UP *****")
 	} else if e.Dirn == elevator_io.MD_Down {
