@@ -2,7 +2,12 @@
 
 The project runs **n** elevator in parallell across **m** floors using a peer to peer network and udp broadcasting.
 
-## Setting up and running the project
+## Prerequisites
+The project is built using Go, which needs to be installed to compile and run the project. The latest version of Go can be installed from [the official Go website](https://go.dev/dl/).
+
+
+
+## Usage
 
 The main program is run using run.sh while in it's directory.
 Before running, set the permissions using
@@ -62,3 +67,4 @@ Most of the documentation can be found [here](https://github.com/TTK4145/Network
 In the handed out peers.go we have aded functionality to continuously update the alivePeers to be used in [cost](#cost). To avoid concurrency issues while reading and writing to the map both in peers and [assigner](#assigner), we serialize the maps into JSON using Marshal and Unmarshal. 
 
 ### Requests
+
