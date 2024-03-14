@@ -61,7 +61,7 @@ func main() {
 
 	// Finite state machine goroutine
 	go fsm.FSM(
-		id,
+		nodeID,
 		ch_arrivalFloor,
 		ch_localRequests,
 		ch_doorObstruction,
