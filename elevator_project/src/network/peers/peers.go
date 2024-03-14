@@ -19,8 +19,10 @@ type PeerUpdate struct {
 	Lost  []string
 }
 
-const interval = 150 * time.Millisecond
-const timeout = 500 * time.Millisecond
+const (
+	interval = 150 * time.Millisecond
+	timeout = 500 * time.Millisecond
+)
 
 func Transmitter(port int, id string, transmitEnable <-chan bool) {
 
@@ -92,26 +94,24 @@ func Receiver(port int, peerUpdateCh chan<- PeerUpdate) {
 }
 
 func Update(
-	id string,
-	ch_peerUpdate <-chan PeerUpdate,
-	ch_msgIn <-chan heartbeat.HeartBeat,
-	ch_hallRequestsIn chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
+	nodeID 					 string,
+	ch_peerUpdate 		 <-chan PeerUpdate,
+	ch_msgIn 			 <-chan heartbeat.HeartBeat,
+	ch_hallRequestsIn 	 chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
 	ch_externalElevators chan<- []byte,
-	ch_peersLifeLine chan<- int,
-) {
+	ch_peersDeadlock 	 chan<- int,
+){
 
 	alivePeers := make(map[string]elevator.ElevatorState)
 	var prevHallRequests [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType
-	var prevAlivePeers map[string]elevator.ElevatorState
+
 	for {
-		ch_peersLifeLine <- 1
-		// fmt.Println("Alive peers: ", alivePeers)
+		ch_peersDeadlock <- 1
 		select {
 		case peers := <-ch_peerUpdate:
 			for _, peer := range peers.Lost {
 				if _, ok := alivePeers[peer]; ok {
 					delete(alivePeers, peer)
-					// fmt.Println("Alive peers after delete: ", alivePeers)
 					AlivePeersJson, _ := json.Marshal(alivePeers)
 					ch_externalElevators <- AlivePeersJson
 				}
@@ -123,26 +123,17 @@ func Update(
 			fmt.Printf("  Lost:     %q\n", peers.Lost)
 
 		case heartbeat := <-ch_msgIn:
-			if heartbeat.SenderID != id {
+			if heartbeat.SenderID != nodeID {
 				if !reflect.DeepEqual(alivePeers[heartbeat.SenderID], heartbeat.ElevatorState) {
 					alivePeers[heartbeat.SenderID] = heartbeat.ElevatorState
-					// fmt.Println(alivePeers)
 					AlivePeersJson, _ := json.Marshal(alivePeers)
 					ch_externalElevators <- AlivePeersJson
 				}
-				alivePeers[heartbeat.SenderID] = heartbeat.ElevatorState
-				// fmt.Println("Alive Peers: ", alivePeers)
+
 				if prevHallRequests != heartbeat.HallRequests {
 					prevHallRequests = heartbeat.HallRequests
 					ch_hallRequestsIn <- prevHallRequests
 				}
-				if !reflect.DeepEqual(prevAlivePeers, alivePeers) {
-					fmt.Println(alivePeers)
-					prevAlivePeers = alivePeers
-					AlivePeersJson, _ := json.Marshal(prevAlivePeers)
-					ch_externalElevators <- AlivePeersJson
-				}
-				//fmt.Printf("Received: %#v\n", a)
 			}
 		default:
 			// NOP

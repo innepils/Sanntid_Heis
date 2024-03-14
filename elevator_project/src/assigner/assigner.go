@@ -12,15 +12,15 @@ import (
 )
 
 func RequestAssigner(
-	id string,
-	ch_buttonPressed <-chan elevator_io.ButtonEvent,
-	ch_completedRequests <-chan elevator_io.ButtonEvent,
-	ch_elevatorStateToAssigner <-chan map[string]elevator.ElevatorState,
-	ch_hallRequestsIn <-chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
-	ch_externalElevators <-chan []byte,
-	ch_hallRequestsOut chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
-	ch_localRequests chan<- [config.N_FLOORS][config.N_BUTTONS]bool,
-	ch_assignerLifeLine chan<- int,
+	id 							string,
+	ch_buttonPressed 			<-chan elevator_io.ButtonEvent,
+	ch_completedRequests		<-chan elevator_io.ButtonEvent,
+	ch_elevatorStateToAssigner 	<-chan map[string]elevator.ElevatorState,
+	ch_hallRequestsIn 			<-chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
+	ch_externalElevators 		<-chan []byte,
+	ch_hallRequestsOut 			chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
+	ch_localRequests 			chan<- [config.N_FLOORS][config.N_BUTTONS]bool,
+	ch_assignerDeadlock 		chan<- int,
 ) {
 
 	var (
@@ -47,8 +47,7 @@ func RequestAssigner(
 	idleTimeOut = time.NewTimer(time.Duration(10) * time.Second)
 
 	for {
-		// fmt.Println("Entered assigner loop")
-		ch_assignerLifeLine <- 1
+		ch_assignerDeadlock <- 1
 		select {
 		case buttonPressed := <-ch_buttonPressed:
 			// Gets button presses and registers the requests
@@ -56,7 +55,6 @@ func RequestAssigner(
 				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = elevator.ConfirmedRequest
 				backup.SaveBackupToFile("backup.txt", allRequests)
 			} else if allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] != elevator.ConfirmedRequest {
-				//fmt.Println("req set to 1")
 				allRequests[buttonPressed.BtnFloor][buttonPressed.BtnType] = elevator.NewRequest
 			}
 		case completedRequest := <-ch_completedRequests:
@@ -75,8 +73,6 @@ func RequestAssigner(
 			externalElevators = currentExternalElevators
 
 		case updateHallRequest := <-ch_hallRequestsIn:
-			//fmt.Printf("\nRecieved hallrequest in: ")
-			//fmt.Println(updateHallRequest)
 			for floor := range updateHallRequest {
 				for btn := 0; btn < config.N_BUTTONS-1; btn++ {
 					switch allRequests[floor][btn] {
