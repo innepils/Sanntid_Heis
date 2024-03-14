@@ -19,8 +19,10 @@ type PeerUpdate struct {
 	Lost  []string
 }
 
-const interval = 150 * time.Millisecond
-const timeout = 500 * time.Millisecond
+const (
+	interval = 150 * time.Millisecond
+	timeout = 500 * time.Millisecond
+)
 
 func Transmitter(port int, id string, transmitEnable <-chan bool) {
 
@@ -92,7 +94,7 @@ func Receiver(port int, peerUpdateCh chan<- PeerUpdate) {
 }
 
 func Update(
-	id 					 string,
+	nodeID 					 string,
 	ch_peerUpdate 		 <-chan PeerUpdate,
 	ch_msgIn 			 <-chan heartbeat.HeartBeat,
 	ch_hallRequestsIn 	 chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
@@ -121,7 +123,7 @@ func Update(
 			fmt.Printf("  Lost:     %q\n", peers.Lost)
 
 		case heartbeat := <-ch_msgIn:
-			if heartbeat.SenderID != id {
+			if heartbeat.SenderID != nodeID {
 				if !reflect.DeepEqual(alivePeers[heartbeat.SenderID], heartbeat.ElevatorState) {
 					alivePeers[heartbeat.SenderID] = heartbeat.ElevatorState
 					AlivePeersJson, _ := json.Marshal(alivePeers)
