@@ -280,6 +280,15 @@ func Fsm(
 					time.Sleep(time.Duration(config.DoorOpenDurationSec) * time.Second)
 				}
 				//localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
+				for prevObstruction{
+					ch_FSMLifeLine <- 1
+					select {
+					case prevObstruction = <-ch_doorObstruction:
+							time.Sleep(time.Duration(config.DoorOpenDurationSec) * time.Second)
+					default:
+						//NOP
+						}
+				}
 				if prevObstruction {
 					fmt.Println("Door is obstructed")
 					prevObstruction = <-ch_doorObstruction
@@ -306,7 +315,13 @@ func Fsm(
 				elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 			}
 
-			localElevator.StallWhileStopButtonActive(ch_stopButton)
+			//localElevator.StallWhileStopButtonActive(ch_stopButton)
+			stopButtonPressed := true
+			for stopButtonPressed {
+				ch_FSMLifeLine <- 1
+				stopButtonPressed = false
+				stopButtonPressed = <-ch_stopButton
+			}
 
 			// Makes sure the elevator keeps going when stopButton is no longer active.
 			switch localElevator.Behaviour {
