@@ -11,16 +11,13 @@ import (
 	"driver/heartbeat"
 	"driver/network/bcast"
 	"driver/network/peers"
-	"fmt"
 )
 
 func main() {
 	// Initialize elevator ID and port from command line: 'go run main.go -id=any_id -port=server_port'
-	nodeID, port := config.InitializeConfig()
+	nodeID, port := config.InitializeIDandPort()
 
-	// Initialize local elevator
-	elevator_io.Init("localhost:"+port, config.N_FLOORS)
-	fmt.Println("\nInitialized local elevator ", id, " with port ", port)
+	elevator_io.Init("localhost:" + port, config.N_FLOORS)
 
 	// Request assigner channels (Recieve updates on the ID's of of the peers that are alive on the network)
 	ch_peerUpdate 				:= make(chan peers.PeerUpdate, 1)
