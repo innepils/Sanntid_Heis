@@ -94,12 +94,12 @@ func Receiver(port int, peerUpdateCh chan<- PeerUpdate) {
 }
 
 func Update(
-	nodeID 					 string,
-	ch_peerUpdate 		 <-chan PeerUpdate,
-	ch_msgIn 			 <-chan heartbeat.HeartBeat,
-	ch_hallRequestsIn 	 chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
-	ch_externalElevators chan<- []byte,
-	ch_peersDeadlock 	 chan<- int,
+	nodeID 					string,
+	ch_peerUpdate 		 	<-chan PeerUpdate,
+	ch_msgIn 			 	<-chan heartbeat.HeartBeat,
+	ch_hallRequestsIn 	 	chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
+	ch_externalElevators	chan<- []byte,
+	ch_peersDeadlock 	 	chan<- int,
 ){
 
 	alivePeers := make(map[string]elevator.ElevatorState)

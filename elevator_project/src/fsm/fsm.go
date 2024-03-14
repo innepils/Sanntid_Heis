@@ -5,7 +5,6 @@ import (
 	"driver/elevator"
 	"driver/elevator_io"
 	"driver/requests"
-	"fmt"
 	"time"
 )
 
@@ -19,11 +18,10 @@ func FSM(
 	ch_completedRequests 		chan<- elevator_io.ButtonEvent,
 	ch_elevatorStateToAssigner 	chan<- map[string]elevator.ElevatorState,
 	ch_elevatorStateToNetwork 	chan<- elevator.ElevatorState,
-	ch_FSMLifeLine 				chan<- int,
+	ch_FSMDeadlock 				chan<- int,
 ) {
 
 	// Initializing
-	fmt.Printf("***** INITIALIZING ELEVATOR *****\n")
 	localElevator := elevator.UninitializedElevator()
 	prevLocalElevator := localElevator
 	prevObstruction := false
@@ -43,7 +41,7 @@ func FSM(
 
 	// "For-Select" to supervise the different channels/events that changes the FSM
 	for {
-		ch_FSMLifeLine <- 1
+		ch_FSMDeadlock <- 1
 		select {
 		case localRequests := <-ch_localRequests:
 			localElevator.Requests = localRequests
@@ -89,7 +87,7 @@ func FSM(
 				//NOP
 			}
 
-		// This channel automatically "transmits" when the timer times out.
+		// This channel "transmits" when door timeouts.
 		case <-doorTimer.C:
 			switch localElevator.Behaviour {
 			case elevator.EB_Idle, elevator.EB_Moving:
@@ -104,7 +102,7 @@ func FSM(
 				}
 				// Keeps the door open while obstruction is active
 				for prevObstruction{
-					ch_FSMLifeLine <- 1
+					ch_FSMDeadlock <- 1
 					select {
 					case prevObstruction = <-ch_doorObstruction:
 							time.Sleep(time.Duration(config.DoorOpenDurationSec) * time.Second)
@@ -128,15 +126,13 @@ func FSM(
 			if localElevator.Behaviour == elevator.EB_Moving {
 				elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 			}
-
 			// Keeps the elevator and fsm stalled while stopButton is active
 			stopButtonPressed := true
 			for stopButtonPressed {
-				ch_FSMLifeLine <- 1
+				ch_FSMDeadlock <- 1
 				stopButtonPressed = false
 				stopButtonPressed = <-ch_stopButton
 			}
-
 			// Makes sure the elevator keeps going when stopButton is no longer active.
 			switch localElevator.Behaviour {
 			case elevator.EB_Moving:
@@ -144,7 +140,6 @@ func FSM(
 
 			case elevator.EB_DoorOpen:
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-				localElevator.HoldDoorOpenIfObstruction(&prevObstruction, doorTimer, ch_doorObstruction)
 			}
 		default:
 			// NOP
@@ -153,7 +148,6 @@ func FSM(
 		if prevLocalElevator != localElevator {
 			prevLocalElevator = localElevator
 			elevator.SendLocalElevatorState(id, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
-			localElevator.Elevator_print()
 		}
 	} //For
 } //FSM

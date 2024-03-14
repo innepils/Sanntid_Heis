@@ -18,18 +18,22 @@ const (
 	HeartbeatSleepMillisec int = 100
 
 	// Network-configuration
-	DefaultPortPeer   int = 22017
-	DefaultPortBcast  int = 22018
+	Default
+	DefaultPortPeer		int = 22017
+	DefaultPortBcast  	int = 22018
+	elevatorServerPort	string = "15657"
+	BroadcastAddr		string = "255.255.255.255" 
+	
 
 	// Backup-configuration
 	BackupPort = "22019"
-	BackupSendAddr    = "255.255.255.255:" + BackupPort
+	BackupSendAddr    = BroadcastAddr + ":" + BackupPort
 )
 
-func InitializeConfig() (string, string) {
+func InitializeIDandPort() (string, string) {
 	var nodeID, port string
 	flag.StringVar(&nodeID, "id", getDefaultID(), "ID of this peer")
-	flag.StringVar(&port, "port", "15657", "Port of this peer")
+	flag.StringVar(&port, "port", elevatorServerPort, "Port of this peer")
 	flag.Parse()
 	return nodeID, port
 }

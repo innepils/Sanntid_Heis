@@ -4,23 +4,20 @@ import (
 	"driver/assigner"
 	"driver/backup"
 	"driver/config"
-	deadlockdetector "driver/deadlockDetector"
+	"driver/deadlock"
 	"driver/elevator"
 	"driver/elevator_io"
 	"driver/fsm"
 	"driver/heartbeat"
 	"driver/network/bcast"
 	"driver/network/peers"
-	"fmt"
 )
 
 func main() {
 	// Initialize elevator ID and port from command line: 'go run main.go -id=any_id -port=server_port'
-	nodeID, port := config.InitializeConfig()
+	nodeID, port := config.InitializeIDandPort()
 
-	// Initialize local elevator
-	elevator_io.Init("localhost:"+port, config.N_FLOORS)
-	fmt.Println("\nInitialized local elevator ", id, " with port ", port)
+	elevator_io.Init("localhost:" + port, config.N_FLOORS)
 
 	// Request assigner channels (Recieve updates on the ID's of of the peers that are alive on the network)
 	ch_peerUpdate 				:= make(chan peers.PeerUpdate, 1)
@@ -64,7 +61,7 @@ func main() {
 
 	// Finite state machine goroutine
 	go fsm.FSM(
-		id,
+		nodeID,
 		ch_arrivalFloor,
 		ch_localRequests,
 		ch_doorObstruction,
@@ -105,7 +102,7 @@ func main() {
 		ch_peersDeadlock,
 	)
 
-	go deadlockdetector.DeadlockDetector(
+	go deadlock.Detector(
 		ch_FSMDeadlock,
 		ch_assignerDeadlock,
 		ch_heartbeatDeadlock,
