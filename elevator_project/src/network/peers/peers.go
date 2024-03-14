@@ -97,15 +97,11 @@ func Update(
 	ch_msgIn 			 <-chan heartbeat.HeartBeat,
 	ch_hallRequestsIn 	 chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
 	ch_externalElevators chan<- []byte,
-	ch_peersLifeLine 	 chan<- int,
+	ch_peersDeadlock 	 chan<- int,
 ){
 
 	alivePeers := make(map[string]elevator.ElevatorState)
-
-	var (
-		prevHallRequests [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType
-		prevAlivePeers map[string]elevator.ElevatorState
-	)
+	var prevHallRequests [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType
 
 	for {
 		ch_peersDeadlock <- 1
@@ -131,17 +127,10 @@ func Update(
 					AlivePeersJson, _ := json.Marshal(alivePeers)
 					ch_externalElevators <- AlivePeersJson
 				}
-				alivePeers[heartbeat.SenderID] = heartbeat.ElevatorState
 
 				if prevHallRequests != heartbeat.HallRequests {
 					prevHallRequests = heartbeat.HallRequests
 					ch_hallRequestsIn <- prevHallRequests
-				}
-				if !reflect.DeepEqual(prevAlivePeers, alivePeers) {
-					fmt.Println(alivePeers)
-					prevAlivePeers = alivePeers
-					AlivePeersJson, _ := json.Marshal(prevAlivePeers)
-					ch_externalElevators <- AlivePeersJson
 				}
 			}
 		default:
