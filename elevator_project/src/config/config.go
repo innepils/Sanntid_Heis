@@ -9,16 +9,16 @@ import (
 
 const (
 	// System specifications
-	N_FLOORS               int = 4
-	N_BUTTONS              int = 3
-	DoorOpenDurationSec    int = 3
-	IdleTimeOutDurationSec int = 10
-	
+	N_FLOORS           			int = 4
+	N_BUTTONS            		int = 3
+	DoorOpenDurationSec  		int = 3
+	IdleTimeOutDurationSec 		int = 15
+	DeadlockTimeOutDurationSec 	int = 10
 	// Network-configuration
-	DefaultPortPeer		int = 22017
-	DefaultPortBcast  	int = 22018
-	elevatorServerPort	string = "15657"
-	HeartbeatSleepMillisec int = 100
+	DefaultPortPeer				int = 22017
+	DefaultPortBcast  			int = 22018
+	elevatorServerPort			string = "15657"
+	HeartbeatSleepMillisec 		int = 100
 	
 )
 
