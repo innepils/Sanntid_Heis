@@ -1,6 +1,6 @@
 # Elevator Project
 
-The project runs **n** elevator in parallell across **m** floors using a peer to peer network and udp broadcasting.
+The project runs **n** elevator in parallell across **m** floors using a peer to peer network and udp broadcasting. The Project is developed with the requirements described [here](https://github.com/TTK4145/Project) in mind.
 
 ## Setting up and running the project
 
@@ -39,9 +39,10 @@ Information can be found [here](https://github.com/TTK4145/driver-go).
 ### FSM
 
 The FSM is event-driven, and after initializing the local elevator it checks for following events:
- - Arrival at new floor
- - Recieved request from assigner
- - 
+
+- Arrival at new floor
+- Recieved request from assigner
+-
 
 ### Hall Request Assigner
 
