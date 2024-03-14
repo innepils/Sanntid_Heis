@@ -6,40 +6,40 @@ import (
 )
 
 const (
-	FSMLifelineIndex       int = 0
-	assignerLifeLineIndex  int = 1
-	heartbeatLifeLineIndex int = 2
-	peersLifeLineIndex     int = 3
+	FSMDeadlockIndex       int = 0
+	assignerDeadlockIndex  int = 1
+	heartbeatDeadlockIndex int = 2
+	peersDeadlockIndex     int = 3
 )
 
 var (
-	lifeLines [4]time.Time
+	deadlocks [4]time.Time
 )
 
 func DeadlockDetector(
-	ch_FSMLifeline <-chan int,
-	ch_assignerLifeLine <-chan int,
-	ch_heartbeatLifeLine <-chan int,
-	ch_peersLifeLine <-chan int,
+	ch_FSMDeadlock 			<-chan int,
+	ch_assignerDeadlock 	<-chan int,
+	ch_heartbeatDeadlock 	<-chan int,
+	ch_peersDeadlock 		<-chan int,
 ) {
-	for i := range lifeLines {
-		lifeLines[i] = time.Now()
+	for i := range deadlocks {
+		deadlocks[i] = time.Now()
 	}
 	for {
 		select {
-		case <-ch_FSMLifeline:
-			lifeLines[FSMLifelineIndex] = time.Now()
-		case <-ch_assignerLifeLine:
-			lifeLines[assignerLifeLineIndex] = time.Now()
-		case <-ch_heartbeatLifeLine:
-			lifeLines[heartbeatLifeLineIndex] = time.Now()
-		case <-ch_peersLifeLine:
-			lifeLines[peersLifeLineIndex] = time.Now()
+		case <-ch_FSMDeadlock:
+			deadlocks[FSMDeadlockIndex] = time.Now()
+		case <-ch_assignerDeadlock:
+			deadlocks[assignerDeadlockIndex] = time.Now()
+		case <-ch_heartbeatDeadlock:
+			deadlocks[heartbeatDeadlockIndex] = time.Now()
+		case <-ch_peersDeadlock:
+			deadlocks[peersDeadlockIndex] = time.Now()
 		default:
 			// NOP
 		}
-		for locked, lifeLine := range lifeLines {
-			if lifeLine.Add(time.Duration(10) * time.Second).Before(time.Now()) {
+		for locked, deadlockTime := range deadlocks {
+			if deadlockTime.Add(time.Duration(10) * time.Second).Before(time.Now()) {
 				panic(fmt.Sprintf("DEADLOCK DETECTED IN PROCESS %d", locked))
 			}
 		}
