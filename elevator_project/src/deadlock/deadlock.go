@@ -12,9 +12,8 @@ const (
 	peersDeadlockIndex     int = 3
 )
 
-var (
-	deadlocks [4]time.Time
-)
+
+var deadlocks [4]time.Time
 
 func Detector(
 	ch_FSMDeadlock 			<-chan int,

@@ -3,7 +3,7 @@ package peers
 import (
 	"driver/config"
 	"driver/elevator"
-	"driver/heartbeat"
+	"driver/network/heartbeat"
 	"driver/network/conn"
 	"encoding/json"
 	"fmt"
@@ -122,6 +122,7 @@ func Update(
 			fmt.Printf("  New:      %q\n", peers.New)
 			fmt.Printf("  Lost:     %q\n", peers.Lost)
 
+		// Adds peers to heartbeat
 		case heartbeat := <-ch_msgIn:
 			if heartbeat.SenderID != nodeID {
 				if !reflect.DeepEqual(alivePeers[heartbeat.SenderID], heartbeat.ElevatorState) {
