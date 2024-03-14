@@ -134,7 +134,6 @@ func RequestAssigner(
 			}
 		}
 
-		// checks if changes were made, and if so, share those changes
 		if localRequests != prevLocalRequests {
 			ch_localRequests <- localRequests
 			prevLocalRequests = localRequests

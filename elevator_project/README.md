@@ -38,6 +38,11 @@ Information can be found [here](https://github.com/TTK4145/driver-go).
 
 ### FSM
 
+The FSM is event-driven, and after initializing the local elevator it checks for following events:
+ - Arrival at new floor
+ - Recieved request from assigner
+ - 
+
 ### Hall Request Assigner
 
 Information can be found [here](https://github.com/TTK4145/Project-resources/tree/master/cost_fns/hall_request_assigner).
