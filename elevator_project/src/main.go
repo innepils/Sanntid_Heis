@@ -8,7 +8,7 @@ import (
 	"driver/elevator"
 	"driver/elevator_io"
 	"driver/fsm"
-	"driver/heartbeat"
+	"driver/network/heartbeat"
 	"driver/network/bcast"
 	"driver/network/peers"
 )

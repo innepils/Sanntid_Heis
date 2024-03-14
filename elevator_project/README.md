@@ -1,6 +1,6 @@
 # Elevator Project
 
-The project runs a n elevator across m floors using a peer to peer network and udp broadcasting.
+The project runs **n** elevator in parallell across **m** floors using a peer to peer network and udp broadcasting.
 
 ## Setting up and running the project
 
@@ -24,8 +24,26 @@ This saves the local cab calls to file and also supports extracting it from file
 
 ### Cost
 
-This utilises the "HallRequestAssigner" to calculate witch requests our local elevator should serve.
+This utilises the "[HallRequestAssigner](#hall-request-assigner)" to calculate witch requests our local elevator should serve.
 
 ### Deadlock detector
 
-This detects if FSM, assigner, peers or heartbeat is stuck within a loop. If this is detected the program reboots.
+This detects if [FSM](#fsm), [assigner](#assigner), [peers](#network) or [heartbeat](#heartbeat) is stuck within a loop. If this is detected the program reboots.
+
+### Elevator
+
+### Elevator IO
+
+### FSM
+
+### Hall Request Assigner
+
+The documentation can be found [here](https://github.com/TTK4145/Project-resources/tree/master/cost_fns/hall_request_assigner).
+
+### Heartbeat
+
+### Network
+
+Most of the documentation can be found [here](https://github.com/TTK4145/Network-go).
+
+### Requests
