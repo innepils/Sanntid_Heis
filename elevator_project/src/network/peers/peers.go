@@ -99,7 +99,7 @@ func Update(
 	ch_msgIn 			 	<-chan heartbeat.HeartBeat,
 	ch_hallRequestsIn 	 	chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
 	ch_externalElevators	chan<- []byte,
-	ch_peersDeadlock 	 	chan<- int,
+	ch_peersDeadlock 	 	chan<- string,
 ){
 
 	alivePeers := make(map[string]elevator.ElevatorState)
@@ -107,7 +107,7 @@ func Update(
 
 	// Removes 
 	for {
-		ch_peersDeadlock <- 1
+		ch_peersDeadlock <- "Peers Alive"
 		select {
 		case peers := <-ch_peerUpdate:
 			for _, peer := range peers.Lost {

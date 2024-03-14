@@ -19,7 +19,7 @@ func RequestAssigner(
 	ch_externalElevators 		<-chan []byte,
 	ch_hallRequestsOut 			chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
 	ch_localRequests 			chan<- [config.N_FLOORS][config.N_BUTTONS]bool,
-	ch_assignerDeadlock 		chan<- int,
+	ch_assignerDeadlock 		chan<- string,
 ) {
 
 	var (
@@ -33,7 +33,6 @@ func RequestAssigner(
 		localRequests      [config.N_FLOORS][config.N_BUTTONS]bool
 		localElevatorState = map[string]elevator.ElevatorState{id: {Behavior: "idle", Floor: 1, Direction: "stop", CabRequests: []bool{false, false, false, false}}}
 	)
-	// emptyElevatorMap = map[string]elevator.ElevatorState{}
 	externalElevators, _ := json.Marshal(emptyElevatorMap)
 
 	for floor := range allRequests {
@@ -46,7 +45,7 @@ func RequestAssigner(
 	idleTimeOut = time.NewTimer(time.Duration(10) * time.Second)
 
 	for {
-		ch_assignerDeadlock <- 1
+		ch_assignerDeadlock <- "Request Assigner Alive"
 		select {
 		case buttonPressed := <-ch_buttonPressed:
 			if buttonPressed.BtnType == elevator_io.BT_Cab {
@@ -135,7 +134,6 @@ func RequestAssigner(
 			}
 		}
 
-		// checks if changes were made, and if so, share those changes
 		if localRequests != prevLocalRequests {
 			ch_localRequests <- localRequests
 			prevLocalRequests = localRequests

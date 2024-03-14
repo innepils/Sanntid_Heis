@@ -1,6 +1,7 @@
 package deadlock
 
 import (
+	"driver/config"
 	"fmt"
 	"time"
 )
@@ -16,10 +17,10 @@ const (
 var deadlocks [4]time.Time
 
 func Detector(
-	ch_FSMDeadlock 			<-chan int,
-	ch_assignerDeadlock 	<-chan int,
-	ch_heartbeatDeadlock 	<-chan int,
-	ch_peersDeadlock 		<-chan int,
+	ch_FSMDeadlock 			<-chan string,
+	ch_assignerDeadlock 	<-chan string,
+	ch_heartbeatDeadlock 	<-chan string,
+	ch_peersDeadlock 		<-chan string,
 ) {
 	for i := range deadlocks {
 		deadlocks[i] = time.Now()
@@ -38,7 +39,7 @@ func Detector(
 			// NOP
 		}
 		for locked, deadlockTime := range deadlocks {
-			if deadlockTime.Add(time.Duration(10) * time.Second).Before(time.Now()) {
+			if deadlockTime.Add(time.Duration(config.DeadlockTimeOutDurationSec) * time.Second).Before(time.Now()) {
 				panic(fmt.Sprintf("DEADLOCK DETECTED IN PROCESS %d", locked))
 			}
 		}
