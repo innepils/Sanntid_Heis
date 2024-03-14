@@ -1,18 +1,28 @@
 # Elevator Project
 
-The project runs **n** elevator in parallell across **m** floors using a peer to peer network and udp broadcasting. The Project is developed with the requirements described [here](https://github.com/TTK4145/Project) in mind.
+The project runs **n** elevator in parallell across **m** floors using a peer to peer network and udp broadcasting.
 
-## Setting up and running the project
+## Prerequisites
+The project is built using Go, which needs to be installed to compile and run the project. The latest version of Go can be installed from [the official Go website](https://go.dev/dl/).
 
-The project is run using the run.sh file by writing
+
+
+## Usage
+
+The main program is run using run.sh while in it's directory.
+Before running, set the permissions using
+```
+chmod +x run.sh
+```
+then run the main program with
 
 ```
 ./run.sh
 ```
 
-while in the directory where the file is located.
+To exit, close the terminal by holding down ctrl+c. 
 
-## Module dscription
+## Module descriptions
 
 ### Assigner
 
@@ -24,7 +34,7 @@ This saves the local cab calls to file and also supports extracting it from file
 
 ### Cost
 
-This utilises the "[HallRequestAssigner](#hall-request-assigner)" to calculate witch requests our local elevator should serve.
+This utilizes the "[HallRequestAssigner](#hall-request-assigner)" to calculate witch requests our local elevator should serve.
 
 ### Deadlock detector
 
@@ -39,6 +49,11 @@ Information can be found [here](https://github.com/TTK4145/driver-go).
 ### FSM
 
 The FSM is event-driven, and after initializing the local elevator it checks for following events:
+ - Recieved request from assigner
+ - Arrival at new floor
+ - Door timer timed out
+ - Door obstructed
+ - Stop-button pressed
 
 - Arrival at new floor
 - Recieved request from assigner
@@ -49,9 +64,19 @@ The FSM is event-driven, and after initializing the local elevator it checks for
 Information can be found [here](https://github.com/TTK4145/Project-resources/tree/master/cost_fns/hall_request_assigner).
 
 ### Heartbeat
+Sets up the struct which is broadcasted to the network, containing information about new hall requests and state from [assigner](#assigner) each local elevator. 
 
 ### Network
 
 Most of the documentation can be found [here](https://github.com/TTK4145/Network-go).
 
+In the handed out peers.go we have aded functionality to continuously update the alivePeers to be used in [cost](#cost). To avoid concurrency issues while reading and writing to the map both in peers and [assigner](#assigner), we serialize the maps into JSON using Marshal and Unmarshal. 
+
 ### Requests
+
+This package is based on [this](https://github.com/TTK4145/Project-resources/blob/master/elev_algo/requests.c), but modified to fit the projects event-driven FSM. 
+The most important changes are:
+- The elevator is taken is passed-by-reference, to avoid uneccessary opying and making a duplicate ("pair") of the elvator.
+- The function ClearAtCurrentFloor was modified so that if both hall-orders at a floor is active, they are not cleared at the same time, to fulfill the project specifiactions.
+- The function "AnnounceDirectionChange" is added to fulfill the project specifiactions.
+- The function ClearImmidiately was removed as it was no longer needed.
