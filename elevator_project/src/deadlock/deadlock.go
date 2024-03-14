@@ -1,6 +1,7 @@
 package deadlock
 
 import (
+	"driver/config"
 	"fmt"
 	"time"
 )
@@ -38,7 +39,7 @@ func Detector(
 			// NOP
 		}
 		for locked, deadlockTime := range deadlocks {
-			if deadlockTime.Add(time.Duration(10) * time.Second).Before(time.Now()) {
+			if deadlockTime.Add(time.Duration(config.DeadlockTimeOutDurationSec) * time.Second).Before(time.Now()) {
 				panic(fmt.Sprintf("DEADLOCK DETECTED IN PROCESS %d", locked))
 			}
 		}

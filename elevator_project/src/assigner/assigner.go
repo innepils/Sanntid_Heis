@@ -33,7 +33,6 @@ func RequestAssigner(
 		localRequests      [config.N_FLOORS][config.N_BUTTONS]bool
 		localElevatorState = map[string]elevator.ElevatorState{id: {Behavior: "idle", Floor: 1, Direction: "stop", CabRequests: []bool{false, false, false, false}}}
 	)
-	// emptyElevatorMap = map[string]elevator.ElevatorState{}
 	externalElevators, _ := json.Marshal(emptyElevatorMap)
 
 	for floor := range allRequests {

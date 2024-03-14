@@ -105,6 +105,7 @@ func Update(
 	alivePeers := make(map[string]elevator.ElevatorState)
 	var prevHallRequests [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType
 
+	// Removes 
 	for {
 		ch_peersDeadlock <- "Peers Alive"
 		select {
@@ -122,7 +123,6 @@ func Update(
 			fmt.Printf("  New:      %q\n", peers.New)
 			fmt.Printf("  Lost:     %q\n", peers.Lost)
 
-		// Adds peers to heartbeat
 		case heartbeat := <-ch_msgIn:
 			if heartbeat.SenderID != nodeID {
 				if !reflect.DeepEqual(alivePeers[heartbeat.SenderID], heartbeat.ElevatorState) {
