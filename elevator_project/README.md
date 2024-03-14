@@ -24,11 +24,11 @@ This saves the local cab calls to file and also supports extracting it from file
 
 ### Cost
 
-This utilises the "HallRequestAssigner" to calculate witch requests our local elevator should serve.
+This utilises the "[HallRequestAssigner](#hall-request-assigner)" to calculate witch requests our local elevator should serve.
 
 ### Deadlock detector
 
-This detects if FSM, assigner, peers or heartbeat is stuck within a loop. If this is detected the program reboots.
+This detects if [FSM](#fsm), [assigner](#assigner), [peers](#network) or [heartbeat](#heartbeat) is stuck within a loop. If this is detected the program reboots.
 
 ### Elevator
 
@@ -43,5 +43,7 @@ The documentation can be found [here](https://github.com/TTK4145/Project-resourc
 ### Heartbeat
 
 ### Network
+
+Most of the documentation can be found [here](https://github.com/TTK4145/Network-go).
 
 ### Requests
