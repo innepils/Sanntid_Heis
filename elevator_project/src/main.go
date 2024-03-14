@@ -8,8 +8,8 @@ import (
 	"driver/elevator"
 	"driver/elevator_io"
 	"driver/fsm"
-	"driver/network/heartbeat"
 	"driver/network/bcast"
+	"driver/network/heartbeat"
 	"driver/network/peers"
 )
 
@@ -62,8 +62,8 @@ func main() {
 	// Finite state machine goroutine
 	go fsm.FSM(
 		nodeID,
-		ch_arrivalFloor,
 		ch_localRequests,
+		ch_arrivalFloor,
 		ch_doorObstruction,
 		ch_stopButton,
 		ch_completedRequests,

@@ -10,8 +10,8 @@ import (
 
 func FSM(
 	nodeID 						string,
-	ch_arrivalFloor 			<-chan int,
 	ch_localRequests 			<-chan [config.N_FLOORS][config.N_BUTTONS]bool,
+	ch_arrivalFloor 			<-chan int,
 	ch_doorObstruction 			<-chan bool,
 	ch_stopButton				<-chan bool,
 	ch_completedRequests 		chan<- elevator_io.ButtonEvent,
@@ -20,7 +20,7 @@ func FSM(
 	ch_FSMDeadlock 				chan<- int,
 ) {
 
-	// Initilalizing variables
+	// Initilalize variables
 	localElevator := elevator.UninitializedElevator()
 	prevLocalElevator := localElevator
 	prevObstruction := false
