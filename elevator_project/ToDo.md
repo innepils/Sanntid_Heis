@@ -8,24 +8,11 @@
 - Se over hvilke moduler som importerer andre, direkte import-cycle går ikke an men vi bør unngå en unødvendig link frem og tilbake mellom moduler om det er mulig.
 
 ### Adrian:
- - [ ] Change as much pass-by-value to pass-by-reference. E.g. in elevator.go
- - lifeline-channel bytte navn?
-- bruke bool/true istedenfor for magic number
-- obstruction 2 ganger?
-- fjerne ALT av prints? spesielt elevator_print?
-- er processPairs ubrukt nå?
-  -primaryAlive ubrukt
-- KillSElf i backup
-- id er lite forklarene, burde det vræe nodeID elns?
-- Se over import-paths. Noen som tar inn "for mye". eller noen som går på kryss og tvers?
-- Error funksjon (ta inn error), return panic elsn
-- InitializeConfig har et dårlig navn og er på feil plass? Også LocalIP. Magisk 15657
-- Deadlockdetector navn på module og funkjson
-### Linus:
-- die? i cost
-  - lage error-funksjoner istedenfor å ha if-statement/3-linjer hver gang
--
+- Change as much pass-by-value to pass-by-reference. E.g. in elevator.go
 
+- Se over import-paths. Noen som tar inn "for mye". eller noen som går på kryss og tvers?
+### Linus:
+  - Bruke bool/true istedenfor for magic number i deadlock. endre packagename til deadlock.
 ### Simon:
 
 ##### Kodekvalitet, hva som må endres

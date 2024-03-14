@@ -3,9 +3,7 @@ package elevator
 import (
 	"driver/config"
 	"driver/elevator_io"
-	"fmt"
 	"strings"
-	"time"
 )
 
 type (
@@ -68,38 +66,19 @@ func SendLocalElevatorState(
 }
 
 func SetAllButtonLights(requests [config.N_FLOORS][config.N_BUTTONS]RequestType) {
-	for i := range requests {
-		for j := range requests[i] {
-			if requests[i][j] == 2 {
-				elevator_io.SetButtonLamp(elevator_io.ButtonType(j), i, true)
+	for floor := range requests {
+		for btn := range requests[floor] {
+			if requests[floor][btn] == ConfirmedRequest {
+				elevator_io.SetButtonLamp(elevator_io.ButtonType(btn), floor, true)
 			} else {
-				elevator_io.SetButtonLamp(elevator_io.ButtonType(j), i, false)
+				elevator_io.SetButtonLamp(elevator_io.ButtonType(btn), floor, false)
 			}
 		}
 	}
 }
 
-func (e *Elevator) HoldDoorOpenIfObstruction(
-	prevObstruction *bool,
-	doorTimer *time.Timer,
-	ch_doorObstruction <-chan bool,
-) {
-	if *prevObstruction {
-		fmt.Println("Door is obstructed")
-		*prevObstruction = <-ch_doorObstruction
-		doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-	}
-}
+// *** Functions for changing datatype ***
 
-func (e *Elevator) StallWhileStopButtonActive(ch_stopButton <-chan bool) {
-	stopButtonPressed := true
-	for stopButtonPressed {
-		stopButtonPressed = false
-		stopButtonPressed = <-ch_stopButton
-	}
-}
-
-// Functions for changing datatype
 func ElevBehaviourToString(elevBehaviour ElevatorBehaviour) string {
 	switch elevBehaviour {
 	case EB_Idle:
@@ -137,7 +116,10 @@ func ElevToElevatorState(id string, localElevator Elevator) map[string]ElevatorS
 	}
 }
 
-// Printing
+// The Elevator_print() is currently not used,
+// but remains included for potential debugging purposes,
+// facilitating future maintenance or expansion efforts.
+/*
 func (e *Elevator) Elevator_print() {
 	fmt.Println("  +--------------------+")
 	fmt.Printf(
@@ -169,3 +151,4 @@ func (e *Elevator) Elevator_print() {
 	}
 	fmt.Println("  +--------------------+")
 }
+*/
