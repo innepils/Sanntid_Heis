@@ -1,22 +1,23 @@
-Elevator driver for Go
-======================
+# Elevator Project
 
-See [`main.go`](main.go) for usage example. The code is runnable with just `go run main.go`
+The project runs a n elevator across m floors using a peer to peer network and udp broadcasting.
 
----
+## Setting up and running the project
 
-Add these lines to your `go.mod` file:
+The project is run using the run.sh file by writing
+
 ```
-require Driver-go v0.0.0
-replace Driver-go => ./Driver-go
+./run.sh
 ```
-Where `./Driver-go` is the relative path to this folder, after you have downloaded it.
 
+while in the directory where the file is located.
 
+## Module dscription
 
+### Assigner
 
+### Backup
 
+### Cost
 
-
-
-
+### Deadlock detector
