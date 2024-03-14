@@ -34,6 +34,8 @@ This detects if [FSM](#fsm), [assigner](#assigner), [peers](#network) or [heartb
 
 ### Elevator IO
 
+Information can be found [here](https://github.com/TTK4145/driver-go).
+
 ### FSM
 
 The FSM is event-driven, and after initializing the local elevator it checks for following events:
@@ -43,7 +45,7 @@ The FSM is event-driven, and after initializing the local elevator it checks for
 
 ### Hall Request Assigner
 
-The documentation can be found [here](https://github.com/TTK4145/Project-resources/tree/master/cost_fns/hall_request_assigner).
+Information can be found [here](https://github.com/TTK4145/Project-resources/tree/master/cost_fns/hall_request_assigner).
 
 ### Heartbeat
 

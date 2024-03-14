@@ -39,10 +39,10 @@ func main() {
 	ch_elevatorStateToNetwork 	:= make(chan elevator.ElevatorState, 1)
 
 	// Channels for deadlock for goroutines
-	ch_FSMDeadlock 				:= make(chan int, 1)
-	ch_assignerDeadlock 		:= make(chan int, 1)
-	ch_heartbeatDeadlock 		:= make(chan int, 1)
-	ch_peersDeadlock 			:= make(chan int, 1)
+	ch_FSMDeadlock 				:= make(chan string, 1)
+	ch_assignerDeadlock 		:= make(chan string, 1)
+	ch_heartbeatDeadlock 		:= make(chan string, 1)
+	ch_peersDeadlock 			:= make(chan string, 1)
 
 	go backup.LoadBackupFromFile("backup.txt", ch_buttonPressed)
 

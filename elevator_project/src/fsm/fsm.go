@@ -17,7 +17,7 @@ func FSM(
 	ch_completedRequests 		chan<- elevator_io.ButtonEvent,
 	ch_elevatorStateToAssigner 	chan<- map[string]elevator.ElevatorState,
 	ch_elevatorStateToNetwork 	chan<- elevator.ElevatorState,
-	ch_FSMDeadlock 				chan<- int,
+	ch_FSMDeadlock 				chan<- string,
 ) {
 
 	// Initilalize variables
@@ -40,7 +40,7 @@ func FSM(
 
 	// "For-Select" to supervise the different channels/events
 	for {
-		ch_FSMDeadlock <- 1
+		ch_FSMDeadlock <- "FSM Alive"
 		select {
 		case localRequests := <-ch_localRequests:
 			localElevator.Requests = localRequests
@@ -97,7 +97,7 @@ func FSM(
 				}
 				// Keeps the door open while obstruction is active
 				for prevObstruction{
-					ch_FSMDeadlock <- 1
+					ch_FSMDeadlock <- "FSM alive"
 					select {
 					case prevObstruction = <-ch_doorObstruction:
 							time.Sleep(time.Duration(config.DoorOpenDurationSec) * time.Second)
@@ -123,7 +123,7 @@ func FSM(
 			// Keeps the elevator and FSM stalled while stopButton is pressed
 			stopButtonPressed := true
 			for stopButtonPressed {
-				ch_FSMDeadlock <- 1
+				ch_FSMDeadlock <- "FSM alive"
 				stopButtonPressed = false
 				stopButtonPressed = <-ch_stopButton
 			}
