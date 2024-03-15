@@ -3,7 +3,7 @@
 The project runs **n** elevators in parallell across **m** floors using a peer to peer network and UDP broadcasting.
 
 ## Prerequisites
-The program is meant to be run using Linux, which must be done to ensure correct functionality. With small modifications it can be expanded to work on all platforms. 
+The program is meant to be run using Linux, which must be done to ensure correct functionality. 
 
 The project is built using Go, which needs to be installed to compile and run the program. The latest version of Go can be installed from [the official Go website](https://go.dev/dl/).
 
@@ -23,7 +23,7 @@ then run the main program with
 
 The program will restart immediately if terminated using ctrl+c. In order to fully stop the running program, close the terminal or keep holding ctrl+x. 
 
-*Note: If you want to manually input id and port when running the program, you can use 'go run main.go -id=any_id -port=elevator_port' in the command line. However, with the current implementation this will reduce redundancy compared to using run.sh'.*
+*Note: If you want to manually input id and port when running the program, you can use 'go run main.go -id=any_id -port=elevator_port' in the command line. However, with the current implementation this will reduce the overall fault tolerance compared to using run.sh'.*
 
 ## Module descriptions
 
