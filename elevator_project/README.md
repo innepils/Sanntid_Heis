@@ -1,6 +1,6 @@
 # Elevator Project
 
-The project runs **n** elevator in parallell across **m** floors using a peer to peer network and udp broadcasting.
+The project runs **n** elevators in parallell across **m** floors using a peer to peer network and UDP broadcasting.
 
 ## Prerequisites
 The program is meant to be run using Linux, which must be done to ensure correct functionality. With small modifications it can be expanded to work on all platforms. 
@@ -11,9 +11,11 @@ The project is built using Go, which needs to be installed to compile and run th
 
 The main program is run using run.sh while in it's directory.
 Before running, set the permissions using
+
 ```
 chmod +x run.sh
 ```
+
 then run the main program with
 
 ```
@@ -26,7 +28,7 @@ The program will restart immediately if terminated using ctrl+c. In order to ful
 
 ### Assigner
 
-The assigner assigns requests to the local elevator. To do this it keeps track of incomming button presses, locally compleded orders and status of other elevators. It also has idle time out, if there are orders and our local elevator is idle for a "long" time it takes all orders.
+The assigner assigns requests to the local elevator. To do this it keeps track of incomming button presses, locally compleded orders and status of other elevators. The assigner also has a idle time out: if there are orders and our local elevator is idle for a "long" time it takes all orders.
 
 ### Backup
 
