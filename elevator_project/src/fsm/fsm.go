@@ -72,7 +72,7 @@ func FSM(
 			switch localElevator.Behaviour {
 			case elevator.EB_Moving:
 				if requests.ShouldStop(&localElevator) {
-					localElevator.Dirn = elevator_io.MD_Stop
+					//localElevator.Dirn = elevator_io.MD_Stop
 					elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
 					elevator_io.SetDoorOpenLamp(true)
@@ -104,12 +104,22 @@ func FSM(
 						//NOP
 					}
 				}
-				elevator_io.SetDoorOpenLamp(false)
 
 				requests.ChooseDirnAndBehaviour(&localElevator)
-				if localElevator.Behaviour == elevator.EB_Moving {
+				
+				switch localElevator.Behaviour {
+				case elevator.EB_DoorOpen:
+					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+				case elevator.EB_Moving:
+					elevator_io.SetDoorOpenLamp(false)
 					elevator_io.SetMotorDirection(localElevator.Dirn)
+				case elevator.EB_Idle:
+					elevator_io.SetDoorOpenLamp(false)
 				}
+
+				//if localElevator.Behaviour == elevator.EB_Moving {
+				//	elevator_io.SetMotorDirection(localElevator.Dirn)
+			//	}
 			} //switch localElevator.behaviour
 
 		case obstruction := <-ch_doorObstruction:
