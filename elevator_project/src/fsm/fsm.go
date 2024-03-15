@@ -47,7 +47,21 @@ func FSM(
 			switch localElevator.Behaviour {
 			case elevator.EB_Moving:
 				fmt.Println("eb moving")
-				fmt.Println("DIRECTION:  ",elevator.ElevatorBehaviour(localElevator.Dirn))
+				fmt.Println("DIRECTION:  ",elevator.ElevDirnToString(localElevator.Dirn))
+				floor := -1
+				select {
+					case floor = <-ch_arrivalFloor:
+						localElevator.Floor = floor
+				default:
+					//NOP
+				}
+				if requests.ShouldStop(&localElevator) && floor != -1 {
+					elevator_io.SetMotorDirection(elevator_io.MD_Stop)
+					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
+					elevator_io.SetDoorOpenLamp(true)
+					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
+					localElevator.Behaviour = elevator.EB_DoorOpen
+				}
 				//NOP
 			case elevator.EB_DoorOpen:
 				if requests.Here(&localElevator) && (localElevator.Dirn == elevator_io.MD_Stop) {
