@@ -1,7 +1,6 @@
 package fsm
 
 import (
-	"fmt"
 	"src/config"
 	"src/elevator"
 	"src/elevator_io"
@@ -46,26 +45,6 @@ func FSM(
 
 			switch localElevator.Behaviour {
 			case elevator.EB_Moving:
-				fmt.Println("eb moving")
-				fmt.Println("DIRECTION:  ",elevator.ElevDirnToString(localElevator.Dirn))
-				floor := -1
-				select {
-					case floor = <-ch_arrivalFloor:
-						fmt.Println("STATE WAS MOVING. READ NEW FLOOR")
-						localElevator.Floor = floor
-					default:
-						fmt.Println("STATE WAS MOVING. DID NOTHING")
-
-					//NOP
-				}
-				if requests.ShouldStop(&localElevator) && floor != -1 {
-					fmt.Println("STATE WAS MOVINVG, BUT NOW STOPED TO CLEAR ORDER. FLOOR is:", localElevator.Floor)
-					elevator_io.SetMotorDirection(elevator_io.MD_Stop)
-					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
-					elevator_io.SetDoorOpenLamp(true)
-					doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-					localElevator.Behaviour = elevator.EB_DoorOpen
-				}
 				//NOP
 			case elevator.EB_DoorOpen:
 				if requests.Here(&localElevator) && (localElevator.Dirn == elevator_io.MD_Stop) {
