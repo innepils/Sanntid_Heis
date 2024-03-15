@@ -2,7 +2,14 @@
 
 The project runs **n** elevator in parallell across **m** floors using a peer to peer network and udp broadcasting.
 
-## Setting up and running the project
+## Prerequisites
+The program is meant to be run using Linux, which must be done to ensure correct functionality. With small modifications the application can be expanded to work on all platforms. 
+
+The project is built using Go, which needs to be installed to compile and run the project. The latest version of Go can be installed from [the official Go website](https://go.dev/dl/).
+
+
+
+## Usage
 
 The main program is run using run.sh while in it's directory.
 Before running, set the permissions using
@@ -49,6 +56,10 @@ The FSM is event-driven, and after initializing the local elevator it checks for
  - Door timer timed out
  - Door obstructed
  - Stop-button pressed
+
+- Arrival at new floor
+- Recieved request from assigner
+-
 
 ### Hall Request Assigner
 
