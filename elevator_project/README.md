@@ -20,7 +20,7 @@ then run the main program with
 ./run.sh
 ```
 
-To exit, close the terminal by holding down ctrl+c. 
+The program will restart immediately if terminated using ctrl+c. In order to fully stop the running program, close the terminal or keep holding ctrl+x. 
 
 ## Module descriptions
 
@@ -72,7 +72,7 @@ Information can be found [here](https://github.com/TTK4145/Project-resources/tre
 
 
 ### Network
-The network-module consists of the handed out modules which includes [bcast](#bcast) for sending and transmitting, [conn](#conn) for establishing the UDP connections, [localip](#localip) for finding the nodes local IP and [peers](#peers) to detect other peers on the network. We have expanded the functionality in [peers](#peers) to read the heartbeat and send a map of the external elevators to be used in [cost](#cost). 
+The network-module consists of the handed out modules which includes [bcast](#bcast) for transmitting and recieving messages, [conn](#conn) for establishing the UDP connections, [localip](#localip) for finding the nodes local IP and [peers](#peers) to detect other peers on the network. We have expanded the functionality in [peers](#peers) to read the heartbeat and send a map of the external elevators to be used in [cost](#cost). 
 
 #### Heartbeat
 This last networking module sets up the struct which is continuously broadcasted to the network, containing information about new hall requests and state from [assigner](#assigner) each local elevator. 
