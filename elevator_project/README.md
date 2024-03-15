@@ -38,6 +38,8 @@ This saves the local cab calls to file and also supports extracting it from file
 
 This package contains variables (system specifics) to be used by other packages. This makes them easily to access, as well as easy to modify if the user wishes to change some system specifics.
 
+The package also contains two functions that determines the nodes personal ID and port.
+
 ### Cost
 
 This utilizes the "[HallRequestAssigner](#hall-request-assigner)" to calculate witch requests our local elevator should serve.
