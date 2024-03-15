@@ -34,13 +34,17 @@ The assigner assigns requests to the local elevator. To do this it keeps track o
 
 This saves the local cab calls to file and also supports extracting it from file again.
 
+### Config
+
+This package contains variables (system specifics) to be used by other packages. This makes them easily to access, as well as easy to modify if the user wishes to change some system specifics.
+
 ### Cost
 
 This utilizes the "[HallRequestAssigner](#hall-request-assigner)" to calculate witch requests our local elevator should serve.
 
-### Deadlock detector
+### Deadlock
 
-This detects if [FSM](#fsm), [assigner](#assigner), [peers](#network) or [heartbeat](#heartbeat) is stuck within a loop. If this is detected the program reboots.
+The modules only function ("Detector") detects if [FSM](#fsm), [assigner](#assigner), [peers](#network) or [heartbeat](#heartbeat) is stuck within a loop. If this is detected the program reboots.
 
 ### Elevator
 
