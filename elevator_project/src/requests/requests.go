@@ -86,8 +86,8 @@ func ChooseDirnAndBehaviour(e *elevator.Elevator) {
 	default:
 		e.Dirn = elevator_io.MD_Stop
 		e.Behaviour = elevator.EB_Idle
-	}
-}
+	} // switch
+} // ChooseDirnAndBehaviour
 
 func ShouldStop(e *elevator.Elevator) bool {
 	switch e.Dirn {
@@ -126,11 +126,13 @@ func ClearAtCurrentFloor(e *elevator.Elevator, ch_completedRequests chan<- eleva
 		ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallUp}
 		e.Requests[e.Floor][elevator_io.BT_HallDown] = false
 		ch_completedRequests <- elevator_io.ButtonEvent{BtnFloor: e.Floor, BtnType: elevator_io.BT_HallDown}
+	default:
+		// NOP
 	}
 }
 
 func AnnounceDirectionChange(e *elevator.Elevator) {
-	println("***** CHANGING DIRCETION *****")
+	println("***** CHANGING DIRECTION *****")
 	
 	if e.Dirn == elevator_io.MD_Up {
 		println("***** GOING UP *****")

@@ -48,21 +48,23 @@ func UninitializedElevator() Elevator {
 
 func GetCabRequests(elevator Elevator) []bool {
 	cabRequests := make([]bool, len(elevator.Requests))
-	for i, row := range elevator.Requests {
-		cabRequests[i] = row[len(row)-1]
+	for floor, request := range elevator.Requests {
+		cabRequests[floor] = request[elevator_io.BT_Cab]
 	}
 	return cabRequests
 }
 
 func SendLocalElevatorState(
-	id string,
-	localElevator Elevator,
-	ch_elevatorStateToAssigner chan<- map[string]HRAElevatorState,
-	ch_elevatorStateToNetwork chan<- HRAElevatorState) {
+	nodeID 						string,
+	localElevator 				Elevator,
+	ch_elevatorStateToAssigner 	chan<- map[string]HRAElevatorState,
+	ch_elevatorStateToNetwork 	chan<- HRAElevatorState,
+) {
 
-	elevatorState := ElevToHRAElevatorState(id, localElevator)
+	elevatorState := ElevToHRAElevatorState(nodeID, localElevator)
+
 	ch_elevatorStateToAssigner <- elevatorState
-	ch_elevatorStateToNetwork <- elevatorState[id]
+	ch_elevatorStateToNetwork <- elevatorState[nodeID]
 }
 
 func SetAllButtonLights(requests [config.N_FLOORS][config.N_BUTTONS]RequestType) {

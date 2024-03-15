@@ -20,22 +20,20 @@ func FSM(
 	ch_FSMDeadlock 				chan<- string,
 ) {
 
-	// Initilalize variables
-	localElevator := elevator.UninitializedElevator()
-	prevLocalElevator := localElevator
-	prevObstruction := false
-
+	localElevator 		:= elevator.UninitializedElevator()
+	prevLocalElevator 	:= localElevator
+	prevObstruction 	:= false
+	doorTimer			:= time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
+	
+	elevator_io.SetDoorOpenLamp(false)
+		
 	// If elevator is between floors, run it downwards until a floor is reached.
 	elevator_io.SetMotorDirection(elevator_io.MD_Down)
 	newFloor := <-ch_arrivalFloor
 	elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 	localElevator.Floor = newFloor
 	elevator_io.SetFloorIndicator(localElevator.Floor)
-
-	// Initialize door
-	elevator_io.SetDoorOpenLamp(false)
-	doorTimer := time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
-
+	
 	elevator.SendLocalElevatorState(nodeID, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)
 
 	// "For-Select" to supervise the different channels/events
@@ -84,8 +82,8 @@ func FSM(
 				//NOP
 			} 
 
-		// This channel "transmits" when door timeouts.
 		case <-doorTimer.C:
+			// This channel "transmits" when door timeouts.
 			switch localElevator.Behaviour {
 			case elevator.EB_Idle, elevator.EB_Moving:
 				//NOP
@@ -103,7 +101,7 @@ func FSM(
 							time.Sleep(time.Duration(config.DoorOpenDurationSec) * time.Second)
 					default:
 						//NOP
-						}
+					}
 				}
 				elevator_io.SetDoorOpenLamp(false)
 
@@ -133,7 +131,7 @@ func FSM(
 
 			case elevator.EB_DoorOpen:
 				doorTimer.Reset(time.Duration(config.DoorOpenDurationSec) * time.Second)
-			} //switch localElevator.behaviour
+			}
 		default:
 			// NOP
 		} //select

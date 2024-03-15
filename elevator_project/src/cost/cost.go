@@ -1,29 +1,29 @@
 package cost
 
 import (
-	"src/config"
-	"src/elevator"
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"src/config"
+	"src/elevator"
 )
 
 type HRAInput struct {
-	HallRequests      [config.N_FLOORS][config.N_BUTTONS - 1]bool `json:"hallRequests"`
-	StatesofElevators map[string]elevator.HRAElevatorState           `json:"states"`
+	HallRequests      [config.N_FLOORS][config.N_BUTTONS - 1]bool 	`json:"hallRequests"`
+	StatesofElevators map[string]elevator.HRAElevatorState          `json:"states"`
 }
 
 func Cost(
-	id string,
-	hallRequests [config.N_FLOORS][config.N_BUTTONS - 1]bool,
-	localElevator map[string]elevator.HRAElevatorState,
-	externalElevators []byte,
-	) [][2]bool {
+	nodeID 				string,
+	hallRequests 		[config.N_FLOORS][config.N_BUTTONS - 1]bool,
+	localElevator 		map[string]elevator.HRAElevatorState,
+	externalElevators 	[]byte,
+	) [][config.N_BUTTONS-1]bool {
 
 	input := HRAInput{
 		HallRequests: hallRequests,
 		StatesofElevators: map[string]elevator.HRAElevatorState{
-			id: localElevator[id],
+			nodeID: localElevator[nodeID],
 		},
 	}
 
@@ -45,11 +45,11 @@ func Cost(
 		fmt.Println(string(ret))
 	}
 
-	output := new(map[string][][2]bool)
+	output := new(map[string][][config.N_BUTTONS-1]bool)
 	err = json.Unmarshal(ret, &output)
 	if err != nil {
 		fmt.Println("json.Unmarshal error: ", err)
 	}
 
-	return (*output)[id]
+	return (*output)[nodeID]
 }

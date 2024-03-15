@@ -1,18 +1,18 @@
 package backup
 
 import (
-	"src/config"
-	"src/elevator"
-	"src/elevator_io"
 	"encoding/gob"
 	"fmt"
 	"os"
+	"src/config"
+	"src/elevator"
+	"src/elevator_io"
 )
 
 func SaveBackupToFile(filename string, allRequests [config.N_FLOORS][config.N_BUTTONS]elevator.RequestType) {
 	var cabRequests [config.N_FLOORS]bool
 	for floor := range allRequests {
-		if allRequests[floor][config.N_BUTTONS-1] == elevator.ConfirmedRequest {
+		if allRequests[floor][elevator_io.BT_Cab] == elevator.ConfirmedRequest {
 			cabRequests[floor] = true
 		} else {
 			cabRequests[floor] = false
@@ -32,7 +32,7 @@ func SaveBackupToFile(filename string, allRequests [config.N_FLOORS][config.N_BU
 }
 
 func LoadBackupFromFile(filename string, ch_buttonPressed chan elevator_io.ButtonEvent) {
-	var data [config.N_FLOORS]bool
+	var cabRequests [config.N_FLOORS]bool
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -41,14 +41,14 @@ func LoadBackupFromFile(filename string, ch_buttonPressed chan elevator_io.Butto
 	defer file.Close()
 
 	decoder := gob.NewDecoder(file)
-	err = decoder.Decode(&data)
+	err = decoder.Decode(&cabRequests)
 	if err != nil {
 		fmt.Println("Error decoding data from backup")
 	}
 
-	for i, element := range data {
-		if element {
-			ch_buttonPressed <- elevator_io.ButtonEvent{BtnFloor: i, BtnType: elevator_io.BT_Cab}
+	for floor, request := range cabRequests {
+		if request {
+			ch_buttonPressed <- elevator_io.ButtonEvent{BtnFloor: floor, BtnType: elevator_io.BT_Cab}
 		}
 	}
 }

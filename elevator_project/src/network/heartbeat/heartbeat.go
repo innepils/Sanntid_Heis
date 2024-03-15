@@ -27,7 +27,8 @@ func Send(
 
 	)
 
-	go func() {
+	go func() { 
+		// This updates in a "go func" due to heartbeat sleep
 		for {
 			select {
 			case newHallRequests := <-ch_hallRequestsOut:

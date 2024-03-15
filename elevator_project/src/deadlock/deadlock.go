@@ -1,8 +1,8 @@
 package deadlock
 
 import (
-	"src/config"
 	"fmt"
+	"src/config"
 	"time"
 )
 
@@ -13,7 +13,6 @@ const (
 	peersDeadlockIndex     int = 3
 )
 
-
 var deadlocks [4]time.Time
 
 func Detector(
@@ -21,10 +20,11 @@ func Detector(
 	ch_assignerDeadlock 	<-chan string,
 	ch_heartbeatDeadlock 	<-chan string,
 	ch_peersDeadlock 		<-chan string,
-) {
+){
 	for i := range deadlocks {
 		deadlocks[i] = time.Now()
 	}
+	
 	for {
 		select {
 		case <-ch_FSMDeadlock:

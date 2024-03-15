@@ -1,3 +1,6 @@
+// Package main implements the elevator project. Check README.md
+// Author: Currently disclosed
+
 package main
 
 import (
@@ -14,7 +17,7 @@ import (
 )
 
 func main() {
-	// Initialize elevator ID and port from command line: 'go run main.go -id=any_id -port=server_port'
+
 	nodeID, port := config.InitializeIDandPort()
 
 	elevator_io.Init("localhost:" + port, config.N_FLOORS)
@@ -38,7 +41,7 @@ func main() {
 	ch_elevatorStateToAssigner 	:= make(chan map[string]elevator.HRAElevatorState, 1)
 	ch_elevatorStateToNetwork 	:= make(chan elevator.HRAElevatorState, 1)
 
-	// Channels for deadlock for goroutines
+	// Channels for deadlock detector
 	ch_FSMDeadlock 				:= make(chan string, 1)
 	ch_assignerDeadlock 		:= make(chan string, 1)
 	ch_heartbeatDeadlock 		:= make(chan string, 1)
@@ -59,7 +62,6 @@ func main() {
 	go elevator_io.PollObstructionSwitch(ch_doorObstruction)
 	go elevator_io.PollStopButton(ch_stopButton)
 
-	// Finite state machine goroutine
 	go fsm.FSM(
 		nodeID,
 		ch_localRequests,
@@ -72,7 +74,6 @@ func main() {
 		ch_FSMDeadlock,
 	)
 
-	// Assigner goroutine
 	go assigner.RequestAssigner(
 		nodeID,
 		ch_buttonPressed,

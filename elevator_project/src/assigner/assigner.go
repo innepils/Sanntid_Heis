@@ -42,10 +42,10 @@ func RequestAssigner(
 			prevLocalRequests[floor][btn] = false
 		}
 	}
-	idleTimeOut = time.NewTimer(time.Duration(10) * time.Second)
+	idleTimeOut = time.NewTimer(time.Duration(config.IdleTimeOutDurationSec) * time.Second)
 
 	for {
-		ch_assignerDeadlock <- "Request Assigner Alive"
+		ch_assignerDeadlock <- "requestAssigner Alive"
 		select {
 		case buttonPressed := <-ch_buttonPressed:
 			if buttonPressed.BtnType == elevator_io.BT_Cab {
@@ -69,6 +69,7 @@ func RequestAssigner(
 			externalElevators = currentExternalElevators
 
 		case updateHallRequest := <-ch_hallRequestsIn:
+			// Hall requests recieved from the network
 			for floor := range updateHallRequest {
 				for btn := 0; btn < config.N_BUTTONS-1; btn++ {
 					switch allRequests[floor][btn] {
@@ -104,17 +105,18 @@ func RequestAssigner(
 						case elevator.ConfirmedRequest:
 							//NOP
 						}
-					}
-				}
-			}
-
+					} // switch
+				} // for btn
+			} // for floor
 		default:
 			//NOP
-		}
+		} // select
 
+		// Preparing hall requests for network and cost function
 		for floor := 0; floor < config.N_FLOORS; floor++ {
 			for btn := 0; btn < config.N_BUTTONS-1; btn++ {
 				hallRequestsOut[floor][btn] = allRequests[floor][btn]
+
 				if allRequests[floor][btn] == elevator.ConfirmedRequest {
 					hallRequests[floor][btn] = true
 				} else {
@@ -122,7 +124,10 @@ func RequestAssigner(
 				}
 			}
 		}
+
 		ch_hallRequestsOut <- hallRequestsOut
+
+		// Assigning requests for local elevator
 		assignedHallRequests := cost.Cost(id, hallRequests, localElevatorState, externalElevators)
 		for floor := 0; floor < config.N_FLOORS; floor++ {
 			copy(localRequests[floor][:2], assignedHallRequests[floor][:])
@@ -143,7 +148,7 @@ func RequestAssigner(
 			prevAllRequests = allRequests
 		}
 
-		//if an elevator is idle in more than 'IdleTimeOuutDurationSec' while there are orders, it will take them.
+		// If an elevator is idle for more than 'IdleTimeOuutDurationSec' while there are orders, it will take them.
 		if localElevatorState[id].Behavior != "idle" {
 			idleTimeOut.Reset(time.Duration(config.IdleTimeOutDurationSec) * time.Second)
 		} else {
@@ -161,6 +166,7 @@ func RequestAssigner(
 		}
 		select {
 		case <-idleTimeOut.C:
+			// Assigns all requests to local elevator
 			for floor := 0; floor < config.N_FLOORS; floor++ {
 				for btn := 0; btn < config.N_BUTTONS; btn++ {
 					if allRequests[floor][btn] == elevator.ConfirmedRequest {
@@ -174,5 +180,5 @@ func RequestAssigner(
 		default:
 			//NOP
 		}
-	}
-}
+	} // for
+} // RequestAssigner

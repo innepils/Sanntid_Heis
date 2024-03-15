@@ -1,15 +1,15 @@
 package peers
 
 import (
-	"src/config"
-	"src/elevator"
-	"src/network/conn"
-	"src/network/heartbeat"
 	"encoding/json"
 	"fmt"
 	"net"
 	"reflect"
 	"sort"
+	"src/config"
+	"src/elevator"
+	"src/network/conn"
+	"src/network/heartbeat"
 	"time"
 )
 
@@ -21,7 +21,7 @@ type PeerUpdate struct {
 
 const (
 	interval = 150 * time.Millisecond
-	timeout = 500 * time.Millisecond
+	timeout  = 500 * time.Millisecond
 )
 
 func Transmitter(port int, id string, transmitEnable <-chan bool) {
@@ -105,13 +105,12 @@ func Update(
 	alivePeers := make(map[string]elevator.HRAElevatorState)
 	var prevHallRequests [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType
 
-	// Removes 
 	for {
 		ch_peersDeadlock <- "Peers Alive"
 		select {
 		case peers := <-ch_peerUpdate:
 			for _, peer := range peers.Lost {
-				if _, ok := alivePeers[peer]; ok {
+				if _, exists := alivePeers[peer]; exists {
 					delete(alivePeers, peer)
 					AlivePeersJson, _ := json.Marshal(alivePeers)
 					ch_externalElevators <- AlivePeersJson
@@ -138,7 +137,6 @@ func Update(
 			}
 		default:
 			// NOP
-		}
-	}
-
-}
+		} // select
+	} // for
+} // Update
