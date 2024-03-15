@@ -1,8 +1,8 @@
 package cost
 
 import (
-	"driver/config"
-	"driver/elevator"
+	"src/config"
+	"src/elevator"
 	"encoding/json"
 	"fmt"
 	"os/exec"

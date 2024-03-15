@@ -1,8 +1,8 @@
 package elevator
 
 import (
-	"driver/config"
-	"driver/elevator_io"
+	"src/config"
+	"src/elevator_io"
 	"strings"
 )
 

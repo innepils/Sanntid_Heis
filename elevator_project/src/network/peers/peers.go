@@ -1,10 +1,10 @@
 package peers
 
 import (
-	"driver/config"
-	"driver/elevator"
-	"driver/network/conn"
-	"driver/network/heartbeat"
+	"src/config"
+	"src/elevator"
+	"src/network/conn"
+	"src/network/heartbeat"
 	"encoding/json"
 	"fmt"
 	"net"

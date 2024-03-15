@@ -1,16 +1,16 @@
 package main
 
 import (
-	"driver/assigner"
-	"driver/backup"
-	"driver/config"
-	"driver/deadlock"
-	"driver/elevator"
-	"driver/elevator_io"
-	"driver/fsm"
-	"driver/network/bcast"
-	"driver/network/heartbeat"
-	"driver/network/peers"
+	"src/assigner"
+	"src/backup"
+	"src/config"
+	"src/deadlock"
+	"src/elevator"
+	"src/elevator_io"
+	"src/fsm"
+	"src/network/bcast"
+	"src/network/heartbeat"
+	"src/network/peers"
 )
 
 func main() {
