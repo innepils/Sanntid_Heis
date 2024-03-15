@@ -3,6 +3,8 @@
 The project runs **n** elevator in parallell across **m** floors using a peer to peer network and udp broadcasting.
 
 ## Prerequisites
+The program is meant to be run using Linux, which must be done to ensure correct functionality. With small modifications the application can be expanded to work on all platforms. 
+
 The project is built using Go, which needs to be installed to compile and run the project. The latest version of Go can be installed from [the official Go website](https://go.dev/dl/).
 
 
