@@ -10,20 +10,20 @@ import (
 type HeartBeat struct {
 	SenderID     	string
 	HallRequests  	[config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType
-	ElevatorState 	elevator.ElevatorState
+	ElevatorState 	elevator.HRAElevatorState
 }
 
 func Send(
 	nodeID 						string,
 	ch_hallRequestsOut 		  	<-chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
-	ch_elevatorStateToNetwork	<-chan elevator.ElevatorState,
+	ch_elevatorStateToNetwork	<-chan elevator.HRAElevatorState,
 	ch_msgOut 					chan<- HeartBeat,
 	ch_heartbeatDeadlock 	  	chan<- string,
 ) {
 	var (
 		mtxLock 		sync.Mutex
 		hallRequests 	[config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType = <-ch_hallRequestsOut
-		elevatorState 	elevator.ElevatorState = <-ch_elevatorStateToNetwork
+		elevatorState 	elevator.HRAElevatorState = <-ch_elevatorStateToNetwork
 
 	)
 

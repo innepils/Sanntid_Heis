@@ -35,8 +35,8 @@ func main() {
 	ch_localRequests 			:= make(chan [config.N_FLOORS][config.N_BUTTONS]bool, 1)
 	ch_doorObstruction 			:= make(chan bool, 1)
 	ch_stopButton 				:= make(chan bool, 1)
-	ch_elevatorStateToAssigner 	:= make(chan map[string]elevator.ElevatorState, 1)
-	ch_elevatorStateToNetwork 	:= make(chan elevator.ElevatorState, 1)
+	ch_elevatorStateToAssigner 	:= make(chan map[string]elevator.HRAElevatorState, 1)
+	ch_elevatorStateToNetwork 	:= make(chan elevator.HRAElevatorState, 1)
 
 	// Channels for deadlock for goroutines
 	ch_FSMDeadlock 				:= make(chan string, 1)

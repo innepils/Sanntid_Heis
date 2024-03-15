@@ -102,7 +102,7 @@ func Update(
 	ch_peersDeadlock 	 	chan<- string,
 ){
 
-	alivePeers := make(map[string]elevator.ElevatorState)
+	alivePeers := make(map[string]elevator.HRAElevatorState)
 	var prevHallRequests [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType
 
 	// Removes 

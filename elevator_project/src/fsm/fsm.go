@@ -15,8 +15,8 @@ func FSM(
 	ch_doorObstruction 			<-chan bool,
 	ch_stopButton				<-chan bool,
 	ch_completedRequests 		chan<- elevator_io.ButtonEvent,
-	ch_elevatorStateToAssigner 	chan<- map[string]elevator.ElevatorState,
-	ch_elevatorStateToNetwork 	chan<- elevator.ElevatorState,
+	ch_elevatorStateToAssigner 	chan<- map[string]elevator.HRAElevatorState,
+	ch_elevatorStateToNetwork 	chan<- elevator.HRAElevatorState,
 	ch_FSMDeadlock 				chan<- string,
 ) {
 

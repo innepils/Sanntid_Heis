@@ -50,6 +50,12 @@ The modules only function ("Detector") detects if [FSM](#fsm), [assigner](#assig
 
 ### Elevator
 
+# Elevator Package
+
+This package defines the `Elevator` struct which holds the local elevators most important states, and is to be used by other packages, e.g. [assigner](#assigner) and [FSM](#FSM).
+
+It also holds functions for initilaizing an elevator-object, setting the button-lights (according to the nodes agreed upon requests), sending the elevator-objects state, and functions for converting data-types 
+
 ### Elevator IO
 
 Information can be found [here](https://github.com/TTK4145/driver-go).

@@ -10,24 +10,24 @@ import (
 
 type HRAInput struct {
 	HallRequests      [config.N_FLOORS][config.N_BUTTONS - 1]bool `json:"hallRequests"`
-	StatesofElevators map[string]elevator.ElevatorState           `json:"states"`
+	StatesofElevators map[string]elevator.HRAElevatorState           `json:"states"`
 }
 
 func Cost(
 	id string,
 	hallRequests [config.N_FLOORS][config.N_BUTTONS - 1]bool,
-	localElevator map[string]elevator.ElevatorState,
+	localElevator map[string]elevator.HRAElevatorState,
 	externalElevators []byte,
 	) [][2]bool {
 
 	input := HRAInput{
 		HallRequests: hallRequests,
-		StatesofElevators: map[string]elevator.ElevatorState{
+		StatesofElevators: map[string]elevator.HRAElevatorState{
 			id: localElevator[id],
 		},
 	}
 
-	var externalElevatorsDecoded map[string]elevator.ElevatorState
+	var externalElevatorsDecoded map[string]elevator.HRAElevatorState
 	json.Unmarshal(externalElevators, &externalElevatorsDecoded)
 	for key, value := range externalElevatorsDecoded {
 		input.StatesofElevators[key] = value

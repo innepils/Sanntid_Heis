@@ -14,7 +14,7 @@ func RequestAssigner(
 	id 							string,
 	ch_buttonPressed 			<-chan elevator_io.ButtonEvent,
 	ch_completedRequests		<-chan elevator_io.ButtonEvent,
-	ch_elevatorStateToAssigner 	<-chan map[string]elevator.ElevatorState,
+	ch_elevatorStateToAssigner 	<-chan map[string]elevator.HRAElevatorState,
 	ch_hallRequestsIn 			<-chan [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
 	ch_externalElevators 		<-chan []byte,
 	ch_hallRequestsOut 			chan<- [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType,
@@ -27,11 +27,11 @@ func RequestAssigner(
 		allRequests        [config.N_FLOORS][config.N_BUTTONS]elevator.RequestType
 		prevAllRequests    [config.N_FLOORS][config.N_BUTTONS]elevator.RequestType
 		prevLocalRequests  [config.N_FLOORS][config.N_BUTTONS]bool
-		emptyElevatorMap   map[string]elevator.ElevatorState
+		emptyElevatorMap   map[string]elevator.HRAElevatorState
 		hallRequestsOut    [config.N_FLOORS][config.N_BUTTONS - 1]elevator.RequestType
 		hallRequests       [config.N_FLOORS][config.N_BUTTONS - 1]bool
 		localRequests      [config.N_FLOORS][config.N_BUTTONS]bool
-		localElevatorState = map[string]elevator.ElevatorState{id: {Behavior: "idle", Floor: 1, Direction: "stop", CabRequests: []bool{false, false, false, false}}}
+		localElevatorState = map[string]elevator.HRAElevatorState{id: {Behavior: "idle", Floor: 1, Direction: "stop", CabRequests: []bool{false, false, false, false}}}
 	)
 	externalElevators, _ := json.Marshal(emptyElevatorMap)
 

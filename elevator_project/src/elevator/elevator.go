@@ -30,7 +30,7 @@ type Elevator struct {
 	Requests  [config.N_FLOORS][config.N_BUTTONS]bool
 }
 
-type ElevatorState struct {
+type HRAElevatorState struct {
 	Floor       int    `json:"floor"`
 	Direction   string `json:"direction"`
 	Behavior    string `json:"behaviour"`
@@ -57,10 +57,10 @@ func GetCabRequests(elevator Elevator) []bool {
 func SendLocalElevatorState(
 	id string,
 	localElevator Elevator,
-	ch_elevatorStateToAssigner chan<- map[string]ElevatorState,
-	ch_elevatorStateToNetwork chan<- ElevatorState) {
+	ch_elevatorStateToAssigner chan<- map[string]HRAElevatorState,
+	ch_elevatorStateToNetwork chan<- HRAElevatorState) {
 
-	elevatorState := ElevToElevatorState(id, localElevator)
+	elevatorState := ElevToHRAElevatorState(id, localElevator)
 	ch_elevatorStateToAssigner <- elevatorState
 	ch_elevatorStateToNetwork <- elevatorState[id]
 }
@@ -105,8 +105,8 @@ func ElevDirnToString(elevDirection elevator_io.MotorDirection) string {
 	}
 }
 
-func ElevToElevatorState(id string, localElevator Elevator) map[string]ElevatorState {
-	return map[string]ElevatorState{
+func ElevToHRAElevatorState(id string, localElevator Elevator) map[string]HRAElevatorState {
+	return map[string]HRAElevatorState{
 		id: {
 			Floor:       localElevator.Floor,
 			Direction:   strings.ToLower(ElevDirnToString(localElevator.Dirn)),
