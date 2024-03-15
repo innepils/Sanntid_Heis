@@ -70,10 +70,11 @@ Information can be found [here](https://github.com/TTK4145/Project-resources/tre
 ### Network
 The network-module consists of the handed out modules which includes [bcast](#bcast) for transmitting and recieving messages, [conn](#conn) for establishing the UDP connections, [localip](#localip) for finding the nodes local IP and [peers](#peers) to detect other peers on the network. We have expanded the functionality in [peers](#peers) to read the heartbeat and send a map of the external elevators to be used in [cost](#cost). 
 
-#### Heartbeat
+Most of the documentation can be found [here](https://github.com/TTK4145/Network-go).
+
+##### Heartbeat
 This last networking module sets up the struct which is continuously broadcasted to the network, containing information about new hall requests and state from [assigner](#assigner) each local elevator. 
 
-Most of the documentation can be found [here](https://github.com/TTK4145/Network-go).
 
 In the handed out peers.go we have added functionality to continuously update the alivePeers to be used in [cost](#cost). To avoid concurrency issues while reading and writing to the map both in peers and [assigner](#assigner), we serialize the maps into JSON using Marshal and Unmarshal. 
 
