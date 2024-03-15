@@ -47,6 +47,7 @@ func FSM(
 			switch localElevator.Behaviour {
 			case elevator.EB_Moving:
 				fmt.Println("eb moving")
+				fmt.Println("DIRECTION:  ",elevator.ElevatorBehaviour(localElevator.Dirn))
 				//NOP
 			case elevator.EB_DoorOpen:
 				if requests.Here(&localElevator) && (localElevator.Dirn == elevator_io.MD_Stop) {
