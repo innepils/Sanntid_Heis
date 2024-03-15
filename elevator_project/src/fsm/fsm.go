@@ -72,6 +72,7 @@ func FSM(
 			switch localElevator.Behaviour {
 			case elevator.EB_Moving:
 				if requests.ShouldStop(&localElevator) {
+					localElevator.Dirn = elevator_io.MD_Stop
 					elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
 					elevator_io.SetDoorOpenLamp(true)
