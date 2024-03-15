@@ -32,13 +32,19 @@ The assigner assigns requests to the local elevator. To do this it keeps track o
 
 This saves the local cab calls to file and also supports extracting it from file again.
 
+### Config
+
+This package contains variables (system specifics) to be used by other packages. This makes them easily to access, as well as easy to modify if the user wishes to change some system specifics.
+
+The package also contains two functions that determines the nodes personal ID and port.
+
 ### Cost
 
 This utilizes the "[HallRequestAssigner](#hall-request-assigner)" to calculate witch requests our local elevator should serve.
 
-### Deadlock detector
+### Deadlock
 
-This detects if [FSM](#fsm), [assigner](#assigner), [peers](#network) or [heartbeat](#heartbeat) is stuck within a loop. If this is detected the program reboots.
+The modules only function ("Detector") detects if [FSM](#fsm), [assigner](#assigner), [peers](#network) or [heartbeat](#heartbeat) is stuck within a loop. If this is detected the program reboots.
 
 ### Elevator
 
@@ -48,7 +54,7 @@ Information can be found [here](https://github.com/TTK4145/driver-go).
 
 ### FSM
 
-The FSM is event-driven, and after initializing the local elevator it checks for following events:
+The FSM is event-driven, and after initializing the local elevator it checks for, and acts on following events:
  - Recieved request from assigner
  - Arrival at new floor
  - Door timer timed out
@@ -74,16 +80,18 @@ This last networking module sets up the struct which is continuously broadcasted
 
 Most of the documentation can be found [here](https://github.com/TTK4145/Network-go).
 
-In the handed out peers.go we have aded functionality to continuously update the alivePeers to be used in [cost](#cost). To avoid concurrency issues while reading and writing to the map both in peers and [assigner](#assigner), we serialize the maps into JSON using Marshal and Unmarshal. 
+In the handed out peers.go we have added functionality to continuously update the alivePeers to be used in [cost](#cost). To avoid concurrency issues while reading and writing to the map both in peers and [assigner](#assigner), we serialize the maps into JSON using Marshal and Unmarshal. 
 
 ### Heartbeat
 Sets up the struct which is broadcasted to the network, containing information about new hall requests and state from [assigner](#assigner) each local elevator. 
 
 ### Requests
 
-This package is based on [this](https://github.com/TTK4145/Project-resources/blob/master/elev_algo/requests.c), but modified to fit the projects event-driven FSM. 
-The most important changes are:
-- The elevator is taken is passed-by-reference, to avoid uneccessary opying and making a duplicate ("pair") of the elvator.
-- The function ClearAtCurrentFloor was modified so that if both hall-orders at a floor is active, they are not cleared at the same time, to fulfill the project specifiactions.
+This package takes care of logic regarding local requests, giving the options of checking where the requests are, and what resulting behaviour the elevator should have. All functions take in the local elevator by using pass-by-reference.
+
+This package is based on [this](https://github.com/TTK4145/Project-resources/blob/master/elev_algo/requests.c) c-module, but translated and modified to fit the projects event-driven FSM. 
+The most important changes are that:
+- The elevator is passed-by-reference instead of making a duplicate copy.
 - The function "AnnounceDirectionChange" is added to fulfill the project specifiactions.
-- The function ClearImmidiately was removed as it was no longer needed.
+- The function "ClearAtCurrentFloor" only clears one hall-button per time, to fulfill the project specifiactions.
+- Also, "ClearImmidiately" was removed.
