@@ -56,6 +56,7 @@ func FSM(
 					//NOP
 				}
 				if requests.ShouldStop(&localElevator) && floor != -1 {
+					fmt.Println("STATE WAS MOVINVG, BUT NOW STOPED TO CLEAR ORDER. FLOOR is:", localElevator.Floor)
 					elevator_io.SetMotorDirection(elevator_io.MD_Stop)
 					requests.ClearAtCurrentFloor(&localElevator, ch_completedRequests)
 					elevator_io.SetDoorOpenLamp(true)
