@@ -27,6 +27,8 @@ The program will restart immediately if terminated using ctrl+c. In order to ful
 
 ## Module descriptions
 
+### Main
+
 ### Assigner
 The assigner assigns requests to the local elevator. To do this it keeps track of incomming button presses, locally compleded orders and status of other elevators. The assigner also has a idle time out: if there are orders and our local elevator is idle for a "long" time it takes all orders.
 
@@ -72,10 +74,10 @@ The network-module consists of the handed out modules which includes [bcast](#bc
 
 Most of the documentation can be found [here](https://github.com/TTK4145/Network-go).
 
-##### Heartbeat
+#### Heartbeat
 This last networking module sets up the struct which is continuously broadcasted to the network, containing information about new hall requests and state from [assigner](#assigner) each local elevator. 
 
-
+#### Peers
 In the handed out peers.go we have added functionality to continuously update the alivePeers to be used in [cost](#cost). To avoid concurrency issues while reading and writing to the map both in peers and [assigner](#assigner), we serialize the maps into JSON using Marshal and Unmarshal. 
 
 ### Requests
