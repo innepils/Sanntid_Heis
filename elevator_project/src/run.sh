@@ -8,6 +8,6 @@
 program="main.go"
 
 while true; do
-    go run "$program"
+    go run "$program" -port=43564
     exit_code=$?
 done
