@@ -30,7 +30,7 @@ The program will restart immediately if terminated using ctrl+c. In order to ful
 ### Main
 As you would expect, the main package sets up all the different go routines to use the other packages. This is also where the channels are defined, as they are to be used in the different go routines.
 
-Note that two channels: `ch_elevatorStateToAssigner` and `ch_elevatorStateToNetwork` are the only channels that have a greater buffer-capacity then 1, i.e. 5. The reason for this is to avoid an edge-case where
+Note that two channels: `ch_elevatorStateToAssigner` and `ch_elevatorStateToNetwork` are the only channels that have a greater buffer-capacity than 1, i.e. 5. The reason for this is that it made us able to handle a larger load.
 
 ### Assigner
 The assigner assigns requests to the local elevator. To do this it keeps track of incomming button presses, locally compleded orders and status of other elevators. The assigner also has a idle time out: if there are orders and our local elevator is idle for a "long" time it takes all orders.
@@ -69,7 +69,7 @@ The FSM is event-driven, and after initializing the local elevator it checks for
 Information can be found [here](https://github.com/TTK4145/Project-resources/tree/master/cost_fns/hall_request_assigner).
 
 ### Network
-The network-module consists of the handed out modules which includes [bcast](#bcast) for transmitting and recieving messages, [conn](#conn) for establishing the UDP connections, [localip](#localip) for finding the nodes local IP and [peers](#peers) to detect other peers on the network.
+The network-module consists of the handed out modules which includes [bcast](#bcast) for transmitting and recieving messages, [conn](#conn) for establishing the UDP connections, [localip](#localip) for finding the nodes local IP and [peers](#peers) to detect other peers on the network. We have expanded the functionality in [peers](#peers) to read the heartbeat and send a map of the external elevators to be used in [cost](#cost). 
 
 Most of the documentation can be found [here](https://github.com/TTK4145/Network-go).
 
@@ -77,7 +77,7 @@ Most of the documentation can be found [here](https://github.com/TTK4145/Network
 This last networking module sets up the struct which is continuously broadcasted to the network, containing information about new hall requests and state from [assigner](#assigner) each local elevator. 
 
 #### Peers
-We have expanded the functionality in the handed out [peers](#peers) to read the heartbeat and continuously update a map of the external elevators to be used in [cost](#cost). To avoid concurrency issues while reading and writing to the map both in peers and [assigner](#assigner), we serialize the maps into JSON using Marshal and Unmarshal. 
+In the handed out peers.go we have added functionality to continuously update the alivePeers to be used in [cost](#cost). To avoid concurrency issues while reading and writing to the map both in peers and [assigner](#assigner), we serialize the maps into JSON using Marshal and Unmarshal. 
 
 ### Requests
 This package takes care of logic regarding local requests, giving the options of checking where the requests are, and what resulting behaviour the elevator should have. All functions take in the local elevator by using pass-by-reference.
