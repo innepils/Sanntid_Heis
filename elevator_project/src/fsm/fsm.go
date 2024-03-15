@@ -1,6 +1,7 @@
 package fsm
 
 import (
+	"fmt"
 	"src/config"
 	"src/elevator"
 	"src/elevator_io"
@@ -26,7 +27,7 @@ func FSM(
 	doorTimer			:= time.NewTimer(time.Duration(config.DoorOpenDurationSec) * time.Second)
 	
 	elevator_io.SetDoorOpenLamp(false)
-		
+
 	// If elevator is between floors, run it downwards until a floor is reached.
 	elevator_io.SetMotorDirection(elevator_io.MD_Down)
 	newFloor := <-ch_arrivalFloor
@@ -45,6 +46,7 @@ func FSM(
 
 			switch localElevator.Behaviour {
 			case elevator.EB_Moving:
+				fmt.Println("eb moving")
 				//NOP
 			case elevator.EB_DoorOpen:
 				if requests.Here(&localElevator) && (localElevator.Dirn == elevator_io.MD_Stop) {
@@ -135,7 +137,6 @@ func FSM(
 		default:
 			// NOP
 		} //select
-
 		if prevLocalElevator != localElevator {
 			prevLocalElevator = localElevator
 			elevator.SendLocalElevatorState(nodeID, localElevator, ch_elevatorStateToAssigner, ch_elevatorStateToNetwork)

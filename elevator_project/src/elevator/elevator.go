@@ -60,9 +60,7 @@ func SendLocalElevatorState(
 	ch_elevatorStateToAssigner 	chan<- map[string]HRAElevatorState,
 	ch_elevatorStateToNetwork 	chan<- HRAElevatorState,
 ) {
-
 	elevatorState := ElevToHRAElevatorState(nodeID, localElevator)
-
 	ch_elevatorStateToAssigner <- elevatorState
 	ch_elevatorStateToNetwork <- elevatorState[nodeID]
 }

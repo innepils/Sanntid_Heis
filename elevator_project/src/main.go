@@ -38,8 +38,8 @@ func main() {
 	ch_localRequests 			:= make(chan [config.N_FLOORS][config.N_BUTTONS]bool, 1)
 	ch_doorObstruction 			:= make(chan bool, 1)
 	ch_stopButton 				:= make(chan bool, 1)
-	ch_elevatorStateToAssigner 	:= make(chan map[string]elevator.HRAElevatorState, 1)
-	ch_elevatorStateToNetwork 	:= make(chan elevator.HRAElevatorState, 1)
+	ch_elevatorStateToAssigner 	:= make(chan map[string]elevator.HRAElevatorState, 5)
+	ch_elevatorStateToNetwork 	:= make(chan elevator.HRAElevatorState, 5)
 
 	// Channels for deadlock detector
 	ch_FSMDeadlock 				:= make(chan string, 1)
