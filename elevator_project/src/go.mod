@@ -1,3 +1,3 @@
-module driver
+module src
 
 go 1.16

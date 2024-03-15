@@ -1,8 +1,8 @@
 package heartbeat
 
 import (
-	"driver/config"
-	"driver/elevator"
+	"src/config"
+	"src/elevator"
 	"sync"
 	"time"
 )

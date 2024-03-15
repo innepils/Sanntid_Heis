@@ -1,12 +1,12 @@
 package assigner
 
 import (
-	"driver/backup"
-	"driver/config"
-	"driver/cost"
-	"driver/elevator"
-	"driver/elevator_io"
 	"encoding/json"
+	"src/backup"
+	"src/config"
+	"src/cost"
+	"src/elevator"
+	"src/elevator_io"
 	"time"
 )
 

@@ -1,10 +1,10 @@
 package fsm
 
 import (
-	"driver/config"
-	"driver/elevator"
-	"driver/elevator_io"
-	"driver/requests"
+	"src/config"
+	"src/elevator"
+	"src/elevator_io"
+	"src/requests"
 	"time"
 )
 

@@ -1,34 +1,34 @@
 # Elevator Project
 
-The project runs **n** elevator in parallell across **m** floors using a peer to peer network and udp broadcasting.
+The project runs **n** elevators in parallell across **m** floors using a peer to peer network and UDP broadcasting.
 
 ## Prerequisites
-The program is meant to be run using Linux, which must be done to ensure correct functionality. With small modifications the application can be expanded to work on all platforms. 
+The program is meant to be run using Linux, which must be done to ensure correct functionality. With small modifications it can be expanded to work on all platforms. 
 
-The project is built using Go, which needs to be installed to compile and run the project. The latest version of Go can be installed from [the official Go website](https://go.dev/dl/).
-
-
+The project is built using Go, which needs to be installed to compile and run the program. The latest version of Go can be installed from [the official Go website](https://go.dev/dl/).
 
 ## Usage
 
 The main program is run using run.sh while in it's directory.
 Before running, set the permissions using
+
 ```
 chmod +x run.sh
 ```
+
 then run the main program with
 
 ```
 ./run.sh
 ```
 
-To exit, close the terminal by holding down ctrl+c. 
+The program will restart immediately if terminated using ctrl+c. In order to fully stop the running program, close the terminal or keep holding ctrl+x. 
 
 ## Module descriptions
 
 ### Assigner
 
-The assigner assigns requests to the local elevator. To do this it keeps track of incomming button presses, locally compleded orders and status of other elevators. It also has idle time out, if there are orders and our local elevator is idle for a "long" time it takes all orders.
+The assigner assigns requests to the local elevator. To do this it keeps track of incomming button presses, locally compleded orders and status of other elevators. The assigner also has a idle time out: if there are orders and our local elevator is idle for a "long" time it takes all orders.
 
 ### Backup
 
@@ -77,10 +77,13 @@ The FSM is event-driven, and after initializing the local elevator it checks for
 
 Information can be found [here](https://github.com/TTK4145/Project-resources/tree/master/cost_fns/hall_request_assigner).
 
-### Heartbeat
-Sets up the struct which is broadcasted to the network, containing information about new hall requests and state from [assigner](#assigner) each local elevator. 
+
 
 ### Network
+The network-module consists of the handed out modules which includes [bcast](#bcast) for transmitting and recieving messages, [conn](#conn) for establishing the UDP connections, [localip](#localip) for finding the nodes local IP and [peers](#peers) to detect other peers on the network. We have expanded the functionality in [peers](#peers) to read the heartbeat and send a map of the external elevators to be used in [cost](#cost). 
+
+#### Heartbeat
+This last networking module sets up the struct which is continuously broadcasted to the network, containing information about new hall requests and state from [assigner](#assigner) each local elevator. 
 
 Most of the documentation can be found [here](https://github.com/TTK4145/Network-go).
 

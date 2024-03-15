@@ -1,7 +1,7 @@
 package deadlock
 
 import (
-	"driver/config"
+	"src/config"
 	"fmt"
 	"time"
 )

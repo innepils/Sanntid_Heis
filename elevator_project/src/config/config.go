@@ -1,7 +1,7 @@
 package config
 
 import (
-	"driver/network/localip"
+	"src/network/localip"
 	"flag"
 	"fmt"
 	"os"
