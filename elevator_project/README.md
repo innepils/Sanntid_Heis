@@ -24,6 +24,8 @@ then run the main program with
 
 The program will restart immediately if terminated using ctrl+c. In order to fully stop the running program, close the terminal or keep holding ctrl+x. 
 
+*Note: If you want to manually input id and port when running the program, you can use 'go run main.go -id=any_id -port=elevator_port' in the command line. However, with the current implementation this will reduce redundancy compared to using run.sh'.*
+
 ## Module descriptions
 
 ### Assigner
