@@ -51,8 +51,11 @@ func FSM(
 				floor := -1
 				select {
 					case floor = <-ch_arrivalFloor:
+						fmt.Println("STATE WAS MOVING. READ NEW FLOOR")
 						localElevator.Floor = floor
-				default:
+					default:
+						fmt.Println("STATE WAS MOVING. DID NOTHING")
+
 					//NOP
 				}
 				if requests.ShouldStop(&localElevator) && floor != -1 {
